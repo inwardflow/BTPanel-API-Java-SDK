@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="warning"/>
+    <property name="fileExtensions" value="java, properties, xml"/>
+    
+    <!-- 检查文件的头部信息，确保版权信息和创建者信息 -->
+    <module name="Header">
+        <property name="headerFile" value="${checkstyle.header.file}"/>
+        <property name="fileExtensions" value="java"/>
+        <property name="ignoreMissingHeader" value="true"/>
+    </module>
+
+    <!-- 检查文件长度，限制在2000行以内 -->
+    <module name="FileLength">
+        <property name="max" value="2000"/>
+    </module>
+
+    <!-- 检查文件命名规范，确保符合驼峰命名法 -->
+    <module name="TypeName">
+        <property name="severity" value="warning"/>
+    </module>
+
+    <!-- 检查代码缩进，确保使用空格而非制表符 -->
+    <module name="Indentation">
+        <property name="basicOffset" value="4"/>
+        <property name="tabWidth" value="4"/>
+        <property name="severity" value="warning"/>
+    </module>
+
+    <!-- 检查导入语句 -->
+    <module name="ImportOrder">
+        <property name="groups" value="java, javax, org, com, cn, net"/>
+        <property name="ordered" value="true"/>
+        <property name="separated" value="true"/>
+        <property name="caseSensitive" value="false"/>
+    </module>
+    
+    <module name="RedundantImport"/>
+    <module name="UnusedImports"/>
+
+    <!-- 检查代码块 -->
+    <module name="LeftCurly"/>
+    <module name="RightCurly"/>
+    <module name="RightCurly"/>
+    <module name="NeedBraces"/>
+
+    <!-- 检查修饰符顺序 -->
+    <module name="ModifierOrder"/>
+
+    <!-- 检查注释 -->
+    <module name="JavadocMethod">
+        <property name="scope" value="public"/>
+        <property name="allowMissingThrowsTags" value="true"/>
+    </module>
+    
+    <module name="JavadocType"/>
+    
+    <!-- 检查变量命名 -->
+    <module name="MemberName"/>
+    <module name="ParameterName"/>
+    <module name="LocalVariableName"/>
+    <module name="ConstantName"/>
+
+    <!-- 检查方法名 -->
+    <module name="MethodName"/>
+
+    <!-- 检查数组定义 -->
+    <module name="ArrayTypeStyle"/>
+
+    <!-- 检查多余的空行 -->
+    <module name="EmptyLineSeparator">
+        <property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>
+    </module>
+
+    <!-- 检查代码中的潜在问题 -->
+    <module name="InnerAssignment"/>
+    <module name="HiddenField">
+        <property name="ignoreSetter" value="true"/>
+        <property name="ignoreConstructorParameter" value="true"/>
+    </module>
+    <module name="MagicNumber">
+        <property name="severity" value="warning"/>
+        <property name="ignoreNumbers" value="-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000"/>
+        <property name="ignoreHashCodeMethod" value="true"/>
+    </module>
+    <module name="UpperEll"/>
+    <module name="GenericWhitespace"/>
+    <module name="WhitespaceAfter"/>
+    <module name="WhitespaceAround"/>
+    <module name="SingleSpaceSeparator"/>
+    <module name="NoWhitespaceAfter"/>
+    <module name="NoWhitespaceBefore"/>
+    <module name="OneStatementPerLine"/>
+    
+    <!-- 检查字符串拼接，推荐使用StringBuilder -->
+    <module name="StringConcatenation"/>
+    
+    <!-- 检查多余的括号 -->
+    <module name="UnnecessaryParentheses"/>
+
+    <!-- 检查方法的Cognitive Complexity -->
+    <module name="CognitiveComplexity">
+        <property name="max" value="15"/>
+    </module>
+    
+    <!-- 排除特定路径 -->
+    <module name="SuppressionFilter">
+        <property name="file" value="${checkstyle.suppressions.file}"/>
+        <property name="optional" value="true"/>
+    </module>
+
+    <!-- 配置树的底部 -->
+</module>

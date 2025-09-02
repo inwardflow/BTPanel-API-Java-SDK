@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD Suppressions 1.3//EN"
+        "https://checkstyle.org/dtds/suppressions_1_3.dtd">
+
+<suppressions>
+    <!-- 排除测试类中的某些检查 -->
+    <suppress checks="MagicNumber" files="src/test/java/net/heimeng/test/.*"/>
+    <suppress checks="JavadocMethod" files="src/test/java/net/heimeng/test/.*"/>
+    
+    <!-- 排除Example类中的某些检查，因为这是示例类 -->
+    <suppress checks="JavadocMethod" files="src/main/java/net/heimeng/sdk/btapi/Example.java"/>
+    <suppress checks="CognitiveComplexity" files="src/main/java/net/heimeng/sdk/btapi/Example.java"/>
+    
+    <!-- 排除Main类中的某些检查，因为这是入口类 -->
+    <suppress checks="JavadocMethod" files="src/main/java/net/heimeng/Main.java"/>
+    
+    <!-- 允许在常量中使用数字 -->
+    <suppress checks="MagicNumber" files="src/main/java/net/heimeng/sdk/btapi/BTApiFactory.java"/>
+    
+    <!-- 排除第三方工具生成的代码 -->
+    <suppress checks=".*" files="target/.*"/>
+</suppressions>
