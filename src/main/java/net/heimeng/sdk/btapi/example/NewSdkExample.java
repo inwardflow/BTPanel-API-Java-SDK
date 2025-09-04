@@ -61,18 +61,16 @@ public class NewSdkExample {
         // 推荐在实际使用时通过环境变量设置这些值
         String baseUrl = getEnvOrDefault("BT_PANEL_URL", "http://your-bt-panel-url:8888");
         String apiKey = getEnvOrDefault("BT_PANEL_API_KEY", "your-api-key");
-        String apiToken = getEnvOrDefault("BT_PANEL_API_TOKEN", "your-api-token");
 
         // 检查是否使用了默认值（用于演示环境）
         if (apiKey.equals("your-api-key")) {
             log.warn("正在使用默认API密钥，请在生产环境中通过环境变量设置实际的密钥");
             log.warn("示例: export BT_PANEL_URL=\"http://your-bt-panel-url:8888\"");
             log.warn("       export BT_PANEL_API_KEY=\"your-actual-api-key\"");
-            log.warn("       export BT_PANEL_API_TOKEN=\"your-actual-api-token\"");
         }
 
         // 创建客户端
-        BtClient client = BtClientFactory.createClient(baseUrl, apiKey, apiToken);
+        BtClient client = BtClientFactory.createClient(baseUrl, apiKey);
         
         // 添加日志拦截器
         client.addInterceptor(new LoggingInterceptor());
@@ -167,7 +165,6 @@ public class NewSdkExample {
             BtConfig config = BtClientFactory.configBuilder()
                     .baseUrl(getEnvOrDefault("BT_PANEL_URL", "http://your-bt-panel-url:8888"))
                     .apiKey(getEnvOrDefault("BT_PANEL_API_KEY", "your-api-key"))
-                    .apiToken(getEnvOrDefault("BT_PANEL_API_TOKEN", "your-api-token"))
                     .connectTimeout(15) // 连接超时15秒
                     .readTimeout(45)   // 读取超时45秒
                     .retryCount(5)     // 重试5次

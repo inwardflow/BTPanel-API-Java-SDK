@@ -31,7 +31,6 @@ public class DefaultBtConfig implements BtConfig {
     // 基本配置
     private final String baseUrl;
     private final String apiKey;
-    private final String apiToken;
 
     // 超时配置，默认值
     @lombok.Builder.Default
@@ -62,8 +61,8 @@ public class DefaultBtConfig implements BtConfig {
      */
     @Override
     public boolean isValid() {
-        return validateBaseUrl() && validateApiKey() && validateApiToken()
-                && validateTimeouts() && validateRetrySettings();
+        return validateBaseUrl() && validateApiKey() && validateTimeouts()
+                && validateRetrySettings();
     }
 
     private boolean validateBaseUrl() {
@@ -90,14 +89,6 @@ public class DefaultBtConfig implements BtConfig {
         return true;
     }
 
-    private boolean validateApiToken() {
-        if (apiToken == null || apiToken.trim().isEmpty()) {
-            log.warn("API Token is required but was null or empty.");
-            return false;
-        }
-        return true;
-    }
-
     private boolean validateTimeouts() {
         if (connectTimeout < 0 || readTimeout < 0) {
             log.warn("Timeout values must be non-negative. connectTimeout={}, readTimeout={}", connectTimeout, readTimeout);
@@ -118,7 +109,6 @@ public class DefaultBtConfig implements BtConfig {
     DefaultBtConfig(
             String baseUrl,
             String apiKey,
-            String apiToken,
             int connectTimeout,
             TimeUnit connectTimeoutUnit,
             int readTimeout,
@@ -130,7 +120,6 @@ public class DefaultBtConfig implements BtConfig {
 
         this.baseUrl = baseUrl;
         this.apiKey = apiKey;
-        this.apiToken = apiToken;
         this.connectTimeout = connectTimeout;
         this.connectTimeoutUnit = Objects.requireNonNull(connectTimeoutUnit, "connectTimeoutUnit must not be null");
         this.readTimeout = readTimeout;

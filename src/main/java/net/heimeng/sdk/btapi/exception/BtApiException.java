@@ -22,7 +22,7 @@ public class BtApiException extends RuntimeException {
     private final Object errorData;
 
     /**
-     * 构造函数，创建一个新的BTApiException实例
+     * 构造函数，创建一个新的BtApiException实例
      * 
      * @param message 错误消息
      */
@@ -31,7 +31,7 @@ public class BtApiException extends RuntimeException {
     }
     
     /**
-     * 构造函数，创建一个新的BTApiException实例
+     * 构造函数，创建一个新的BtApiException实例
      * 
      * @param message 错误消息
      * @param cause 原始异常
@@ -41,7 +41,7 @@ public class BtApiException extends RuntimeException {
     }
     
     /**
-     * 构造函数，创建一个新的BTApiException实例
+     * 构造函数，创建一个新的BtApiException实例
      * 
      * @param message 错误消息
      * @param cause 原始异常
@@ -52,7 +52,7 @@ public class BtApiException extends RuntimeException {
     }
     
     /**
-     * 完整的构造函数，创建一个新的BTApiException实例
+     * 完整的构造函数，创建一个新的BtApiException实例
      * 
      * @param message 错误消息
      * @param cause 原始异常

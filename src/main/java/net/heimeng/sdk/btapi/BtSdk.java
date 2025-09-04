@@ -25,7 +25,7 @@ import java.util.Optional;
  * 宝塔SDK，封装了与宝塔面板API交互的方法，提供简单易用的接口来管理宝塔Linux面板。
  * <p>
  * 该类采用单例模式设计，确保在应用程序中只有一个BtSdk实例。
- * 使用前必须通过{@link #initSdk(String, String, String)}方法进行初始化。
+ * 使用前必须通过{@link #initSdk(String, String)}方法进行初始化。
  * </p>
  *
  * @author InwardFlow
@@ -52,11 +52,10 @@ public class BtSdk {
      * 
      * @param baseUrl 宝塔面板地址
      * @param apiKey API密钥
-     * @param apiToken API令牌
      * @param config SDK配置
      * @throws IllegalArgumentException 当参数为空或格式不正确时抛出
      */
-    private BtSdk(@NonNull String baseUrl, @NonNull String apiKey, @NonNull String apiToken, @NonNull BtSdkConfig config) {
+    private BtSdk(@NonNull String baseUrl, @NonNull String apiKey, @NonNull BtSdkConfig config) {
         // 参数验证
         validateBaseUrl(baseUrl);
         validateApiKey(apiKey);
@@ -64,7 +63,7 @@ public class BtSdk {
         this.baseUrl = baseUrl;
         this.apiKey = apiKey;
         this.config = config;
-        this.btPanel = new BtPanel(baseUrl, apiKey, apiToken, config);
+        this.btPanel = new BtPanel(baseUrl, apiKey, config);
         
         log.info("BtSdk initialized with base URL: {}", BtUtils.maskUrl(baseUrl));
     }
@@ -78,7 +77,7 @@ public class BtSdk {
      */
     @Deprecated
     public BtSdk(String baseUrl, String apiKey) {
-        this(baseUrl, apiKey, "", BtSdkConfig.defaultConfig());
+        this(baseUrl, apiKey, BtSdkConfig.defaultConfig());
     }
 
     /**
@@ -116,12 +115,11 @@ public class BtSdk {
      * 
      * @param baseUrl 宝塔面板地址
      * @param apiKey API密钥
-     * @param apiToken API令牌
      * @return BtSdk实例
      * @throws IllegalArgumentException 当参数为空或无效时抛出
      */
-    public static BtSdk initSdk(String baseUrl, String apiKey, String apiToken) {
-        return initSdk(baseUrl, apiKey, apiToken, BtSdkConfig.defaultConfig());
+    public static BtSdk initSdk(String baseUrl, String apiKey) {
+        return initSdk(baseUrl, apiKey, BtSdkConfig.defaultConfig());
     }
     
     /**
@@ -129,12 +127,11 @@ public class BtSdk {
      * 
      * @param baseUrl 宝塔面板地址
      * @param apiKey API密钥
-     * @param apiToken API令牌
      * @param config 自定义SDK配置
      * @return BtSdk实例
      * @throws IllegalArgumentException 当参数为空或无效时抛出
      */
-    public static BtSdk initSdk(String baseUrl, String apiKey, String apiToken, BtSdkConfig config) {
+    public static BtSdk initSdk(String baseUrl, String apiKey, BtSdkConfig config) {
         Objects.requireNonNull(config, "Configuration cannot be null");
         
         if (baseUrl == null || baseUrl.trim().isEmpty()) {
@@ -148,7 +145,7 @@ public class BtSdk {
         if (instance == null) {
             synchronized (BtSdk.class) {
                 if (instance == null) {
-                    instance = new BtSdk(baseUrl, apiKey, apiToken, config);
+                    instance = new BtSdk(baseUrl, apiKey, config);
                 }
             }
         } else {

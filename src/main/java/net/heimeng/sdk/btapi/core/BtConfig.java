@@ -71,13 +71,6 @@ public interface BtConfig {
     String getApiKey();
 
     /**
-     * 获取API令牌
-     *
-     * @return API令牌，不能为空
-     */
-    String getApiToken();
-
-    /**
      * 获取连接超时时间
      *
      * @return 连接超时时间，单位由 {@link #getConnectTimeoutUnit()} 指定，默认为10
@@ -189,7 +182,6 @@ public interface BtConfig {
     class Builder {
         private String baseUrl;
         private String apiKey;
-        private String apiToken;
         private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
         private TimeUnit connectTimeoutUnit = DEFAULT_CONNECT_TIMEOUT_UNIT;
         private int readTimeout = DEFAULT_READ_TIMEOUT;
@@ -206,11 +198,6 @@ public interface BtConfig {
 
         public Builder apiKey(String apiKey) {
             this.apiKey = apiKey;
-            return this;
-        }
-
-        public Builder apiToken(String apiToken) {
-            this.apiToken = apiToken;
             return this;
         }
 
@@ -258,7 +245,7 @@ public interface BtConfig {
 
         public BtConfig build() {
             return new DefaultBtConfig(
-                    baseUrl, apiKey, apiToken,
+                    baseUrl, apiKey,
                     connectTimeout, connectTimeoutUnit,
                     readTimeout, readTimeoutUnit,
                     retryCount, retryInterval,

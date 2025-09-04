@@ -33,14 +33,12 @@ public class BtClientFactory {
      *
      * @param baseUrl 宝塔面板的基础URL
      * @param apiKey API密钥
-     * @param apiToken API令牌
      * @return BtClient实例
      */
-    public static BtClient createClient(String baseUrl, String apiKey, String apiToken) {
+    public static BtClient createClient(String baseUrl, String apiKey) {
         DefaultBtConfig config = DefaultBtConfig.builder()
                 .baseUrl(baseUrl)
                 .apiKey(apiKey)
-                .apiToken(apiToken)
                 .build();
         return createClient(config);
     }
@@ -66,6 +64,6 @@ public class BtClientFactory {
     @Deprecated
     public static BtClient createDefaultClient() {
         log.warn("Creating default client, which is for testing purposes only. Please provide valid connection information in production.");
-        return createClient("http://localhost:8888", "default_api_key", "default_api_token");
+        return createClient("http://localhost:8888", "default_api_key");
     }
 }

@@ -199,7 +199,6 @@ public class BtClientFactory {
 public class BtConfig {
     private String baseUrl;
     private String apiKey;
-    private String apiToken;
     private int connectTimeout = 10_000;
     private int readTimeout = 30_000;
     private int writeTimeout = 30_000;
@@ -351,12 +350,11 @@ public class BTSDK {
     private static final Object lock = new Object();
     
     // 原有方法保留，内部使用新的客户端实现
-    public static BTSDK initSDK(String baseUrl, String apiKey, String apiToken) {
+    public static BTSDK initSDK(String baseUrl, String apiKey) {
         // 内部创建BtClient并初始化
         BtConfig config = new BtConfig.Builder()
             .baseUrl(baseUrl)
             .apiKey(apiKey)
-            .apiToken(apiToken)
             .build();
         
         internalClient = BtClientFactory.createClient(config);

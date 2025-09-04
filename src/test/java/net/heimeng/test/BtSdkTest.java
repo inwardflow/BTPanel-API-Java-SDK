@@ -49,7 +49,7 @@ public class BtSdkTest {
     @DisplayName("测试Sdk初始化 - 默认配置")
     public void testSdkInit_DefaultConfig() {
         // 初始化Sdk
-        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, "");
+        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY);
         BtSdk instance = BtSdk.getInstance();
 
         // 验证实例不为空
@@ -69,7 +69,7 @@ public class BtSdkTest {
                 .build();
 
         // 使用自定义配置初始化Sdk
-        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, "", customConfig);
+        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, customConfig);
         BtSdk instance = BtSdk.getInstance();
 
         // 验证实例不为空
@@ -83,17 +83,17 @@ public class BtSdkTest {
     public void testSdkInit_NullParamsValidation() {
         // 测试空baseUrl
         assertThrows(IllegalArgumentException.class, () -> {
-            BtSdk.initSdk(null, TEST_API_KEY, "");
+            BtSdk.initSdk(null, TEST_API_KEY);
         });
 
         // 测试空apiKey
         assertThrows(IllegalArgumentException.class, () -> {
-            BtSdk.initSdk(TEST_BASE_URL, null, "");
+            BtSdk.initSdk(TEST_BASE_URL, null);
         });
 
         // 测试空baseUrl和apiKey
         assertThrows(IllegalArgumentException.class, () -> {
-            BtSdk.initSdk(null, null, "");
+            BtSdk.initSdk(null, null);
         });
     }
 
@@ -102,12 +102,12 @@ public class BtSdkTest {
     public void testSdkInit_EmptyStringParamsValidation() {
         // 测试空字符串baseUrl
         assertThrows(IllegalArgumentException.class, () -> {
-            BtSdk.initSdk("", TEST_API_KEY, "");
+            BtSdk.initSdk("", TEST_API_KEY);
         });
 
         // 测试空字符串apiKey
         assertThrows(IllegalArgumentException.class, () -> {
-            BtSdk.initSdk(TEST_BASE_URL, "", "");
+            BtSdk.initSdk(TEST_BASE_URL, "");
         });
     }
 
@@ -116,7 +116,7 @@ public class BtSdkTest {
     public void testSdkInit_InvalidUrlFormatValidation() {
         // 测试无效的URL格式
         assertThrows(IllegalArgumentException.class, () -> {
-            BtSdk.initSdk("invalid-url", TEST_API_KEY, "");
+            BtSdk.initSdk("invalid-url", TEST_API_KEY);
         });
     }
 
@@ -124,14 +124,14 @@ public class BtSdkTest {
     @DisplayName("测试重置Sdk实例")
     public void testResetSdk() {
         // 初始化Sdk
-        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, "");
+        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY);
         BtSdk instance1 = BtSdk.getInstance();
 
         // 重置Sdk
         BtSdk.reset();
 
         // 重新初始化Sdk
-        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, "");
+        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY);
         BtSdk instance2 = BtSdk.getInstance();
 
         // 验证重置后获取的是新实例
@@ -152,7 +152,7 @@ public class BtSdkTest {
     @DisplayName("测试获取系统总览信息 - 模拟成功响应")
     public void testGetSystemTotal_Success() throws BtApiException {
         // 初始化Sdk
-        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, "");
+        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY);
 
         // 创建模拟响应
         String mockResponse = "{\"status\":true,\"msg\":\"success\",\"data\":{\"cpu\":{\"percent\":10},\"memory\":{\"percent\":20}}}";
@@ -173,7 +173,7 @@ public class BtSdkTest {
     @DisplayName("测试获取网站列表 - 模拟成功响应")
     public void testGetSiteList_Success() throws BtApiException {
         // 初始化Sdk
-        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, "");
+        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY);
 
         // 创建模拟响应
         String mockResponse = "{\"status\":true,\"msg\":\"success\",\"data\":[{\"id\":1,\"name\":\"test.com\"}]}";
@@ -204,7 +204,7 @@ public class BtSdkTest {
     @DisplayName("测试创建目录")
     public void testCreateDir() throws BtApiException {
         // 初始化Sdk
-        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, "");
+        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY);
 
         // 为了测试成功，我们直接模拟createDir方法返回成功结果
         BtResult mockResult = new BtResult(true, "目录创建成功");
@@ -224,7 +224,7 @@ public class BtSdkTest {
     @DisplayName("测试创建目录 - 空路径验证")
     public void testCreateDir_NullPathValidation() throws BtApiException {
         // 初始化Sdk
-        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, "");
+        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY);
         BtSdk instance = BtSdk.getInstance();
 
         // 测试空路径
@@ -242,7 +242,7 @@ public class BtSdkTest {
     @DisplayName("测试异常处理 - API异常")
     public void testExceptionHandling_ApiException() throws BtApiException {
         // 初始化Sdk
-        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, "");
+        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY);
 
         // 使用Mockito模拟BtSdk的getSystemTotal方法抛出BtApiException
         BtSdk mockSdk = Mockito.spy(BtSdk.getInstance());
@@ -265,7 +265,7 @@ public class BtSdkTest {
                 .build();
 
         // 使用自定义配置初始化Sdk
-        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, "", retryConfig);
+        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, retryConfig);
         BtSdk instance = BtSdk.getInstance();
 
         // 验证配置已应用
@@ -276,7 +276,7 @@ public class BtSdkTest {
     @DisplayName("测试添加FTP用户 - 参数验证")
     public void testAddFtpUser_ParameterValidation() throws BtApiException {
         // 初始化Sdk
-        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY, "");
+        BtSdk.initSdk(TEST_BASE_URL, TEST_API_KEY);
         BtSdk instance = BtSdk.getInstance();
 
         // 测试空参数

@@ -35,7 +35,6 @@ public class BtSdkConfig {
     // 基本配置
     private final String baseUrl;
     private final String apiKey;
-    private final String apiToken;
 
     /**
      * 连接超时时间，默认值为10(秒)
@@ -90,11 +89,6 @@ public class BtSdkConfig {
 
         if (apiKey == null || apiKey.trim().isEmpty()) {
             log.warn("API Key is required");
-            return false;
-        }
-
-        if (apiToken == null || apiToken.trim().isEmpty()) {
-            log.warn("API Token is required");
             return false;
         }
 

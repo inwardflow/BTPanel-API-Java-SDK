@@ -70,7 +70,6 @@ public class Example {
         // 这里使用示例值，实际使用时请替换为您的宝塔面板地址和API密钥
         String baseUrl = "http://your-bt-panel-url:8888";
         String apiKey = "your-actual-api-key";
-        String apiToken = "";
         
         // 验证必要参数
         if (Objects.isNull(baseUrl) || baseUrl.trim().isEmpty()) {
@@ -81,7 +80,7 @@ public class Example {
         }
         
         // 使用工厂方法获取SDK实例，而不是直接new
-        BtSdk.initSdk(baseUrl, apiKey, apiToken);
+        BtSdk.initSdk(baseUrl, apiKey);
         return BtSdk.getInstance();
     }
 
@@ -296,7 +295,6 @@ public class Example {
             // 这里使用示例值，实际使用时请替换为您的宝塔面板地址和API密钥
             String baseUrl = "http://your-bt-panel.com:8888";
             String apiKey = "your-api-key";
-            String apiToken = "";
             
             // 创建自定义配置
             BtSdkConfig config = BtSdkConfig.builder()
@@ -310,7 +308,7 @@ public class Example {
                 .build();
             
             // 使用自定义配置初始化SDK
-            BtSdk.initSdk(baseUrl, apiKey, apiToken, config);
+            BtSdk.initSdk(baseUrl, apiKey, config);
             BtSdk btSDK = BtSdk.getInstance();
             
             System.out.println("使用自定义配置初始化SDK成功");

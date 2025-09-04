@@ -74,16 +74,14 @@ import net.heimeng.sdk.btapi.core.BtConfig;
 // 替换为实际的宝塔面板信息
 String baseUrl = "http://your-bt-panel-url:8888";
 String apiKey = "your-api-key";
-String apiToken = "your-api-token"; // 如果需要
 
 // 方式1：快速创建客户端
-BtClient client = BtClientFactory.createClient(baseUrl, apiKey, apiToken);
+BtClient client = BtClientFactory.createClient(baseUrl, apiKey);
 
 // 方式2：使用Builder模式创建自定义配置
 BtConfig config = BtClientFactory.configBuilder()
         .baseUrl(baseUrl)
         .apiKey(apiKey)
-        .apiToken(apiToken)
         .connectTimeout(15) // 连接超时15秒
         .readTimeout(45)   // 读取超时45秒
         .retryCount(3)     // 重试3次
@@ -196,7 +194,6 @@ client.addInterceptor(new RetryInterceptor(3, 1000));
 |-------|------|-------|
 | baseUrl | 宝塔面板的基础URL | 必填项 |
 | apiKey | API密钥 | 必填项 |
-| apiToken | API令牌（如果需要） | 可选 |
 | connectTimeout | 连接超时时间（秒） | 10秒 |
 | readTimeout | 读取超时时间（秒） | 30秒 |
 | retryCount | 请求重试次数 | 3次 |
@@ -297,10 +294,9 @@ try (InputStream input = getClass().getClassLoader().getResourceAsStream("applic
         properties.load(input);
         String baseUrl = properties.getProperty("bt.panel.url", "http://your-bt-panel-url:8888");
         String apiKey = properties.getProperty("bt.panel.api.key", "your-api-key");
-        String apiToken = properties.getProperty("bt.panel.api.token", "your-api-token");
         
         // 创建客户端
-        BtClient client = BtClientFactory.createClient(baseUrl, apiKey, apiToken);
+        BtClient client = BtClientFactory.createClient(baseUrl, apiKey);
     }
 } catch (IOException ex) {
     ex.printStackTrace();

@@ -39,11 +39,6 @@ public class BtPanel {
     private final String apiKey;
     
     /**
-     * 面板 API 令牌
-     */
-    private final String apiToken;
-    
-    /**
      * SDK配置对象
      */
     private final BtSdkConfig config;
@@ -53,10 +48,9 @@ public class BtPanel {
      * 
      * @param baseUrl 面板URL
      * @param apiKey API密钥
-     * @param apiToken API令牌
      */
-    public BtPanel(String baseUrl, String apiKey, String apiToken) {
-        this(baseUrl, apiKey, apiToken, BtSdkConfig.defaultConfig());
+    public BtPanel(String baseUrl, String apiKey) {
+        this(baseUrl, apiKey, BtSdkConfig.defaultConfig());
     }
 
     /**
