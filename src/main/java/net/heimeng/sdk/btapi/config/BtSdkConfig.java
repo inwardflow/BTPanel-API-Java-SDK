@@ -11,18 +11,21 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * BtSdk配置类，提供客户端配置的标准实现
+ * BtSdk配置类，提供客户端配置的标准实现（已废弃）
  * <p>
+ * <b>此类已被废弃，请使用新版的{@link net.heimeng.sdk.btapi.core.BtConfig}和{@link net.heimeng.sdk.btapi.core.DefaultBtConfig}代替。</b>
  * 此类使用Builder模式，允许灵活地配置客户端的各种参数。
  * </p>
  *
  * @author InwardFlow
  * @since 2.0.0
+ * @deprecated 请使用新版的{@link net.heimeng.sdk.btapi.core.BtConfig}和{@link net.heimeng.sdk.btapi.core.DefaultBtConfig}代替
  */
 @Getter
 @ToString
 @Builder
 @Slf4j
+@Deprecated
 public class BtSdkConfig {
     /**
      * 创建默认配置实例

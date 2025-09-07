@@ -26,6 +26,18 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class DefaultBtClient implements BtClient, AutoCloseable {
+
+    /**
+     * 请求执行器，用于执行实际的API请求
+     */
+    private interface RequestExecutor {
+        /**
+         * 执行请求
+         *
+         * @param context 请求上下文
+         */
+        void execute(RequestContext context);
+    }
     private final BtConfig config;
     private final List<Interceptor> interceptors = new ArrayList<>();
     private final ExecutorService executorService;

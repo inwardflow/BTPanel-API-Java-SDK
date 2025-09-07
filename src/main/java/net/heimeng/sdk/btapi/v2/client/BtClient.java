@@ -1,6 +1,9 @@
-package net.heimeng.sdk.btapi.core;
+package net.heimeng.sdk.btapi.v2.client;
 
-import net.heimeng.sdk.btapi.exception.BtApiException;
+import net.heimeng.sdk.btapi.v2.api.BtApi;
+import net.heimeng.sdk.btapi.v2.config.BtSdkConfig;
+import net.heimeng.sdk.btapi.v2.exception.BtApiException;
+import net.heimeng.sdk.btapi.v2.interceptor.RequestInterceptor;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -39,14 +42,14 @@ public interface BtClient extends AutoCloseable {
      * @param interceptor 拦截器实例
      * @return 当前客户端实例，支持链式调用
      */
-    BtClient addInterceptor(Interceptor interceptor);
+    BtClient addInterceptor(RequestInterceptor interceptor);
 
     /**
      * 获取客户端配置信息
      *
      * @return 客户端配置实例
      */
-    BtConfig getConfig();
+    BtSdkConfig getConfig();
 
     /**
      * 关闭客户端，释放资源
