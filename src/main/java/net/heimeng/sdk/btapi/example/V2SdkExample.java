@@ -177,7 +177,7 @@ public class V2SdkExample {
             
             // 2. 异步执行获取系统信息的API
             GetSystemInfoApi systemInfoApi = new GetSystemInfoApi();
-            CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsyncFuture(systemInfoApi);
+            CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsync(systemInfoApi);
             
             System.out.println("异步请求已发送，等待响应...");
             

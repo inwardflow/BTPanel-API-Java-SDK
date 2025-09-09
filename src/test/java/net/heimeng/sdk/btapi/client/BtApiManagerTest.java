@@ -98,7 +98,7 @@ public class BtApiManagerTest {
         
         // 验证结果
         assertNotNull(result);
-        assertTrue(!result.isSuccess());
+        assertFalse(result.isSuccess());
         assertEquals("API调用失败", result.getMsg());
     }
 
@@ -129,7 +129,7 @@ public class BtApiManagerTest {
         when(mockClient.executeAsync(mockSystemInfoApi)).thenReturn(CompletableFuture.completedFuture(mockResult));
         
         // 执行异步API调用
-        CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsyncFuture(mockSystemInfoApi);
+        CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsync(mockSystemInfoApi);
         
         // 等待结果
         BtResult<SystemInfo> result = future.get();
@@ -148,7 +148,7 @@ public class BtApiManagerTest {
         when(mockClient.executeAsync(mockSystemInfoApi)).thenReturn(failedFuture);
         
         // 执行异步API调用
-        CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsyncFuture(mockSystemInfoApi);
+        CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsync(mockSystemInfoApi);
         
         // 验证异常抛出
         ExecutionException exception = assertThrows(ExecutionException.class, 
@@ -157,7 +157,7 @@ public class BtApiManagerTest {
         
         // 验证异常原因
         assertInstanceOf(BtApiException.class, exception.getCause());
-        assertEquals("未授权访问", ((BtApiException) exception.getCause()).getMessage());
+        assertEquals("未授权访问", exception.getCause().getMessage());
     }
 
     @Test
@@ -208,7 +208,7 @@ public class BtApiManagerTest {
         when(mockClient.executeAsync(mockSystemInfoApi)).thenReturn(slowFuture);
         
         // 执行异步API调用
-        CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsyncFuture(mockSystemInfoApi);
+        CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsync(mockSystemInfoApi);
         
         // 验证超时异常抛出
         TimeoutException exception = assertThrows(TimeoutException.class, 

@@ -159,7 +159,7 @@ public class BtSdkExamples {
             GetSystemInfoApi systemInfoApi = new GetSystemInfoApi();
             
             // 3. 执行异步API调用
-            CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsyncFuture(systemInfoApi);
+            CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsync(systemInfoApi);
             
             // 4. 添加回调处理
             future.thenAccept(result -> {
