@@ -1,93 +1,85 @@
 package net.heimeng.sdk.btapi.model.system;
 
 import lombok.Data;
-import net.heimeng.sdk.btapi.model.BtResult;
-
-import java.util.List;
 
 /**
- * 系统信息模型
+ * 系统信息模型类，用于表示宝塔面板的系统信息
  * <p>
- * 表示宝塔面板所在服务器的系统信息，包括操作系统、CPU、内存、磁盘等。
+ * 包含服务器的基本信息，如CPU使用率、内存使用情况、磁盘使用情况等。
  * </p>
  *
  * @author InwardFlow
  * @since 2.0.0
  */
 @Data
-public class SystemInfo extends BtResult {
+public class SystemInfo {
+    
     /**
-     * 无参构造函数
-     * <p>
-     * 调用父类的无参构造函数，状态默认为false
-     * </p>
+     * 服务器名称
      */
-    public SystemInfo() {
-        super();
+    private String hostname;
+    
+    /**
+     * 操作系统类型
+     */
+    private String os;
+    
+    /**
+     * 内核版本
+     */
+    private String kernel;
+    
+    /**
+     * CPU使用率
+     */
+    private double cpuUsage;
+    
+    /**
+     * 内存总量（MB）
+     */
+    private long memoryTotal;
+    
+    /**
+     * 内存已用（MB）
+     */
+    private long memoryUsed;
+    
+    /**
+     * 磁盘总量（GB）
+     */
+    private double diskTotal;
+    
+    /**
+     * 磁盘已用（GB）
+     */
+    private double diskUsed;
+    
+    /**
+     * 宝塔面板版本
+     */
+    private String panelVersion;
+    
+    /**
+     * 获取内存使用率
+     * 
+     * @return 内存使用率（百分比）
+     */
+    public double getMemoryUsagePercentage() {
+        if (memoryTotal <= 0) {
+            return 0;
+        }
+        return (double) memoryUsed / memoryTotal * 100;
     }
     
     /**
-     * 构造函数，设置状态和消息
+     * 获取磁盘使用率
      * 
-     * @param status 状态
-     * @param msg 消息
+     * @return 磁盘使用率（百分比）
      */
-    public SystemInfo(Boolean status, String msg) {
-        super(status, msg);
-    }
-    // 操作系统信息
-    private String osName;
-    private String osVersion;
-    private String osArch;
-
-    // CPU信息
-    private int cpuCores;
-    private double cpuUsage;
-    private String cpuModel;
-
-    // 内存信息
-    private long memoryTotal;
-    private long memoryUsed;
-    private double memoryUsage;
-
-    // 磁盘信息
-    private List<DiskInfo> disks;
-
-    // 网络信息
-    private List<NetworkInfo> networks;
-
-    // 宝塔面板信息
-    private String btVersion;
-    private String btStatus;
-
-    // 其他信息
-    private String serverName;
-    private String kernelVersion;
-    private String uptime;
-
-    /**
-     * 磁盘信息内部类
-     */
-    @Data
-    public static class DiskInfo {
-        private String device;
-        private String mountPoint;
-        private String fileSystem;
-        private long total;
-        private long used;
-        private long free;
-        private double usage;
-    }
-
-    /**
-     * 网络信息内部类
-     */
-    @Data
-    public static class NetworkInfo {
-        private String name;
-        private String ip;
-        private String mac;
-        private long inBytes;
-        private long outBytes;
+    public double getDiskUsage() {
+        if (diskTotal <= 0) {
+            return 0;
+        }
+        return diskUsed / diskTotal * 100;
     }
 }

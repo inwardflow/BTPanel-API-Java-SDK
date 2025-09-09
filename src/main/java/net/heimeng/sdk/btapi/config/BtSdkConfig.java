@@ -1,138 +1,123 @@
 package net.heimeng.sdk.btapi.config;
 
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * BtSdk配置类，提供客户端配置的标准实现（已废弃）
+ * BtSdkConfig配置类，用于配置宝塔SDK的行为
  * <p>
- * <b>此类已被废弃，请使用新版的{@link net.heimeng.sdk.btapi.core.BtConfig}和{@link net.heimeng.sdk.btapi.core.DefaultBtConfig}代替。</b>
- * 此类使用Builder模式，允许灵活地配置客户端的各种参数。
+ * 采用Builder模式，提供灵活的配置选项，确保配置的不可变性和类型安全
  * </p>
  *
  * @author InwardFlow
  * @since 2.0.0
- * @deprecated 请使用新版的{@link net.heimeng.sdk.btapi.core.BtConfig}和{@link net.heimeng.sdk.btapi.core.DefaultBtConfig}代替
  */
+@Builder
 @Getter
 @ToString
-@Builder
-@Slf4j
-@Deprecated
 public class BtSdkConfig {
+    
     /**
-     * 创建默认配置实例
-     *
-     * @return 默认配置的BtSdkConfig实例
+     * 基础URL，指向宝塔面板的访问地址
      */
-    public static BtSdkConfig defaultConfig() {
-        return builder().build();
-    }
-    // 基本配置
     private final String baseUrl;
-    private final String apiKey;
-
+    
     /**
-     * 连接超时时间，默认值为10(秒)
+     * API密钥，用于身份验证
+     */
+    private final String apiKey;
+    
+    /**
+     * 连接超时时间，默认为10秒
      */
     @Builder.Default
     private final int connectTimeout = 10;
+    
+    /**
+     * 连接超时时间单位，默认为秒
+     */
     @Builder.Default
     private final TimeUnit connectTimeoutUnit = TimeUnit.SECONDS;
-
+    
     /**
-     * 读取超时时间，默认值为30(秒)
+     * 读取超时时间，默认为30秒
      */
     @Builder.Default
     private final int readTimeout = 30;
+    
+    /**
+     * 读取超时时间单位，默认为秒
+     */
     @Builder.Default
     private final TimeUnit readTimeoutUnit = TimeUnit.SECONDS;
-
-    // 重试配置，默认值
+    
+    /**
+     * 是否启用重试，默认为true
+     */
     @Builder.Default
-    private final int retryCount = 3;
+    private final boolean enableRetry = true;
+    
+    /**
+     * 重试次数，默认为3次
+     */
+    @Default
+    private int retryCount = 3;
+    
+    /**
+     * 重试间隔，默认为1秒
+     */
     @Builder.Default
     private final Duration retryInterval = Duration.ofSeconds(1);
+    
+    /**
+     * 可重试的HTTP状态码，默认包括408、429、500、502、503、504
+     */
     @Builder.Default
     private final int[] retryableStatusCodes = {408, 429, 500, 502, 503, 504};
-
-    // 额外配置
+    
+    /**
+     * 额外的HTTP头，默认为空Map
+     */
     @Builder.Default
     private final Map<String, String> extraHeaders = Collections.emptyMap();
     
-    // 日志配置
-    @Builder.Default
-    private final boolean enableResponseLog = false;
-
-    // 请求日志配置
-    @Builder.Default
-    private final boolean enableRequestLog = false;
-    
-    // SSL验证配置
-    @Builder.Default
-    private final boolean enableSslVerify = true;
-
     /**
-     * 验证配置是否有效
-     *
+     * 是否启用响应日志，默认为true
+     */
+    @Builder.Default
+    private final boolean enableResponseLog = true;
+    
+    /**
+     * 是否启用请求日志，默认为true
+     */
+    @Builder.Default
+    private final boolean enableRequestLog = true;
+    
+    /**
+     * 是否验证SSL证书，默认为false（宝塔面板IP大部分使用自签证书）
+     */
+    @Builder.Default
+    private final boolean verifySsl = false;
+    
+    // V2版本SDK不需要自定义Builder类，Lombok会自动生成
+    // 直接使用builder().retryCount(3)即可设置重试次数
+    
+    /**
+     * 检查配置是否有效
+     * 
      * @return 如果配置有效则返回true，否则返回false
      */
     public boolean isValid() {
-        if (baseUrl == null || baseUrl.trim().isEmpty()) {
-            log.warn("Base URL is required");
-            return false;
-        }
-
-        if (apiKey == null || apiKey.trim().isEmpty()) {
-            log.warn("API Key is required");
-            return false;
-        }
-
-        try {
-            // 验证URL格式
-            new java.net.URL(baseUrl);
-        } catch (Exception e) {
-            log.warn("Invalid Base URL format: {}", baseUrl);
-            return false;
-        }
-
-        // 验证超时设置
-        if (connectTimeout < 0 || readTimeout < 0) {
-            log.warn("Timeout values must be non-negative");
-            return false;
-        }
-
-        // 验证重试设置
-        if (retryCount < 0) {
-            log.warn("Retry count must be non-negative");
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * 获取连接超时的Duration表示
-     *
-     * @return 连接超时Duration
-     */
-    public Duration getConnectTimeoutDuration() {
-        return Duration.ofMillis(connectTimeoutUnit.toMillis(connectTimeout));
-    }
-
-    /**
-     * 获取读取超时的Duration表示
-     *
-     * @return 读取超时Duration
-     */
-    public Duration getReadTimeoutDuration() {
-        return Duration.ofMillis(readTimeoutUnit.toMillis(readTimeout));
+        return baseUrl != null && !baseUrl.isEmpty() && 
+               apiKey != null && !apiKey.isEmpty() &&
+               connectTimeout > 0 &&
+               readTimeout > 0 &&
+               retryCount >= 0;
     }
 }

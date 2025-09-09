@@ -194,7 +194,7 @@ if (result.isSuccess()) {
 mvn clean compile
 
 # 运行示例程序
-java -cp target/classes net.heimeng.sdk.btapi.v2.example.V2SdkExample
+java -cp target/classes net.heimeng.sdk.btapi.example.V2SdkExample
 ```
 
 ## 注意事项
