@@ -4,10 +4,11 @@ import net.heimeng.sdk.btapi.BtUtils;
 import net.heimeng.sdk.btapi.api.BtApi;
 import net.heimeng.sdk.btapi.config.BtSdkConfig;
 import net.heimeng.sdk.btapi.exception.BtApiException;
+import net.heimeng.sdk.btapi.exception.BtAuthenticationException;
 import net.heimeng.sdk.btapi.exception.BtNetworkException;
 import net.heimeng.sdk.btapi.interceptor.RequestContext;
 import net.heimeng.sdk.btapi.interceptor.RequestInterceptor;
-
+import net.heimeng.sdk.btapi.model.BtResult;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -431,6 +432,22 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
 
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             T result = api.parseResponse(response.body());
+            
+            // 检查结果是否为BtResult类型，如果是，则检查其status字段
+            if (result instanceof BtResult<?>) {
+                BtResult<?> btResult = (BtResult<?>) result;
+                if (btResult.isFailed()) {
+                    String msg = btResult.getMsg();
+                    // 当消息是密钥校验失败时，抛出认证异常
+                    if (msg != null && msg.equals("密钥校验失败")) {
+                        throw new BtAuthenticationException("API key verification failed", "API_KEY", null);
+                    } else {
+                        throw new BtApiException("API business logic failed: " + msg,
+                                response.statusCode(), response.body());
+                    }
+                }
+            }
+            
             context.setResult(result);
         } else {
             throw new BtApiException("API request failed with status: " + response.statusCode(),

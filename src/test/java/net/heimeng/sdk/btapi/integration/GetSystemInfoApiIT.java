@@ -6,6 +6,7 @@ import net.heimeng.sdk.btapi.client.BtClient;
 import net.heimeng.sdk.btapi.client.BtClientFactory;
 import net.heimeng.sdk.btapi.config.BtSdkConfig;
 import net.heimeng.sdk.btapi.exception.BtApiException;
+import net.heimeng.sdk.btapi.exception.BtAuthenticationException;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.system.SystemInfo;
 import org.junit.jupiter.api.AfterEach;
@@ -92,9 +93,9 @@ public class GetSystemInfoApiIT {
         GetSystemInfoApi systemInfoApi = new GetSystemInfoApi();
         
         // 验证异常抛出
-        BtApiException exception = assertThrows(BtApiException.class, 
+        BtApiException exception = assertThrows(BtAuthenticationException.class,
                 () -> invalidApiManager.execute(systemInfoApi), 
-                "使用无效API密钥时应抛出BtApiException");
+                "使用无效API密钥时应抛出BtAuthenticationException");
         
         // 清理资源
         invalidApiManager.close();

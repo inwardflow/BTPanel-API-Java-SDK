@@ -52,35 +52,47 @@ public class GetSystemInfoApi extends BaseBtApi<BtResult<SystemInfo>> {
             JSONObject json = JSONUtil.parseObj(response);
 
             BtResult<SystemInfo> result = new BtResult<>();
-            result.setStatus(true);
-            result.setMsg("Success");
+            
+            // 检查是否包含status字段（错误响应格式）
+            if (json.containsKey("status")) {
+                result.setStatus(json.getBool("status", false));
+                result.setMsg(json.getStr("msg", ""));
+            } else {
+                // 没有status字段，说明是成功的响应直接返回了数据
+                result.setStatus(true);
+                result.setMsg("Success");
+            }
 
-            SystemInfo systemInfo = new SystemInfo();
+            // 解析系统信息
+            if (result.isSuccess()) {
+                SystemInfo systemInfo = new SystemInfo();
 
-            // 主机名
-            systemInfo.setHostname(json.getStr("system", "Unknown"));
+                // 主机名
+                systemInfo.setHostname(json.getStr("system", "Unknown"));
 
-            // 操作系统
-            systemInfo.setOs(json.getStr("system", "Unknown"));
+                // 操作系统
+                systemInfo.setOs(json.getStr("system", "Unknown"));
 
-            // 内核（目前只能使用 system 字段作为近似）
-            systemInfo.setKernel(json.getStr("system", "Unknown"));
+                // 内核（目前只能使用 system 字段作为近似）
+                systemInfo.setKernel(json.getStr("system", "Unknown"));
 
-            // CPU 使用率
-            systemInfo.setCpuUsage(json.getDouble("cpuRealUsed", 0.0));
+                // CPU 使用率
+                systemInfo.setCpuUsage(json.getDouble("cpuRealUsed", 0.0));
 
-            // 内存信息（单位：MB）
-            systemInfo.setMemoryTotal(json.getLong("memTotal", 0L));
-            systemInfo.setMemoryUsed(json.getLong("memRealUsed", 0L));
+                // 内存信息（单位：MB）
+                systemInfo.setMemoryTotal(json.getLong("memTotal", 0L));
+                systemInfo.setMemoryUsed(json.getLong("memRealUsed", 0L));
 
-            // 磁盘信息（暂无数据，设置为 0）
-            systemInfo.setDiskTotal(0.0);
-            systemInfo.setDiskUsed(0.0);
+                // 磁盘信息（暂无数据，设置为 0）
+                systemInfo.setDiskTotal(0.0);
+                systemInfo.setDiskUsed(0.0);
 
-            // 面板版本
-            systemInfo.setPanelVersion(json.getStr("version", "Unknown"));
+                // 面板版本
+                systemInfo.setPanelVersion(json.getStr("version", "Unknown"));
 
-            result.setData(systemInfo);
+                result.setData(systemInfo);
+            }
+            
             return result;
 
         } catch (JSONException e) {
