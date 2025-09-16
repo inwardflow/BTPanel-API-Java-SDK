@@ -28,7 +28,7 @@ public class GetDatabasesApi extends BaseBtApi<BtResult<List<DatabaseInfo>>> {
     /**
      * API端点路径
      */
-    private static final String ENDPOINT = "database?action=getData";
+    private static final String ENDPOINT = "/datalist/data/get_data_list";
     
     /**
      * 构造函数，创建一个新的GetDatabasesApi实例
