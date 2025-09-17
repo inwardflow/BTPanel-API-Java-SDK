@@ -124,7 +124,7 @@ public class WebsiteIntegrationTest {
         
         try {
             // 创建并配置API - 分类ID默认为0（未分类），端口默认为80
-            CreateWebsiteApi createWebsiteApi = new CreateWebsiteApi(testDomain, testWebroot, 0, "7.4", 80, "测试网站")
+            CreateWebsiteApi createWebsiteApi = new CreateWebsiteApi(testDomain, testWebroot, 0, "81", 80, "测试网站")
                     .setType("PHP")
                     .setCreateFtp(false)
                     .setCreateDatabase(false);
@@ -159,10 +159,15 @@ public class WebsiteIntegrationTest {
         logger.info("开始测试删除网站: {}", testDomain);
         
         try {
+            // 获取网站ID
+            Integer websiteId = getWebsiteIdByName(testDomain);
+            assertNotNull(websiteId, "无法获取网站ID: " + testDomain);
+            
             // 创建并配置API
-            DeleteWebsiteApi deleteWebsiteApi = new DeleteWebsiteApi(testDomain)
-                    .setDelFiles(true)
-                    .setDelDatabase(false);
+            DeleteWebsiteApi deleteWebsiteApi = new DeleteWebsiteApi(websiteId, testDomain)
+                    .setDeletePath(true) // 删除网站根目录
+                    .setDeleteDatabase(false) // 不删除关联数据库
+                    .setDeleteFtp(false); // 不删除关联FTP
             
             // 执行API调用
             BtResult<Boolean> result = apiManager.execute(deleteWebsiteApi);

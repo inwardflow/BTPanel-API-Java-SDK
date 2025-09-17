@@ -25,7 +25,7 @@ public class GetWebsiteListApi extends BaseBtApi<BtResult<List<Map<String, Objec
     /**
      * API端点路径
      */
-    private static final String ENDPOINT = "site?action=GetSiteList";
+    private static final String ENDPOINT = "data?action=getData&table=sites";
     
     /**
      * 构造函数，创建一个新的GetWebsiteListApi实例
@@ -41,14 +41,14 @@ public class GetWebsiteListApi extends BaseBtApi<BtResult<List<Map<String, Objec
      * @return 当前API实例，支持链式调用
      */
     public GetWebsiteListApi setPage(Integer page) {
-        addParam("page", page);
+        addParam("p", page);
         return this;
     }
     
     /**
-     * 设置每页数量
+     * 设置每页数量（必传参数）
      * 
-     * @param limit 每页数量
+     * @param limit 取回的数据行数
      * @return 当前API实例，支持链式调用
      */
     public GetWebsiteListApi setLimit(Integer limit) {
@@ -57,35 +57,46 @@ public class GetWebsiteListApi extends BaseBtApi<BtResult<List<Map<String, Objec
     }
     
     /**
+     * 设置分类标识
+     * 
+     * @param type 分类标识，-1:分部分类 0:默认分类
+     * @return 当前API实例，支持链式调用
+     */
+    public GetWebsiteListApi setType(Integer type) {
+        addParam("type", type);
+        return this;
+    }
+    
+    /**
+     * 设置排序规则
+     * 
+     * @param order 排序规则，如"iddesc"（id降序）、"namedesc"（名称降序）等
+     * @return 当前API实例，支持链式调用
+     */
+    public GetWebsiteListApi setOrder(String order) {
+        addParam("order", order);
+        return this;
+    }
+    
+    /**
+     * 设置分页JS回调
+     * 
+     * @param tojs 分页JS回调，若不传则构造URI分页连接
+     * @return 当前API实例，支持链式调用
+     */
+    public GetWebsiteListApi setTojs(String tojs) {
+        addParam("tojs", tojs);
+        return this;
+    }
+    
+    /**
      * 设置搜索关键词
      * 
-     * @param search 搜索关键词
+     * @param search 搜索内容
      * @return 当前API实例，支持链式调用
      */
     public GetWebsiteListApi setSearch(String search) {
         addParam("search", search);
-        return this;
-    }
-    
-    /**
-     * 设置排序字段
-     * 
-     * @param orderBy 排序字段
-     * @return 当前API实例，支持链式调用
-     */
-    public GetWebsiteListApi setOrderBy(String orderBy) {
-        addParam("orderby", orderBy);
-        return this;
-    }
-    
-    /**
-     * 设置排序方向
-     * 
-     * @param orderDirection 排序方向，asc或desc
-     * @return 当前API实例，支持链式调用
-     */
-    public GetWebsiteListApi setOrderDirection(String orderDirection) {
-        addParam("order", orderDirection);
         return this;
     }
     
@@ -96,16 +107,30 @@ public class GetWebsiteListApi extends BaseBtApi<BtResult<List<Map<String, Objec
      */
     @Override
     protected boolean validateParams() {
-        // 分页参数不是必需的，但如果提供了，必须是有效的
-        if (params.containsKey("page") && !(params.get("page") instanceof Integer) && (Integer)params.get("page") < 1) {
-            return false;
-        }
-        if (params.containsKey("limit") && !(params.get("limit") instanceof Integer) && (Integer)params.get("limit") < 1) {
+        // limit是必传参数
+        if (!params.containsKey("limit") || !(params.get("limit") instanceof Integer) || (Integer)params.get("limit") < 1) {
             return false;
         }
         
-        // 排序方向必须是asc或desc
-        if (params.containsKey("order") && !("asc".equals(params.get("order")) || "desc".equals(params.get("order")))) {
+        // 页码参数如果提供了，必须是有效的
+        if (params.containsKey("p") && !(params.get("p") instanceof Integer) || (Integer)params.get("p") < 1) {
+            return false;
+        }
+        
+        // 分类标识如果提供了，必须是-1或0
+        if (params.containsKey("type") && !(params.get("type") instanceof Integer) || 
+            ((Integer)params.get("type") != -1 && (Integer)params.get("type") != 0)) {
+            return false;
+        }
+        
+        // 其他可选参数的类型验证
+        if (params.containsKey("order") && !(params.get("order") instanceof String)) {
+            return false;
+        }
+        if (params.containsKey("tojs") && !(params.get("tojs") instanceof String)) {
+            return false;
+        }
+        if (params.containsKey("search") && !(params.get("search") instanceof String)) {
             return false;
         }
         
@@ -133,16 +158,7 @@ public class GetWebsiteListApi extends BaseBtApi<BtResult<List<Map<String, Objec
             JSONObject json = JSONUtil.parseObj(response);
             BtResult<List<Map<String, Object>>> result = new BtResult<>();
             
-            // 检查响应状态
-            boolean status = json.getBool("status", false);
-            if (!status) {
-                result.setStatus(false);
-                result.setMsg(json.getStr("msg", "获取失败"));
-                result.setData(new ArrayList<>());
-                return result;
-            }
-            
-            // 获取网站列表
+            // 直接获取网站列表数据（新响应格式没有status字段）
             JSONArray sitesArray = json.getJSONArray("data");
             List<Map<String, Object>> sitesList = new ArrayList<>();
             
@@ -152,6 +168,7 @@ public class GetWebsiteListApi extends BaseBtApi<BtResult<List<Map<String, Objec
                 }
             }
             
+            // 设置结果信息
             result.setStatus(true);
             result.setMsg("获取成功");
             result.setData(sitesList);
