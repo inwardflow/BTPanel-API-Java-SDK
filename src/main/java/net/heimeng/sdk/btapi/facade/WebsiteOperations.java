@@ -87,12 +87,34 @@ public final class WebsiteOperations extends AbstractOperations {
   }
 
   public BtResult<CreateWebsiteResult> create(CreateWebsiteApi api) {
+    Objects.requireNonNull(api, "api cannot be null");
     return execute(api);
   }
 
-  public BtResult<CreateWebsiteResult> create(
-      String domain, String path, int typeId, String phpVersion, int port, String ps) {
-    return execute(new CreateWebsiteApi(domain, path, typeId, phpVersion, port, ps));
+  public BtResult<CreateWebsiteResult> create(WebsiteCreateRequest request) {
+    Objects.requireNonNull(request, "request cannot be null");
+
+    CreateWebsiteApi api =
+        new CreateWebsiteApi(
+            request.domain(),
+            request.path(),
+            request.typeId(),
+            request.phpVersion(),
+            request.port(),
+            request.remark());
+    api.setType(request.projectType());
+
+    if (request.ftpAccount() != null) {
+      api.setFtpCredentials(request.ftpAccount().username(), request.ftpAccount().password());
+    }
+    if (request.database() != null) {
+      api.setDatabaseCredentials(
+          request.database().username(),
+          request.database().password(),
+          request.database().charset());
+    }
+
+    return execute(api);
   }
 
   public BtResult<Map<String, Object>> getDetail(int id) {

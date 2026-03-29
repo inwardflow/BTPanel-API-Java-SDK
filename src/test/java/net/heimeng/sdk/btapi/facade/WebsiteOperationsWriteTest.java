@@ -1,19 +1,26 @@
 package net.heimeng.sdk.btapi.facade;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import net.heimeng.sdk.btapi.api.website.AddWebsiteDomainApi;
 import net.heimeng.sdk.btapi.api.website.CloseWebsitePasswordApi;
 import net.heimeng.sdk.btapi.api.website.CloseWebsiteSslApi;
+import net.heimeng.sdk.btapi.api.website.CreateWebsiteApi;
 import net.heimeng.sdk.btapi.api.website.CreateWebsiteBackupApi;
 import net.heimeng.sdk.btapi.api.website.DeleteWebsiteApi;
 import net.heimeng.sdk.btapi.api.website.DeleteWebsiteBackupApi;
@@ -34,12 +41,83 @@ import net.heimeng.sdk.btapi.api.website.StartWebsiteApi;
 import net.heimeng.sdk.btapi.api.website.StopWebsiteApi;
 import net.heimeng.sdk.btapi.client.BtClient;
 import net.heimeng.sdk.btapi.model.BtResult;
+import net.heimeng.sdk.btapi.model.website.CreateWebsiteResult;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("WebsiteOperations write facade tests")
 class WebsiteOperationsWriteTest {
 
   @Mock private BtClient client;
+
+  @Test
+  @DisplayName("create should map typed request defaults to CreateWebsiteApi")
+  void createDelegatesToClientWithDefaultRequestValues() {
+    WebsiteOperations operations = new WebsiteOperations(client);
+    when(client.execute(any(CreateWebsiteApi.class))).thenReturn(successCreate());
+
+    BtResult<CreateWebsiteResult> result =
+        operations.create(
+            WebsiteCreateRequest.builder("demo.example.com", "/www/wwwroot/demo")
+                .phpVersion("82")
+                .build());
+
+    assertTrue(result.isSuccess());
+
+    ArgumentCaptor<CreateWebsiteApi> captor = ArgumentCaptor.forClass(CreateWebsiteApi.class);
+    verify(client).execute(captor.capture());
+
+    Map<String, Object> params = captor.getValue().getParams();
+    assertEquals("/www/wwwroot/demo", params.get("path"));
+    assertEquals(0, params.get("type_id"));
+    assertEquals("PHP", params.get("type"));
+    assertEquals("82", params.get("version"));
+    assertEquals(80, params.get("port"));
+    assertEquals("demo.example.com", params.get("ps"));
+    assertEquals(Boolean.FALSE, params.get("ftp"));
+    assertEquals(Boolean.FALSE, params.get("sql"));
+    assertFalse(params.containsKey("ftp_username"));
+    assertFalse(params.containsKey("datauser"));
+    assertNotNull(params.get("webname"));
+    assertTrue(params.get("webname").toString().contains("\"domain\":\"demo.example.com\""));
+  }
+
+  @Test
+  @DisplayName("create should include optional ftp and database provisioning")
+  void createDelegatesToClientWithOptionalProvisioning() {
+    WebsiteOperations operations = new WebsiteOperations(client);
+    when(client.execute(any(CreateWebsiteApi.class))).thenReturn(successCreate());
+
+    BtResult<CreateWebsiteResult> result =
+        operations.create(
+            WebsiteCreateRequest.builder("demo.example.com", "/www/wwwroot/demo")
+                .typeId(3)
+                .projectType("Node")
+                .phpVersion("no")
+                .port(8080)
+                .remark("Production")
+                .ftpAccount("demo_ftp", "ftp-secret")
+                .database("demo_db", "db-secret", "utf8mb4")
+                .build());
+
+    assertTrue(result.isSuccess());
+
+    ArgumentCaptor<CreateWebsiteApi> captor = ArgumentCaptor.forClass(CreateWebsiteApi.class);
+    verify(client).execute(captor.capture());
+
+    Map<String, Object> params = captor.getValue().getParams();
+    assertEquals(3, params.get("type_id"));
+    assertEquals("Node", params.get("type"));
+    assertEquals("no", params.get("version"));
+    assertEquals(8080, params.get("port"));
+    assertEquals("Production", params.get("ps"));
+    assertEquals(Boolean.TRUE, params.get("ftp"));
+    assertEquals("demo_ftp", params.get("ftp_username"));
+    assertEquals("ftp-secret", params.get("ftp_password"));
+    assertEquals(Boolean.TRUE, params.get("sql"));
+    assertEquals("demo_db", params.get("datauser"));
+    assertEquals("db-secret", params.get("datapassword"));
+    assertEquals("utf8mb4", params.get("codeing"));
+  }
 
   @Test
   @DisplayName("addDomain should delegate to AddWebsiteDomainApi")
@@ -311,6 +389,16 @@ class WebsiteOperationsWriteTest {
     BtResult<Boolean> response = new BtResult<>();
     response.setStatus(true);
     response.setData(true);
+    return response;
+  }
+
+  private static BtResult<CreateWebsiteResult> successCreate() {
+    CreateWebsiteResult createWebsiteResult = new CreateWebsiteResult();
+    createWebsiteResult.setSiteStatus(true);
+
+    BtResult<CreateWebsiteResult> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(createWebsiteResult);
     return response;
   }
 }

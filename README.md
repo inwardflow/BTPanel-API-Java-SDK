@@ -62,12 +62,22 @@ try (BtApiManager apiManager = BtClientFactory.createApiManager(config)) {
 ```java
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.ssl.SslCertificate;
+import net.heimeng.sdk.btapi.model.website.CreateWebsiteResult;
 import net.heimeng.sdk.btapi.model.website.WebsiteInfo;
+import net.heimeng.sdk.btapi.facade.WebsiteCreateRequest;
 
 BtResult<java.util.List<WebsiteInfo>> websites = apiManager.website().list(1, 20);
 BtResult<Integer> taskCount = apiManager.system().getTaskCount();
 BtResult<String> nginxConfig = apiManager.website().getNginxConfig(1, "example.com");
 BtResult<java.util.List<SslCertificate>> certificates = apiManager.ssl().list();
+
+BtResult<CreateWebsiteResult> createdWebsite =
+    apiManager.website()
+        .create(
+            WebsiteCreateRequest.builder("demo.example.com", "/www/wwwroot/demo")
+                .phpVersion("82")
+                .remark("Demo website")
+                .build());
 ```
 
 ## Website API Design Notes
@@ -119,6 +129,7 @@ For write-side website operations, the preferred names now follow action-oriente
 
 For more complex commands, prefer the typed option objects over long parameter lists:
 
+- `create(WebsiteCreateRequest request)`
 - `delete(int siteId, String websiteName, WebsiteDeleteOptions options)`
 - `addDomain(int siteId, WebsiteDomainBinding binding)`
 - `removeDomain(int siteId, WebsiteDomainRemoval removal)`
@@ -127,6 +138,22 @@ For more complex commands, prefer the typed option objects over long parameter l
 - `updateNginxConfig(int siteId, WebsiteNginxConfigOptions options)`
 - `installSslCertificate(int siteId, WebsiteSslCertificateOptions options)`
 - `updateLimitNet(int siteId, WebsiteLimitNetOptions options)`
+
+`WebsiteCreateRequest` uses a builder so optional provisioning stays explicit:
+
+```java
+WebsiteCreateRequest request =
+    WebsiteCreateRequest.builder("demo.example.com", "/www/wwwroot/demo")
+        .typeId(0)
+        .phpVersion("82")
+        .port(80)
+        .remark("Demo website")
+        .ftpAccount("demo_ftp", "ftp-secret")
+        .database("demo_db", "db-secret", "utf8mb4")
+        .build();
+
+apiManager.website().create(request);
+```
 
 ## SSL Notes
 
