@@ -60,6 +60,8 @@ try (BtApiManager apiManager = BtClientFactory.createApiManager(config)) {
 ### Typical Usage
 
 ```java
+import net.heimeng.sdk.btapi.facade.DatabaseCreateRequest;
+import net.heimeng.sdk.btapi.facade.FtpCreateRequest;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.ssl.SslCertificate;
 import net.heimeng.sdk.btapi.model.website.CreateWebsiteResult;
@@ -70,6 +72,10 @@ BtResult<java.util.List<WebsiteInfo>> websites = apiManager.website().list(1, 20
 BtResult<Integer> taskCount = apiManager.system().getTaskCount();
 BtResult<String> nginxConfig = apiManager.website().getNginxConfig(1, "example.com");
 BtResult<java.util.List<SslCertificate>> certificates = apiManager.ssl().list();
+BtResult<Boolean> createdDatabase =
+    apiManager.database().create(DatabaseCreateRequest.builder("demo_db", "demo_user", "secret").build());
+BtResult<Boolean> createdFtp =
+    apiManager.ftp().create(FtpCreateRequest.of("demo_ftp", "secret", "/www/wwwroot/demo"));
 
 BtResult<CreateWebsiteResult> createdWebsite =
     apiManager.website()
@@ -130,6 +136,12 @@ For write-side website operations, the preferred names now follow action-oriente
 For more complex commands, prefer the typed option objects over long parameter lists:
 
 - `create(WebsiteCreateRequest request)`
+- `database().create(DatabaseCreateRequest request)`
+- `database().delete(DatabaseDeleteRequest request)`
+- `database().updatePassword(DatabasePasswordUpdateRequest request)`
+- `ftp().create(FtpCreateRequest request)`
+- `ftp().delete(FtpDeleteRequest request)`
+- `ftp().updatePassword(FtpPasswordUpdateRequest request)`
 - `delete(int siteId, String websiteName, WebsiteDeleteOptions options)`
 - `addDomain(int siteId, WebsiteDomainBinding binding)`
 - `removeDomain(int siteId, WebsiteDomainRemoval removal)`
@@ -153,6 +165,27 @@ WebsiteCreateRequest request =
         .build();
 
 apiManager.website().create(request);
+```
+
+Database and FTP write flows now follow the same typed-request approach:
+
+```java
+DatabaseCreateRequest databaseRequest =
+    DatabaseCreateRequest.builder("demo_db", "demo_user", "secret")
+        .remark("Demo database")
+        .build();
+
+apiManager.database().create(databaseRequest);
+apiManager.database().updatePassword(
+    new DatabasePasswordUpdateRequest("demo_db", "demo_user", "new-secret"));
+
+FtpCreateRequest ftpRequest =
+    new FtpCreateRequest("demo_ftp", "secret", "/www/wwwroot/demo", "Demo FTP");
+
+apiManager.ftp().create(ftpRequest);
+apiManager.ftp().updatePassword(
+    new FtpPasswordUpdateRequest(12, "demo_ftp", "/www/wwwroot/demo", "new-secret"));
+apiManager.ftp().delete(new FtpDeleteRequest(12, "demo_ftp"));
 ```
 
 ## SSL Notes
