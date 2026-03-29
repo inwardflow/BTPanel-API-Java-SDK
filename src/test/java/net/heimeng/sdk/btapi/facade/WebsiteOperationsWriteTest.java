@@ -47,7 +47,9 @@ class WebsiteOperationsWriteTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(AddWebsiteDomainApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.addDomain(8, "demo.example.com", "www.demo.example.com");
+    BtResult<Boolean> result =
+        operations.addDomain(
+            8, new WebsiteDomainBinding("demo.example.com", "www.demo.example.com"));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(AddWebsiteDomainApi.class));
@@ -60,7 +62,8 @@ class WebsiteOperationsWriteTest {
     when(client.execute(any(DeleteWebsiteDomainApi.class))).thenReturn(successBoolean());
 
     BtResult<Boolean> result =
-        operations.removeDomain(8, "demo.example.com", "www.demo.example.com", 80);
+        operations.removeDomain(
+            8, new WebsiteDomainRemoval("demo.example.com", "www.demo.example.com", 80));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(DeleteWebsiteDomainApi.class));
@@ -181,7 +184,9 @@ class WebsiteOperationsWriteTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(SetWebsiteRewriteRulesApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.updateRewriteRules(8, "none", "rewrite ^ /index.php;");
+    BtResult<Boolean> result =
+        operations.updateRewriteRules(
+            8, new WebsiteRewriteRulesOptions("none", "rewrite ^ /index.php;"));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(SetWebsiteRewriteRulesApi.class));
@@ -194,7 +199,8 @@ class WebsiteOperationsWriteTest {
     when(client.execute(any(SetWebsiteNginxConfigApi.class))).thenReturn(successBoolean());
 
     BtResult<Boolean> result =
-        operations.updateNginxConfig(8, "demo.example.com", "server { listen 80; }");
+        operations.updateNginxConfig(
+            8, new WebsiteNginxConfigOptions("demo.example.com", "server { listen 80; }"));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(SetWebsiteNginxConfigApi.class));
@@ -206,7 +212,9 @@ class WebsiteOperationsWriteTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(SetWebsitePasswordApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.enablePasswordProtection(8, "admin", "secret");
+    BtResult<Boolean> result =
+        operations.enablePasswordProtection(
+            8, new WebsitePasswordProtectionOptions("admin", "secret"));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(SetWebsitePasswordApi.class));

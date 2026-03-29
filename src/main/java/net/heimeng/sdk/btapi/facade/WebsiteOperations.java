@@ -107,18 +107,23 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new GetWebsiteDomainsApi().setSiteId(siteId));
   }
 
-  public BtResult<Boolean> addDomain(int id, String webname, String domain) {
-    return execute(new AddWebsiteDomainApi().setId(id).setWebname(webname).setDomain(domain));
+  public BtResult<Boolean> addDomain(int siteId, WebsiteDomainBinding binding) {
+    Objects.requireNonNull(binding, "binding cannot be null");
+    return execute(
+        new AddWebsiteDomainApi()
+            .setId(siteId)
+            .setWebname(binding.websiteName())
+            .setDomain(binding.domain()));
   }
 
-  public BtResult<Boolean> removeDomain(
-      int siteId, String websiteName, String domain, Integer port) {
+  public BtResult<Boolean> removeDomain(int siteId, WebsiteDomainRemoval removal) {
+    Objects.requireNonNull(removal, "removal cannot be null");
     return execute(
         new DeleteWebsiteDomainApi()
             .setId(siteId)
-            .setWebname(websiteName)
-            .setDomain(domain)
-            .setPort(port));
+            .setWebname(removal.websiteName())
+            .setDomain(removal.domain())
+            .setPort(removal.port()));
   }
 
   public BtResult<Boolean> delete(int siteId, String websiteName, WebsiteDeleteOptions options) {
@@ -182,22 +187,36 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new GetWebsiteRewriteRulesApi().setId(id));
   }
 
-  public BtResult<Boolean> updateRewriteRules(int siteId, String name, String content) {
-    return execute(new SetWebsiteRewriteRulesApi().setId(siteId).setName(name).setContent(content));
+  public BtResult<Boolean> updateRewriteRules(int siteId, WebsiteRewriteRulesOptions options) {
+    Objects.requireNonNull(options, "options cannot be null");
+    return execute(
+        new SetWebsiteRewriteRulesApi()
+            .setId(siteId)
+            .setName(options.name())
+            .setContent(options.content()));
   }
 
   public BtResult<String> getNginxConfig(Integer id, String domain) {
     return execute(new GetWebsiteNginxConfigApi().setId(id).setDomain(domain));
   }
 
-  public BtResult<Boolean> updateNginxConfig(Integer siteId, String domain, String content) {
+  public BtResult<Boolean> updateNginxConfig(Integer siteId, WebsiteNginxConfigOptions options) {
+    Objects.requireNonNull(options, "options cannot be null");
     return execute(
-        new SetWebsiteNginxConfigApi().setId(siteId).setDomain(domain).setContent(content));
+        new SetWebsiteNginxConfigApi()
+            .setId(siteId)
+            .setDomain(options.domain())
+            .setContent(options.content()));
   }
 
-  public BtResult<Boolean> enablePasswordProtection(int siteId, String username, String password) {
+  public BtResult<Boolean> enablePasswordProtection(
+      int siteId, WebsitePasswordProtectionOptions options) {
+    Objects.requireNonNull(options, "options cannot be null");
     return execute(
-        new SetWebsitePasswordApi().setId(siteId).setUsername(username).setPassword(password));
+        new SetWebsitePasswordApi()
+            .setId(siteId)
+            .setUsername(options.username())
+            .setPassword(options.password()));
   }
 
   public BtResult<Boolean> disablePasswordProtection(int siteId) {

@@ -120,6 +120,11 @@ For write-side website operations, the preferred names now follow action-oriente
 For more complex commands, prefer the typed option objects over long parameter lists:
 
 - `delete(int siteId, String websiteName, WebsiteDeleteOptions options)`
+- `addDomain(int siteId, WebsiteDomainBinding binding)`
+- `removeDomain(int siteId, WebsiteDomainRemoval removal)`
+- `enablePasswordProtection(int siteId, WebsitePasswordProtectionOptions options)`
+- `updateRewriteRules(int siteId, WebsiteRewriteRulesOptions options)`
+- `updateNginxConfig(int siteId, WebsiteNginxConfigOptions options)`
 - `installSslCertificate(int siteId, WebsiteSslCertificateOptions options)`
 - `updateLimitNet(int siteId, WebsiteLimitNetOptions options)`
 

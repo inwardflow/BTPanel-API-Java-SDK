@@ -26,6 +26,28 @@ class WebsiteFacadeOptionsTest {
   }
 
   @Test
+  @DisplayName("WebsiteDomainBinding should require non blank values")
+  void domainBindingRequiresNonBlankValues() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new WebsiteDomainBinding("demo.example.com", " "));
+
+    assertEquals("domain cannot be blank", exception.getMessage());
+  }
+
+  @Test
+  @DisplayName("WebsiteDomainRemoval should require positive port")
+  void domainRemovalRequiresPositivePort() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new WebsiteDomainRemoval("demo.example.com", "www.demo.example.com", 0));
+
+    assertEquals("port must be positive", exception.getMessage());
+  }
+
+  @Test
   @DisplayName("WebsiteLimitNetOptions should reject negative values")
   void limitNetOptionsRejectNegativeValues() {
     IllegalArgumentException exception =
@@ -44,5 +66,36 @@ class WebsiteFacadeOptionsTest {
             () -> new WebsiteSslCertificateOptions("demo.example.com", " ", "key", Boolean.TRUE));
 
     assertEquals("certificate cannot be blank", exception.getMessage());
+  }
+
+  @Test
+  @DisplayName("WebsitePasswordProtectionOptions should require username and password")
+  void passwordOptionsRequireNonBlankValues() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new WebsitePasswordProtectionOptions("admin", " "));
+
+    assertEquals("password cannot be blank", exception.getMessage());
+  }
+
+  @Test
+  @DisplayName("WebsiteRewriteRulesOptions should allow blank content but not blank name")
+  void rewriteRuleOptionsValidateNameOnly() {
+    WebsiteRewriteRulesOptions options = new WebsiteRewriteRulesOptions("none", "");
+
+    assertEquals("none", options.name());
+    assertEquals("", options.content());
+  }
+
+  @Test
+  @DisplayName("WebsiteNginxConfigOptions should require non blank domain")
+  void nginxOptionsRequireNonBlankDomain() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new WebsiteNginxConfigOptions(" ", "server { listen 80; }"));
+
+    assertEquals("domain cannot be blank", exception.getMessage());
   }
 }
