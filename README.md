@@ -99,8 +99,6 @@ The repository is moving toward a stable `1.0` public API. For read-side website
 - `listSslCertificates(int siteId)`
 - `listBackups(Integer siteId, Integer page, Integer limit, String callback)`
 
-Older `get*` or `rawList(...)` variants remain as deprecated compatibility shims where necessary.
-
 For write-side website operations, the preferred names now follow action-oriented verbs such as:
 
 - `removeDomain(...)`

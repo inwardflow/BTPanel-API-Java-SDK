@@ -77,37 +77,12 @@ public final class WebsiteOperations extends AbstractOperations {
             .setSearch(search));
   }
 
-  /**
-   * @deprecated use {@link #listRaw(Integer, Integer, Integer, String, String)} instead.
-   */
-  @Deprecated
-  public BtResult<List<Map<String, Object>>> rawList(
-      Integer page, Integer limit, Integer type, String order, String search) {
-    return listRaw(page, limit, type, order, search);
-  }
-
   public BtResult<List<WebsiteType>> listTypes() {
     return execute(new GetWebsiteTypesApi());
   }
 
-  /**
-   * @deprecated use {@link #listTypes()} instead.
-   */
-  @Deprecated
-  public BtResult<List<WebsiteType>> getTypes() {
-    return listTypes();
-  }
-
   public BtResult<List<PhpVersion>> listPhpVersions() {
     return execute(new GetPhpVersionsApi());
-  }
-
-  /**
-   * @deprecated use {@link #listPhpVersions()} instead.
-   */
-  @Deprecated
-  public BtResult<List<PhpVersion>> getPhpVersions() {
-    return listPhpVersions();
   }
 
   public BtResult<CreateWebsiteResult> create(CreateWebsiteApi api) {
@@ -131,14 +106,6 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new GetWebsiteDomainsApi().setSiteId(siteId));
   }
 
-  /**
-   * @deprecated use {@link #listDomains(int)} instead.
-   */
-  @Deprecated
-  public BtResult<List<Map<String, Object>>> getDomains(int siteId) {
-    return listDomains(siteId);
-  }
-
   public BtResult<Boolean> addDomain(int id, String webname, String domain) {
     return execute(new AddWebsiteDomainApi().setId(id).setWebname(webname).setDomain(domain));
   }
@@ -151,14 +118,6 @@ public final class WebsiteOperations extends AbstractOperations {
             .setWebname(websiteName)
             .setDomain(domain)
             .setPort(port));
-  }
-
-  /**
-   * @deprecated use {@link #removeDomain(int, String, String, Integer)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> deleteDomain(int id, String webname, String domain, Integer port) {
-    return removeDomain(id, webname, domain, port);
   }
 
   public BtResult<Boolean> delete(
@@ -182,14 +141,6 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new SetWebsitePsApi().setId(siteId).setPs(remark));
   }
 
-  /**
-   * @deprecated use {@link #updateRemark(int, String)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setRemark(int id, String ps) {
-    return updateRemark(id, ps);
-  }
-
   public BtResult<String> getRootPath(int id) {
     return execute(new GetWebsiteRootPathApi().setId(id));
   }
@@ -198,36 +149,12 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new SetWebsiteRootPathApi().setId(siteId).setPath(path));
   }
 
-  /**
-   * @deprecated use {@link #updateRootPath(int, String)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setRootPath(int id, String path) {
-    return updateRootPath(id, path);
-  }
-
   public BtResult<Boolean> updateRunPath(int siteId, String runPath) {
     return execute(new SetWebsiteRunPathApi().setId(siteId).setRunPath(runPath));
   }
 
-  /**
-   * @deprecated use {@link #updateRunPath(int, String)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setRunPath(int id, String runPath) {
-    return updateRunPath(id, runPath);
-  }
-
   public BtResult<Boolean> toggleUserIni(String path) {
     return execute(new SetWebsiteUserIniApi().setPath(path));
-  }
-
-  /**
-   * @deprecated use {@link #toggleUserIni(String)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setUserIni(String path) {
-    return toggleUserIni(path);
   }
 
   public BtResult<String> getPhpVersion(int id) {
@@ -238,24 +165,8 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new SetWebsitePhpVersionApi().setId(siteId).setPhpVersion(phpVersion));
   }
 
-  /**
-   * @deprecated use {@link #updatePhpVersion(int, String)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setPhpVersion(int id, String phpVersion) {
-    return updatePhpVersion(id, phpVersion);
-  }
-
   public BtResult<List<Map<String, Object>>> listPhpExtensions(int id) {
     return execute(new GetWebsitePhpExtensionsApi().setId(id));
-  }
-
-  /**
-   * @deprecated use {@link #listPhpExtensions(int)} instead.
-   */
-  @Deprecated
-  public BtResult<List<Map<String, Object>>> getPhpExtensions(int id) {
-    return listPhpExtensions(id);
   }
 
   public BtResult<Boolean> updatePhpExtension(int siteId, String moduleName, boolean enabled) {
@@ -266,28 +177,12 @@ public final class WebsiteOperations extends AbstractOperations {
             .setEnabled(enabled));
   }
 
-  /**
-   * @deprecated use {@link #updatePhpExtension(int, String, boolean)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setPhpExtension(int id, String moduleName, boolean enabled) {
-    return updatePhpExtension(id, moduleName, enabled);
-  }
-
   public BtResult<String> getRewriteRules(int id) {
     return execute(new GetWebsiteRewriteRulesApi().setId(id));
   }
 
   public BtResult<Boolean> updateRewriteRules(int siteId, String name, String content) {
     return execute(new SetWebsiteRewriteRulesApi().setId(siteId).setName(name).setContent(content));
-  }
-
-  /**
-   * @deprecated use {@link #updateRewriteRules(int, String, String)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setRewriteRules(int id, String name, String content) {
-    return updateRewriteRules(id, name, content);
   }
 
   public BtResult<String> getNginxConfig(Integer id, String domain) {
@@ -299,37 +194,13 @@ public final class WebsiteOperations extends AbstractOperations {
         new SetWebsiteNginxConfigApi().setId(siteId).setDomain(domain).setContent(content));
   }
 
-  /**
-   * @deprecated use {@link #updateNginxConfig(Integer, String, String)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setNginxConfig(Integer id, String domain, String content) {
-    return updateNginxConfig(id, domain, content);
-  }
-
   public BtResult<Boolean> enablePasswordProtection(int siteId, String username, String password) {
     return execute(
         new SetWebsitePasswordApi().setId(siteId).setUsername(username).setPassword(password));
   }
 
-  /**
-   * @deprecated use {@link #enablePasswordProtection(int, String, String)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setPassword(int id, String username, String password) {
-    return enablePasswordProtection(id, username, password);
-  }
-
   public BtResult<Boolean> disablePasswordProtection(int siteId) {
     return execute(new CloseWebsitePasswordApi().setId(siteId));
-  }
-
-  /**
-   * @deprecated use {@link #disablePasswordProtection(int)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> closePassword(int id) {
-    return disablePasswordProtection(id);
   }
 
   public BtResult<Boolean> installSslCertificate(
@@ -343,49 +214,16 @@ public final class WebsiteOperations extends AbstractOperations {
             .setForceHttps(forceHttps));
   }
 
-  /**
-   * @deprecated use {@link #installSslCertificate(int, String, String, String, Boolean)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setSsl(
-      int id, String domain, String cert, String key, Boolean forceHttps) {
-    return installSslCertificate(id, domain, cert, key, forceHttps);
-  }
-
   public BtResult<Boolean> disableSsl(int siteId) {
     return execute(new CloseWebsiteSslApi().setId(siteId));
-  }
-
-  /**
-   * @deprecated use {@link #disableSsl(int)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> closeSsl(int id) {
-    return disableSsl(id);
   }
 
   public BtResult<List<Map<String, Object>>> listSslCertificates(int id) {
     return execute(new GetWebsiteSslListApi().setId(id));
   }
 
-  /**
-   * @deprecated use {@link #listSslCertificates(int)} instead.
-   */
-  @Deprecated
-  public BtResult<List<Map<String, Object>>> getSslList(int id) {
-    return listSslCertificates(id);
-  }
-
   public BtResult<Boolean> toggleLogs(int siteId) {
     return execute(new SetWebsiteLogsApi().setId(siteId));
-  }
-
-  /**
-   * @deprecated use {@link #toggleLogs(int)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setLogs(int id) {
-    return toggleLogs(id);
   }
 
   public BtResult<Map<String, Object>> getLimitNet(int id) {
@@ -403,15 +241,6 @@ public final class WebsiteOperations extends AbstractOperations {
             .setLimitRate(limitRate));
   }
 
-  /**
-   * @deprecated use {@link #updateLimitNet(int, Boolean, Integer, Integer, Integer)} instead.
-   */
-  @Deprecated
-  public BtResult<Boolean> setLimitNet(
-      int id, Boolean enabled, Integer perserver, Integer perip, Integer limitRate) {
-    return updateLimitNet(id, enabled, perserver, perip, limitRate);
-  }
-
   public BtResult<List<Map<String, Object>>> listBackups(
       Integer siteId, Integer page, Integer limit, String callback) {
     return execute(
@@ -420,15 +249,6 @@ public final class WebsiteOperations extends AbstractOperations {
             .setLimit(limit)
             .setSiteId(siteId)
             .setCallback(callback));
-  }
-
-  /**
-   * @deprecated use {@link #listBackups(Integer, Integer, Integer, String)} instead.
-   */
-  @Deprecated
-  public BtResult<List<Map<String, Object>>> getBackups(
-      Integer page, Integer limit, Integer siteId, String callback) {
-    return listBackups(siteId, page, limit, callback);
   }
 
   public BtResult<Boolean> createBackup(int id) {
