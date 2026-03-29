@@ -6,25 +6,33 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import net.heimeng.sdk.btapi.testutil.TestValueFactory;
+
 @DisplayName("FTP facade request objects")
 class FtpFacadeRequestsTest {
 
   @Test
   @DisplayName("FtpCreateRequest factory should default remark to username")
   void createRequestFactoryAppliesDefaults() {
-    FtpCreateRequest request = FtpCreateRequest.of("demo", "secret", "/www/wwwroot/demo");
+    FtpCreateRequest request =
+        FtpCreateRequest.of(
+            TestValueFactory.sampleFtpUser(),
+            TestValueFactory.samplePassword(),
+            TestValueFactory.sampleFtpPath());
 
-    assertEquals("demo", request.username());
-    assertEquals("secret", request.password());
-    assertEquals("/www/wwwroot/demo", request.path());
-    assertEquals("demo", request.remark());
+    assertEquals(TestValueFactory.sampleFtpUser(), request.username());
+    assertEquals(TestValueFactory.samplePassword(), request.password());
+    assertEquals(TestValueFactory.sampleFtpPath(), request.path());
+    assertEquals(TestValueFactory.sampleFtpUser(), request.remark());
   }
 
   @Test
   @DisplayName("FtpDeleteRequest should require positive account id")
   void deleteRequestRequiresPositiveId() {
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> new FtpDeleteRequest(0, "demo"));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new FtpDeleteRequest(0, TestValueFactory.sampleFtpUser()));
 
     assertEquals("accountId must be positive", exception.getMessage());
   }
@@ -35,7 +43,9 @@ class FtpFacadeRequestsTest {
     IllegalArgumentException exception =
         assertThrows(
             IllegalArgumentException.class,
-            () -> new FtpPasswordUpdateRequest(1, "demo", " ", "new-secret"));
+            () ->
+                new FtpPasswordUpdateRequest(
+                    1, TestValueFactory.sampleFtpUser(), " ", TestValueFactory.updatedSamplePassword()));
 
     assertEquals("path cannot be blank", exception.getMessage());
   }

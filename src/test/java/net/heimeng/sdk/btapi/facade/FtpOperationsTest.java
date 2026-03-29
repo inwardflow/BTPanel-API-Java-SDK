@@ -23,6 +23,7 @@ import net.heimeng.sdk.btapi.api.ftp.GetFtpAccountsApi;
 import net.heimeng.sdk.btapi.client.BtClient;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.ftp.FtpAccount;
+import net.heimeng.sdk.btapi.testutil.TestValueFactory;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FtpOperations facade tests")
@@ -51,7 +52,12 @@ class FtpOperationsTest {
     when(client.execute(any(CreateFtpAccountApi.class))).thenReturn(successBoolean());
 
     BtResult<Boolean> result =
-        operations.create(new FtpCreateRequest("demo", "secret", "/www/wwwroot/demo", "Demo FTP"));
+        operations.create(
+            new FtpCreateRequest(
+                TestValueFactory.sampleFtpUser(),
+                TestValueFactory.samplePassword(),
+                TestValueFactory.sampleFtpPath(),
+                TestValueFactory.sampleFtpRemark()));
 
     assertTrue(result.isSuccess());
     verify(client)
@@ -59,10 +65,12 @@ class FtpOperationsTest {
             argThat(
                 api ->
                     api.getEndpoint().equals("ftp?action=AddUser")
-                        && "demo".equals(api.getParams().get("ftp_username"))
-                        && "secret".equals(api.getParams().get("ftp_password"))
-                        && "/www/wwwroot/demo".equals(api.getParams().get("path"))
-                        && "Demo FTP".equals(api.getParams().get("ps"))));
+                        && TestValueFactory.sampleFtpUser()
+                            .equals(api.getParams().get("ftp_username"))
+                        && TestValueFactory.samplePassword()
+                            .equals(api.getParams().get("ftp_password"))
+                        && TestValueFactory.sampleFtpPath().equals(api.getParams().get("path"))
+                        && TestValueFactory.sampleFtpRemark().equals(api.getParams().get("ps"))));
   }
 
   @Test
@@ -71,7 +79,8 @@ class FtpOperationsTest {
     FtpOperations operations = new FtpOperations(client);
     when(client.execute(any(DeleteFtpAccountApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.delete(new FtpDeleteRequest(1, "demo"));
+    BtResult<Boolean> result =
+        operations.delete(new FtpDeleteRequest(1, TestValueFactory.sampleFtpUser()));
 
     assertTrue(result.isSuccess());
     verify(client)
@@ -80,7 +89,7 @@ class FtpOperationsTest {
                 api ->
                     api.getEndpoint().equals("ftp?action=DeleteUser")
                         && Integer.valueOf(1).equals(api.getParams().get("id"))
-                        && "demo".equals(api.getParams().get("username"))));
+                        && TestValueFactory.sampleFtpUser().equals(api.getParams().get("username"))));
   }
 
   @Test
@@ -91,7 +100,11 @@ class FtpOperationsTest {
 
     BtResult<Boolean> result =
         operations.updatePassword(
-            new FtpPasswordUpdateRequest(1, "demo", "/www/wwwroot/demo", "new-secret"));
+            new FtpPasswordUpdateRequest(
+                1,
+                TestValueFactory.sampleFtpUser(),
+                TestValueFactory.sampleFtpPath(),
+                TestValueFactory.updatedSamplePassword()));
 
     assertTrue(result.isSuccess());
     verify(client)
@@ -100,9 +113,11 @@ class FtpOperationsTest {
                 api ->
                     api.getEndpoint().equals("ftp?action=SetUser")
                         && Integer.valueOf(1).equals(api.getParams().get("id"))
-                        && "demo".equals(api.getParams().get("ftp_username"))
-                        && "new-secret".equals(api.getParams().get("new_password"))
-                        && "/www/wwwroot/demo".equals(api.getParams().get("path"))));
+                        && TestValueFactory.sampleFtpUser()
+                            .equals(api.getParams().get("ftp_username"))
+                        && TestValueFactory.updatedSamplePassword()
+                            .equals(api.getParams().get("new_password"))
+                        && TestValueFactory.sampleFtpPath().equals(api.getParams().get("path"))));
   }
 
   private static BtResult<Boolean> successBoolean() {
@@ -115,8 +130,8 @@ class FtpOperationsTest {
   private static BtResult<List<FtpAccount>> successListResponse() {
     FtpAccount ftpAccount = new FtpAccount();
     ftpAccount.setId(1);
-    ftpAccount.setUsername("demo");
-    ftpAccount.setPath("/www/wwwroot/demo");
+    ftpAccount.setUsername(TestValueFactory.sampleFtpUser());
+    ftpAccount.setPath(TestValueFactory.sampleFtpPath());
 
     BtResult<List<FtpAccount>> response = new BtResult<>();
     response.setStatus(true);

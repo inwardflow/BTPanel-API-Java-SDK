@@ -32,6 +32,7 @@ import net.heimeng.sdk.btapi.facade.WebsiteCreateRequest;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.ftp.FtpAccount;
 import net.heimeng.sdk.btapi.model.website.CreateWebsiteResult;
+import net.heimeng.sdk.btapi.testutil.TestValueFactory;
 
 @DisplayName("FTP integration tests")
 @EnabledIfEnvironmentVariable(named = "ENABLE_INTEGRATION_TESTS", matches = "true")
@@ -68,10 +69,10 @@ class FtpIntegrationTest extends AbstractIntegrationTestSupport {
                 + ENV_TEST_FTP_ROOT
                 + " or provide website/file integration test configuration.");
 
-    ftpUsername = "itftp" + suffix;
-    ftpPassword = "BtIt" + suffix + "Pwd1";
-    updatedFtpPassword = "BtIt" + suffix + "Pwd2";
-    ftpBasePath = appendChildPath(ftpBaseDirectory, "ftp-it-" + suffix);
+    ftpUsername = TestValueFactory.integrationFtpUser(suffix);
+    ftpPassword = TestValueFactory.integrationPassword(suffix, 'a');
+    updatedFtpPassword = TestValueFactory.integrationPassword(suffix, 'b');
+    ftpBasePath = appendChildPath(ftpBaseDirectory, TestValueFactory.integrationFtpBaseSegment(suffix));
     ftpHomePath = appendChildPath(ftpBasePath, ftpUsername);
 
     logger.info(
@@ -158,7 +159,8 @@ class FtpIntegrationTest extends AbstractIntegrationTestSupport {
               .ftp()
               .create(new FtpCreateRequest(ftpUsername, ftpPassword, ftpHomePath, ftpUsername));
 
-      assertTrue(createResult.isSuccess(), "Failed to prepare FTP fixture: " + createResult.getMsg());
+      assertTrue(
+          createResult.isSuccess(), "Failed to prepare FTP fixture: " + createResult.getMsg());
       assertTrue(Boolean.TRUE.equals(createResult.getData()), "FTP fixture should return true");
     } catch (BtApiException exception) {
       if (isInvalidParameter(exception)) {
@@ -180,7 +182,8 @@ class FtpIntegrationTest extends AbstractIntegrationTestSupport {
       assertTrue(
           baseDirectoryResult.isSuccess(),
           "Failed to create FTP base directory: " + baseDirectoryResult.getMsg());
-      assertTrue(Boolean.TRUE.equals(baseDirectoryResult.getData()), "Base directory should return true");
+      assertTrue(
+          Boolean.TRUE.equals(baseDirectoryResult.getData()), "Base directory should return true");
 
       BtResult<Boolean> result =
           apiManager.execute(new CreateFileDirectoryApi().setPath(ftpHomePath));
@@ -266,7 +269,8 @@ class FtpIntegrationTest extends AbstractIntegrationTestSupport {
       BtResult<Boolean> result =
           apiManager.ftp().delete(new FtpDeleteRequest(ftpAccount.getId(), ftpUsername));
       if (!result.isSuccess()) {
-        logger.warn("FTP account cleanup failed, ftpUsername={}, reason={}", ftpUsername, result.getMsg());
+        logger.warn(
+            "FTP account cleanup failed, ftpUsername={}, reason={}", ftpUsername, result.getMsg());
       }
     } catch (Exception exception) {
       logger.warn(

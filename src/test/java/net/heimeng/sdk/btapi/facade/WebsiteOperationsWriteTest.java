@@ -42,6 +42,7 @@ import net.heimeng.sdk.btapi.api.website.StopWebsiteApi;
 import net.heimeng.sdk.btapi.client.BtClient;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.website.CreateWebsiteResult;
+import net.heimeng.sdk.btapi.testutil.TestValueFactory;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("WebsiteOperations write facade tests")
@@ -57,7 +58,8 @@ class WebsiteOperationsWriteTest {
 
     BtResult<CreateWebsiteResult> result =
         operations.create(
-            WebsiteCreateRequest.builder("demo.example.com", "/www/wwwroot/demo")
+            WebsiteCreateRequest.builder(
+                    TestValueFactory.sampleDomain(), TestValueFactory.sampleSitePath())
                 .phpVersion("82")
                 .build());
 
@@ -67,18 +69,21 @@ class WebsiteOperationsWriteTest {
     verify(client).execute(captor.capture());
 
     Map<String, Object> params = captor.getValue().getParams();
-    assertEquals("/www/wwwroot/demo", params.get("path"));
+    assertEquals(TestValueFactory.sampleSitePath(), params.get("path"));
     assertEquals(0, params.get("type_id"));
     assertEquals("PHP", params.get("type"));
     assertEquals("82", params.get("version"));
     assertEquals(80, params.get("port"));
-    assertEquals("demo.example.com", params.get("ps"));
+    assertEquals(TestValueFactory.sampleDomain(), params.get("ps"));
     assertEquals(Boolean.FALSE, params.get("ftp"));
     assertEquals(Boolean.FALSE, params.get("sql"));
     assertFalse(params.containsKey("ftp_username"));
     assertFalse(params.containsKey("datauser"));
     assertNotNull(params.get("webname"));
-    assertTrue(params.get("webname").toString().contains("\"domain\":\"demo.example.com\""));
+    assertTrue(
+        params.get("webname")
+            .toString()
+            .contains("\"domain\":\"" + TestValueFactory.sampleDomain() + "\""));
   }
 
   @Test
@@ -89,14 +94,18 @@ class WebsiteOperationsWriteTest {
 
     BtResult<CreateWebsiteResult> result =
         operations.create(
-            WebsiteCreateRequest.builder("demo.example.com", "/www/wwwroot/demo")
+            WebsiteCreateRequest.builder(
+                    TestValueFactory.sampleDomain(), TestValueFactory.sampleSitePath())
                 .typeId(3)
                 .projectType("Node")
                 .phpVersion("no")
                 .port(8080)
                 .remark("Production")
-                .ftpAccount("demo_ftp", "ftp-secret")
-                .database("demo_db", "db-secret", "utf8mb4")
+                .ftpAccount(TestValueFactory.sampleFtpUser(), TestValueFactory.samplePassword())
+                .database(
+                    TestValueFactory.sampleDatabaseName(),
+                    TestValueFactory.samplePassword(),
+                    "utf8mb4")
                 .build());
 
     assertTrue(result.isSuccess());
@@ -111,11 +120,11 @@ class WebsiteOperationsWriteTest {
     assertEquals(8080, params.get("port"));
     assertEquals("Production", params.get("ps"));
     assertEquals(Boolean.TRUE, params.get("ftp"));
-    assertEquals("demo_ftp", params.get("ftp_username"));
-    assertEquals("ftp-secret", params.get("ftp_password"));
+    assertEquals(TestValueFactory.sampleFtpUser(), params.get("ftp_username"));
+    assertEquals(TestValueFactory.samplePassword(), params.get("ftp_password"));
     assertEquals(Boolean.TRUE, params.get("sql"));
-    assertEquals("demo_db", params.get("datauser"));
-    assertEquals("db-secret", params.get("datapassword"));
+    assertEquals(TestValueFactory.sampleDatabaseName(), params.get("datauser"));
+    assertEquals(TestValueFactory.samplePassword(), params.get("datapassword"));
     assertEquals("utf8mb4", params.get("codeing"));
   }
 
@@ -127,7 +136,9 @@ class WebsiteOperationsWriteTest {
 
     BtResult<Boolean> result =
         operations.addDomain(
-            8, new WebsiteDomainBinding("demo.example.com", "www.demo.example.com"));
+            8,
+            new WebsiteDomainBinding(
+                TestValueFactory.sampleDomain(), TestValueFactory.sampleWwwDomain()));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(AddWebsiteDomainApi.class));
@@ -141,7 +152,9 @@ class WebsiteOperationsWriteTest {
 
     BtResult<Boolean> result =
         operations.removeDomain(
-            8, new WebsiteDomainRemoval("demo.example.com", "www.demo.example.com", 80));
+            8,
+            new WebsiteDomainRemoval(
+                TestValueFactory.sampleDomain(), TestValueFactory.sampleWwwDomain(), 80));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(DeleteWebsiteDomainApi.class));
@@ -154,7 +167,7 @@ class WebsiteOperationsWriteTest {
     when(client.execute(any(DeleteWebsiteApi.class))).thenReturn(successBoolean());
 
     BtResult<Boolean> result =
-        operations.delete(8, "demo.example.com", new WebsiteDeleteOptions(true, true, false));
+        operations.delete(8, TestValueFactory.sampleDomain(), new WebsiteDeleteOptions(true, true, false));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(DeleteWebsiteApi.class));
@@ -202,7 +215,7 @@ class WebsiteOperationsWriteTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(SetWebsiteRootPathApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.updateRootPath(8, "/www/wwwroot/demo");
+    BtResult<Boolean> result = operations.updateRootPath(8, TestValueFactory.sampleSitePath());
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(SetWebsiteRootPathApi.class));
@@ -278,7 +291,9 @@ class WebsiteOperationsWriteTest {
 
     BtResult<Boolean> result =
         operations.updateNginxConfig(
-            8, new WebsiteNginxConfigOptions("demo.example.com", "server { listen 80; }"));
+            8,
+            new WebsiteNginxConfigOptions(
+                TestValueFactory.sampleDomain(), "server { listen 80; }"));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(SetWebsiteNginxConfigApi.class));
@@ -292,7 +307,8 @@ class WebsiteOperationsWriteTest {
 
     BtResult<Boolean> result =
         operations.enablePasswordProtection(
-            8, new WebsitePasswordProtectionOptions("admin", "secret"));
+            8,
+            new WebsitePasswordProtectionOptions("admin", TestValueFactory.samplePassword()));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(SetWebsitePasswordApi.class));
@@ -318,7 +334,9 @@ class WebsiteOperationsWriteTest {
 
     BtResult<Boolean> result =
         operations.installSslCertificate(
-            8, new WebsiteSslCertificateOptions("demo.example.com", "cert", "key", Boolean.TRUE));
+            8,
+            new WebsiteSslCertificateOptions(
+                TestValueFactory.sampleDomain(), "cert", "key", Boolean.TRUE));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(SetWebsiteSslApi.class));

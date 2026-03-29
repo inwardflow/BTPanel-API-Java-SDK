@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import net.heimeng.sdk.btapi.testutil.TestValueFactory;
+
 @DisplayName("Database facade request objects")
 class DatabaseFacadeRequestsTest {
 
@@ -13,14 +15,18 @@ class DatabaseFacadeRequestsTest {
   @DisplayName("DatabaseCreateRequest builder should apply sensible defaults")
   void createRequestBuilderAppliesDefaults() {
     DatabaseCreateRequest request =
-        DatabaseCreateRequest.builder("demo_db", "demo_user", "secret").build();
+        DatabaseCreateRequest.builder(
+                TestValueFactory.sampleDatabaseName(),
+                TestValueFactory.sampleDatabaseUser(),
+                TestValueFactory.samplePassword())
+            .build();
 
-    assertEquals("demo_db", request.databaseName());
-    assertEquals("demo_user", request.username());
-    assertEquals("secret", request.password());
+    assertEquals(TestValueFactory.sampleDatabaseName(), request.databaseName());
+    assertEquals(TestValueFactory.sampleDatabaseUser(), request.username());
+    assertEquals(TestValueFactory.samplePassword(), request.password());
     assertEquals(DatabaseCreateRequest.Type.MYSQL, request.type());
     assertEquals("utf8mb4", request.charset());
-    assertEquals("demo_db", request.remark());
+    assertEquals(TestValueFactory.sampleDatabaseRemark(), request.remark());
     assertEquals("%", request.dataAccess());
     assertEquals("%", request.address());
     assertEquals("0.0.0.0/0", request.listenIp());
@@ -34,7 +40,12 @@ class DatabaseFacadeRequestsTest {
     IllegalArgumentException exception =
         assertThrows(
             IllegalArgumentException.class,
-            () -> DatabaseCreateRequest.builder("demo_db", "demo_user", "secret").sid(-1));
+            () ->
+                DatabaseCreateRequest.builder(
+                        TestValueFactory.sampleDatabaseName(),
+                        TestValueFactory.sampleDatabaseUser(),
+                        TestValueFactory.samplePassword())
+                    .sid(-1));
 
     assertEquals("sid cannot be negative", exception.getMessage());
   }
@@ -44,7 +55,8 @@ class DatabaseFacadeRequestsTest {
   void deleteRequestRequiresPositiveId() {
     IllegalArgumentException exception =
         assertThrows(
-            IllegalArgumentException.class, () -> new DatabaseDeleteRequest("demo_db", 0));
+            IllegalArgumentException.class,
+            () -> new DatabaseDeleteRequest(TestValueFactory.sampleDatabaseName(), 0));
 
     assertEquals("databaseId must be positive", exception.getMessage());
   }
@@ -55,7 +67,11 @@ class DatabaseFacadeRequestsTest {
     IllegalArgumentException exception =
         assertThrows(
             IllegalArgumentException.class,
-            () -> new DatabasePasswordUpdateRequest("demo_db", "demo_user", " "));
+            () ->
+                new DatabasePasswordUpdateRequest(
+                    TestValueFactory.sampleDatabaseName(),
+                    TestValueFactory.sampleDatabaseUser(),
+                    " "));
 
     assertEquals("newPassword cannot be blank", exception.getMessage());
   }

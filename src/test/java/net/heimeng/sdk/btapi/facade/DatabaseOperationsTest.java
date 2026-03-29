@@ -23,6 +23,7 @@ import net.heimeng.sdk.btapi.api.database.GetDatabasesApi;
 import net.heimeng.sdk.btapi.client.BtClient;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.database.DatabaseInfo;
+import net.heimeng.sdk.btapi.testutil.TestValueFactory;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DatabaseOperations facade tests")
@@ -51,7 +52,12 @@ class DatabaseOperationsTest {
     when(client.execute(any(CreateDatabaseApi.class))).thenReturn(successBoolean());
 
     BtResult<Boolean> result =
-        operations.create(DatabaseCreateRequest.builder("demo_db", "demo_user", "secret").build());
+        operations.create(
+            DatabaseCreateRequest.builder(
+                    TestValueFactory.sampleDatabaseName(),
+                    TestValueFactory.sampleDatabaseUser(),
+                    TestValueFactory.samplePassword())
+                .build());
 
     assertTrue(result.isSuccess());
     verify(client)
@@ -60,12 +66,13 @@ class DatabaseOperationsTest {
                 api ->
                     api.getEndpoint().equals("database")
                         && "AddDatabase".equals(api.getParams().get("action"))
-                        && "demo_db".equals(api.getParams().get("name"))
-                        && "demo_user".equals(api.getParams().get("db_user"))
-                        && "secret".equals(api.getParams().get("password"))
+                        && TestValueFactory.sampleDatabaseName().equals(api.getParams().get("name"))
+                        && TestValueFactory.sampleDatabaseUser()
+                            .equals(api.getParams().get("db_user"))
+                        && TestValueFactory.samplePassword().equals(api.getParams().get("password"))
                         && "utf8mb4".equals(api.getParams().get("codeing"))
                         && "MySQL".equals(api.getParams().get("dtype"))
-                        && "demo_db".equals(api.getParams().get("ps"))
+                        && TestValueFactory.sampleDatabaseRemark().equals(api.getParams().get("ps"))
                         && "%".equals(api.getParams().get("dataAccess"))
                         && "%".equals(api.getParams().get("address"))
                         && "0.0.0.0/0".equals(api.getParams().get("listen_ip"))
@@ -81,7 +88,10 @@ class DatabaseOperationsTest {
 
     BtResult<Boolean> result =
         operations.create(
-            DatabaseCreateRequest.builder("demo_db", "demo_user", "secret")
+            DatabaseCreateRequest.builder(
+                    TestValueFactory.sampleDatabaseName(),
+                    TestValueFactory.sampleDatabaseUser(),
+                    TestValueFactory.samplePassword())
                 .type(DatabaseCreateRequest.Type.MONGODB)
                 .charset("utf8")
                 .remark("Production DB")
@@ -113,7 +123,8 @@ class DatabaseOperationsTest {
     DatabaseOperations operations = new DatabaseOperations(client);
     when(client.execute(any(DeleteDatabaseApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.delete(new DatabaseDeleteRequest("demo_db", 9));
+    BtResult<Boolean> result =
+        operations.delete(new DatabaseDeleteRequest(TestValueFactory.sampleDatabaseName(), 9));
 
     assertTrue(result.isSuccess());
     verify(client)
@@ -121,7 +132,7 @@ class DatabaseOperationsTest {
             argThat(
                 api ->
                     api.getEndpoint().equals("database?action=DeleteDatabase")
-                        && "demo_db".equals(api.getParams().get("name"))
+                        && TestValueFactory.sampleDatabaseName().equals(api.getParams().get("name"))
                         && Integer.valueOf(9).equals(api.getParams().get("id"))));
   }
 
@@ -133,7 +144,10 @@ class DatabaseOperationsTest {
 
     BtResult<Boolean> result =
         operations.updatePassword(
-            new DatabasePasswordUpdateRequest("demo_db", "demo_user", "new-secret"));
+            new DatabasePasswordUpdateRequest(
+                TestValueFactory.sampleDatabaseName(),
+                TestValueFactory.sampleDatabaseUser(),
+                TestValueFactory.updatedSamplePassword()));
 
     assertTrue(result.isSuccess());
     verify(client)
@@ -141,9 +155,11 @@ class DatabaseOperationsTest {
             argThat(
                 api ->
                     api.getEndpoint().equals("database?action=ChangeDBPassword")
-                        && "demo_db".equals(api.getParams().get("name"))
-                        && "demo_user".equals(api.getParams().get("username"))
-                        && "new-secret".equals(api.getParams().get("password"))));
+                        && TestValueFactory.sampleDatabaseName().equals(api.getParams().get("name"))
+                        && TestValueFactory.sampleDatabaseUser()
+                            .equals(api.getParams().get("username"))
+                        && TestValueFactory.updatedSamplePassword()
+                            .equals(api.getParams().get("password"))));
   }
 
   private static BtResult<Boolean> successBoolean() {
@@ -156,8 +172,8 @@ class DatabaseOperationsTest {
   private static BtResult<List<DatabaseInfo>> successListResponse() {
     DatabaseInfo databaseInfo = new DatabaseInfo();
     databaseInfo.setId(1);
-    databaseInfo.setName("demo_db");
-    databaseInfo.setUsername("demo_user");
+    databaseInfo.setName(TestValueFactory.sampleDatabaseName());
+    databaseInfo.setUsername(TestValueFactory.sampleDatabaseUser());
 
     BtResult<List<DatabaseInfo>> response = new BtResult<>();
     response.setStatus(true);

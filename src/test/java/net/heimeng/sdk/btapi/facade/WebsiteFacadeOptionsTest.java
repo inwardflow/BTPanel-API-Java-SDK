@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import net.heimeng.sdk.btapi.testutil.TestValueFactory;
+
 @DisplayName("Website facade option objects")
 class WebsiteFacadeOptionsTest {
 
@@ -103,17 +105,18 @@ class WebsiteFacadeOptionsTest {
   @DisplayName("WebsiteCreateRequest builder should apply sensible defaults")
   void createRequestBuilderAppliesDefaults() {
     WebsiteCreateRequest request =
-        WebsiteCreateRequest.builder("demo.example.com", "/www/wwwroot/demo")
+        WebsiteCreateRequest.builder(
+                TestValueFactory.sampleDomain(), TestValueFactory.sampleSitePath())
             .phpVersion("82")
             .build();
 
-    assertEquals("demo.example.com", request.domain());
-    assertEquals("/www/wwwroot/demo", request.path());
+    assertEquals(TestValueFactory.sampleDomain(), request.domain());
+    assertEquals(TestValueFactory.sampleSitePath(), request.path());
     assertEquals(0, request.typeId());
     assertEquals("PHP", request.projectType());
     assertEquals("82", request.phpVersion());
     assertEquals(80, request.port());
-    assertEquals("demo.example.com", request.remark());
+    assertEquals(TestValueFactory.sampleDomain(), request.remark());
     assertFalse(request.createFtp());
     assertFalse(request.createDatabase());
   }
@@ -122,22 +125,26 @@ class WebsiteFacadeOptionsTest {
   @DisplayName("WebsiteCreateRequest should support optional ftp and database provisioning")
   void createRequestSupportsOptionalProvisioning() {
     WebsiteCreateRequest request =
-        WebsiteCreateRequest.builder("demo.example.com", "/www/wwwroot/demo")
+        WebsiteCreateRequest.builder(
+                TestValueFactory.sampleDomain(), TestValueFactory.sampleSitePath())
             .typeId(2)
             .projectType("Node")
             .phpVersion("no")
             .port(8080)
             .remark("Production site")
-            .ftpAccount("demo_ftp", "ftp-secret")
-            .database("demo_db", "db-secret", "utf8mb4")
+            .ftpAccount(TestValueFactory.sampleFtpUser(), TestValueFactory.samplePassword())
+            .database(
+                TestValueFactory.sampleDatabaseName(),
+                TestValueFactory.samplePassword(),
+                "utf8mb4")
             .build();
 
     assertTrue(request.createFtp());
-    assertEquals("demo_ftp", request.ftpAccount().username());
-    assertEquals("ftp-secret", request.ftpAccount().password());
+    assertEquals(TestValueFactory.sampleFtpUser(), request.ftpAccount().username());
+    assertEquals(TestValueFactory.samplePassword(), request.ftpAccount().password());
     assertTrue(request.createDatabase());
-    assertEquals("demo_db", request.database().username());
-    assertEquals("db-secret", request.database().password());
+    assertEquals(TestValueFactory.sampleDatabaseName(), request.database().username());
+    assertEquals(TestValueFactory.samplePassword(), request.database().password());
     assertEquals("utf8mb4", request.database().charset());
   }
 
@@ -147,7 +154,10 @@ class WebsiteFacadeOptionsTest {
     IllegalArgumentException exception =
         assertThrows(
             IllegalArgumentException.class,
-            () -> WebsiteCreateRequest.builder("demo.example.com", "/www/wwwroot/demo").build());
+            () ->
+                WebsiteCreateRequest.builder(
+                        TestValueFactory.sampleDomain(), TestValueFactory.sampleSitePath())
+                    .build());
 
     assertEquals("phpVersion cannot be blank", exception.getMessage());
   }
@@ -158,11 +168,13 @@ class WebsiteFacadeOptionsTest {
     IllegalArgumentException ftpException =
         assertThrows(
             IllegalArgumentException.class,
-            () -> new WebsiteCreateRequest.FtpAccount(" ", "ftp-secret"));
+            () -> new WebsiteCreateRequest.FtpAccount(" ", TestValueFactory.samplePassword()));
     IllegalArgumentException databaseException =
         assertThrows(
             IllegalArgumentException.class,
-            () -> new WebsiteCreateRequest.Database("demo_db", "db-secret", " "));
+            () ->
+                new WebsiteCreateRequest.Database(
+                    TestValueFactory.sampleDatabaseName(), TestValueFactory.samplePassword(), " "));
 
     assertEquals("ftp username cannot be blank", ftpException.getMessage());
     assertEquals("database charset cannot be blank", databaseException.getMessage());
