@@ -2,6 +2,7 @@ package net.heimeng.sdk.btapi.facade;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import net.heimeng.sdk.btapi.api.website.AddWebsiteDomainApi;
 import net.heimeng.sdk.btapi.api.website.CloseWebsitePasswordApi;
@@ -120,13 +121,13 @@ public final class WebsiteOperations extends AbstractOperations {
             .setPort(port));
   }
 
-  public BtResult<Boolean> delete(
-      int id, String webname, boolean deleteFtp, boolean deleteDatabase, boolean deletePath) {
+  public BtResult<Boolean> delete(int siteId, String websiteName, WebsiteDeleteOptions options) {
+    Objects.requireNonNull(options, "options cannot be null");
     return execute(
-        new DeleteWebsiteApi(id, webname)
-            .setDeleteFtp(deleteFtp)
-            .setDeleteDatabase(deleteDatabase)
-            .setDeletePath(deletePath));
+        new DeleteWebsiteApi(siteId, websiteName)
+            .setDeleteFtp(options.deleteFtp())
+            .setDeleteDatabase(options.deleteDatabase())
+            .setDeletePath(options.deletePath()));
   }
 
   public BtResult<Boolean> start(int id) {
@@ -203,15 +204,15 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new CloseWebsitePasswordApi().setId(siteId));
   }
 
-  public BtResult<Boolean> installSslCertificate(
-      int siteId, String domain, String cert, String key, Boolean forceHttps) {
+  public BtResult<Boolean> installSslCertificate(int siteId, WebsiteSslCertificateOptions options) {
+    Objects.requireNonNull(options, "options cannot be null");
     return execute(
         new SetWebsiteSslApi()
             .setId(siteId)
-            .setDomain(domain)
-            .setCert(cert)
-            .setKey(key)
-            .setForceHttps(forceHttps));
+            .setDomain(options.domain())
+            .setCert(options.certificate())
+            .setKey(options.privateKey())
+            .setForceHttps(options.forceHttps()));
   }
 
   public BtResult<Boolean> disableSsl(int siteId) {
@@ -230,15 +231,15 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new GetWebsiteLimitNetApi().setId(id));
   }
 
-  public BtResult<Boolean> updateLimitNet(
-      int siteId, Boolean enabled, Integer perServer, Integer perIp, Integer limitRate) {
+  public BtResult<Boolean> updateLimitNet(int siteId, WebsiteLimitNetOptions options) {
+    Objects.requireNonNull(options, "options cannot be null");
     return execute(
         new SetWebsiteLimitNetApi()
             .setId(siteId)
-            .setEnabled(enabled)
-            .setPerserver(perServer)
-            .setPerip(perIp)
-            .setLimitRate(limitRate));
+            .setEnabled(options.enabled())
+            .setPerserver(options.perServer())
+            .setPerip(options.perIp())
+            .setLimitRate(options.limitRate()));
   }
 
   public BtResult<List<Map<String, Object>>> listBackups(

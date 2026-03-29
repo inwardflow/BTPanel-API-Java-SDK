@@ -117,6 +117,12 @@ For write-side website operations, the preferred names now follow action-oriente
 - `toggleLogs(...)`
 - `updateLimitNet(...)`
 
+For more complex commands, prefer the typed option objects over long parameter lists:
+
+- `delete(int siteId, String websiteName, WebsiteDeleteOptions options)`
+- `installSslCertificate(int siteId, WebsiteSslCertificateOptions options)`
+- `updateLimitNet(int siteId, WebsiteLimitNetOptions options)`
+
 ## SSL Notes
 
 - `install(domain, key, cert)` maps `domain` to the panel's site-name style API parameter.

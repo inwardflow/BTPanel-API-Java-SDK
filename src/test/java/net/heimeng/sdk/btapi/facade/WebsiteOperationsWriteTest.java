@@ -72,7 +72,8 @@ class WebsiteOperationsWriteTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(DeleteWebsiteApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.delete(8, "demo.example.com", true, true, false);
+    BtResult<Boolean> result =
+        operations.delete(8, "demo.example.com", new WebsiteDeleteOptions(true, true, false));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(DeleteWebsiteApi.class));
@@ -230,7 +231,8 @@ class WebsiteOperationsWriteTest {
     when(client.execute(any(SetWebsiteSslApi.class))).thenReturn(successBoolean());
 
     BtResult<Boolean> result =
-        operations.installSslCertificate(8, "demo.example.com", "cert", "key", Boolean.TRUE);
+        operations.installSslCertificate(
+            8, new WebsiteSslCertificateOptions("demo.example.com", "cert", "key", Boolean.TRUE));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(SetWebsiteSslApi.class));
@@ -266,7 +268,8 @@ class WebsiteOperationsWriteTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(SetWebsiteLimitNetApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.updateLimitNet(8, true, 300, 30, 1024);
+    BtResult<Boolean> result =
+        operations.updateLimitNet(8, new WebsiteLimitNetOptions(true, 300, 30, 1024));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(SetWebsiteLimitNetApi.class));
