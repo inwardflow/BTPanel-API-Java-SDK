@@ -101,6 +101,24 @@ The repository is moving toward a stable `1.0` public API. For read-side website
 
 Older `get*` or `rawList(...)` variants remain as deprecated compatibility shims where necessary.
 
+For write-side website operations, the preferred names now follow action-oriented verbs such as:
+
+- `removeDomain(...)`
+- `updateRemark(...)`
+- `updateRootPath(...)`
+- `updateRunPath(...)`
+- `toggleUserIni(...)`
+- `updatePhpVersion(...)`
+- `updatePhpExtension(...)`
+- `updateRewriteRules(...)`
+- `updateNginxConfig(...)`
+- `enablePasswordProtection(...)`
+- `disablePasswordProtection(...)`
+- `installSslCertificate(...)`
+- `disableSsl(...)`
+- `toggleLogs(...)`
+- `updateLimitNet(...)`
+
 ## SSL Notes
 
 - `install(domain, key, cert)` maps `domain` to the panel's site-name style API parameter.
