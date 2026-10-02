@@ -194,7 +194,7 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
     Map<String, Object> params = context.getParams();
 
     if (!params.containsKey("request_token") && !params.containsKey("request_time")) {
-      long requestTime = System.currentTimeMillis() / 1000;
+      long requestTime = BtUtils.generateRequestTime();
       String requestToken = BtUtils.generateRequestToken(config.getApiKey(), requestTime);
 
       context

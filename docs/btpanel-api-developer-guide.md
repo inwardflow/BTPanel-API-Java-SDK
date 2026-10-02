@@ -59,7 +59,7 @@ request_token = md5(String(request_time) + md5(apiKey))
 Java 示例：
 
 ```java
-long requestTime = System.currentTimeMillis() / 1000;
+long requestTime = BtUtils.generateRequestTime(); // Unix 秒
 String requestToken = BtUtils.generateRequestToken(apiKey, requestTime);
 ```
 

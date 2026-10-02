@@ -1,5 +1,6 @@
 package net.heimeng.sdk.btapi;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -35,19 +36,21 @@ public class BtUtils {
       ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA));
 
   /**
-   * 生成当前时间的时间戳（毫秒）
+   * 生成宝塔接口签名所需的 {@code request_time}，即当前 Unix 时间戳（秒）。
    *
-   * @return 当前时间的时间戳
+   * @return 当前 Unix 时间戳（秒）
    */
   public static long generateRequestTime() {
-    return System.currentTimeMillis();
+    return System.currentTimeMillis() / 1000;
   }
 
   /**
-   * 根据apiKey和requestTime生成requestToken
+   * 根据apiKey和requestTime生成requestToken：{@code md5(requestTime + md5(apiKey))}。
+   *
+   * <p>宝塔接口协议规定使用 MD5，无法替换为更强的摘要算法。
    *
    * @param apiKey API密钥
-   * @param requestTime 请求时间戳（毫秒）
+   * @param requestTime 请求时间戳（Unix 秒），通常取自 {@link #generateRequestTime()}
    * @return 生成的requestToken
    * @throws IllegalArgumentException 当apiKey为空时抛出
    */
@@ -56,9 +59,9 @@ public class BtUtils {
 
     try {
       MessageDigest md = MessageDigest.getInstance("MD5");
-      String innerHash = bytesToHex(md.digest(apiKey.getBytes()));
+      String innerHash = bytesToHex(md.digest(apiKey.getBytes(StandardCharsets.UTF_8)));
       String combined = requestTime + innerHash;
-      return bytesToHex(md.digest(combined.getBytes()));
+      return bytesToHex(md.digest(combined.getBytes(StandardCharsets.UTF_8)));
     } catch (NoSuchAlgorithmException e) {
       log.error("Failed to generate request token", e);
       throw new IllegalStateException("MD5 algorithm not found", e);
@@ -184,25 +187,25 @@ public class BtUtils {
   }
 
   /**
-   * 将字符串转换为Base64编码
+   * 将字符串按 UTF-8 转换为Base64编码
    *
    * @param input 输入字符串
    * @return Base64编码的字符串
    */
   public static String toBase64(String input) {
     Objects.requireNonNull(input, "Input cannot be null");
-    return Base64.getEncoder().encodeToString(input.getBytes());
+    return Base64.getEncoder().encodeToString(input.getBytes(StandardCharsets.UTF_8));
   }
 
   /**
-   * 从Base64编码解码字符串
+   * 从Base64编码按 UTF-8 解码字符串
    *
    * @param base64 Base64编码的字符串
    * @return 解码后的字符串
    */
   public static String fromBase64(String base64) {
     Objects.requireNonNull(base64, "Base64 string cannot be null");
-    return new String(Base64.getDecoder().decode(base64));
+    return new String(Base64.getDecoder().decode(base64), StandardCharsets.UTF_8);
   }
 
   /**
