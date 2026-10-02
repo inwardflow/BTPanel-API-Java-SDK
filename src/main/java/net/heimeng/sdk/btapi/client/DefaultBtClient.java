@@ -45,14 +45,14 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
 
   private static final String USER_AGENT = "btpanel-api-java-sdk";
   private static final String API_KEY_FAILURE_MESSAGE = "密钥校验失败";
+  private static final Set<String> SENSITIVE_KEY_FRAGMENTS =
+      Set.of("api_key", "token", "password", "secret", "access_key");
 
   private final BtSdkConfig config;
   private final RetryPolicy retryPolicy;
   private final HttpClient httpClient;
   private final List<RequestInterceptor> interceptors = new CopyOnWriteArrayList<>();
   private final ExecutorService executorService;
-  private final Set<String> sensitiveKeys =
-      Set.of("api_key", "token", "password", "secret", "access_key");
   private volatile boolean closed = false;
 
   public DefaultBtClient(BtSdkConfig config) {
@@ -213,7 +213,7 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
     fullUrl =
         RequestEncodingUtils.appendQueryParameters(fullUrl, api.getMethod(), context.getParams());
 
-    log.debug("Built request URL: {}", fullUrl);
+    log.debug("Built request URL: {}", maskUrl(fullUrl));
     log.debug("Base URL: {}", config.getBaseUrl());
     log.debug("Endpoint: {}", baseEndpoint);
     log.debug("HTTP method: {}", api.getMethod());
@@ -394,7 +394,7 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
   }
 
   /** 对 URL 查询参数中的敏感信息做脱敏。 */
-  private String maskUrl(String url) {
+  static String maskUrl(String url) {
     int queryIndex = url.indexOf('?');
     if (queryIndex == -1) {
       return url;
@@ -404,33 +404,37 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
     String query = url.substring(queryIndex + 1);
 
     String maskedQuery =
-        Arrays.stream(query.split("&")).map(this::maskQueryParam).collect(Collectors.joining("&"));
+        Arrays.stream(query.split("&"))
+            .map(DefaultBtClient::maskQueryParam)
+            .collect(Collectors.joining("&"));
 
     return base + "?" + maskedQuery;
   }
 
-  private String maskQueryParam(String param) {
+  private static String maskQueryParam(String param) {
     String[] parts = param.split("=", 2);
-    if (parts.length == 2 && sensitiveKeys.contains(parts[0].toLowerCase(Locale.ROOT))) {
+    if (parts.length == 2 && isSensitiveKey(parts[0])) {
       return parts[0] + "=***";
     }
     return param;
   }
 
   /** 对参数集合中的敏感字段做脱敏。 */
-  private String maskParams(Map<String, Object> params) {
+  static String maskParams(Map<String, Object> params) {
     return params.entrySet().stream()
         .map(
             entry -> {
               String key = entry.getKey();
-              String normalizedKey = key.toLowerCase(Locale.ROOT);
-              String value =
-                  sensitiveKeys.stream().anyMatch(normalizedKey::contains)
-                      ? "***"
-                      : String.valueOf(entry.getValue());
+              String value = isSensitiveKey(key) ? "***" : String.valueOf(entry.getValue());
               return key + "=" + value;
             })
         .collect(Collectors.joining(", ", "{", "}"));
+  }
+
+  /** 参数名包含任一敏感片段（如 {@code ftp_password}、{@code request_token}）即视为敏感。 */
+  static boolean isSensitiveKey(String key) {
+    String normalizedKey = key.toLowerCase(Locale.ROOT);
+    return SENSITIVE_KEY_FRAGMENTS.stream().anyMatch(normalizedKey::contains);
   }
 
   /** 拦截器责任链，用于依次执行请求拦截器。 */
