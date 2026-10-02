@@ -53,7 +53,20 @@ jobs:
           BT_PANEL_TEST_FTP_ROOT: ${{ secrets.BT_PANEL_TEST_FTP_ROOT }}
           BT_PANEL_TEST_DOMAIN_SUFFIX: ${{ secrets.BT_PANEL_TEST_DOMAIN_SUFFIX }}
           BT_PANEL_TEST_WEBROOT_BASE: ${{ secrets.BT_PANEL_TEST_WEBROOT_BASE }}
+          BT_PANEL_TEST_SSL_CERT_COMMON_NAME: ${{ secrets.BT_PANEL_TEST_SSL_CERT_COMMON_NAME }}
+          BT_PANEL_TEST_SSL_CERT_DOMAINS: ${{ secrets.BT_PANEL_TEST_SSL_CERT_DOMAINS }}
+          BT_PANEL_VERIFY_SSL: ${{ secrets.BT_PANEL_VERIFY_SSL }}
           BT_PANEL_CONNECT_TIMEOUT: ${{ secrets.BT_PANEL_CONNECT_TIMEOUT }}
           BT_PANEL_READ_TIMEOUT: ${{ secrets.BT_PANEL_READ_TIMEOUT }}
           BT_PANEL_RETRY_COUNT: ${{ secrets.BT_PANEL_RETRY_COUNT }}
         run: ./mvnw -B -ntp verify -Pintegration-tests
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-reports
+          path: |
+            target/surefire-reports/
+            target/failsafe-reports/
+          retention-days: 7
