@@ -203,6 +203,8 @@ apiManager.ftp().delete(new FtpDeleteRequest(12, "demo_ftp"));
 
 Integration tests should be configured through environment variables or `src/test/resources/application-test.properties`. Use `src/test/resources/application-test.properties.example` as the template, and do not commit real credentials.
 
+OpenAPI live-validation outputs under `docs/openapi` are treated as local workspace artifacts unless they are intentionally curated into stable documentation.
+
 ## Project Structure
 
 ```text
@@ -221,6 +223,7 @@ src/main/java/net/heimeng/sdk/btapi
 - [Architecture](docs/architecture.md)
 - [Testing](docs/testing.md)
 - [Quickstart Example](docs/examples/quickstart.md)
+- [OpenAPI Workspace Notes](docs/openapi/README.md)
 - [Release Checklist](docs/release-checklist.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)

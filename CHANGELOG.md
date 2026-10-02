@@ -20,8 +20,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `AbstractWebsiteMapQueryApi`, and `AbstractWebsiteMapListQueryApi`.
 - Migrated multiple website query endpoints to the shared parsers, including website detail, config,
   domains, raw list, backups, PHP extensions, SSL certificate list, and limit-net configuration.
-- Standardized `WebsiteOperations` read-side naming toward `list*` methods and kept compatibility
-  aliases deprecated where appropriate.
+- Standardized `WebsiteOperations` read-side naming toward `list*` methods and action-oriented
+  write methods. Legacy aliases were removed instead of deprecated, since the SDK is pre-1.0.
+- Replaced long parameter lists in the website, database, and FTP facades with typed request
+  objects such as `WebsiteCreateRequest`, `DatabaseCreateRequest`, and `FtpCreateRequest`.
+- Changed the Maven coordinates to `net.heimeng:btpanel-api-java-sdk` and reset the version line to
+  `0.x` to signal that the public API may still change between minor releases.
 
 ### Added
 
@@ -29,6 +33,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   lists, and facade delegation coverage for the preferred read-side method names.
 - Public repository metadata and community files such as contributing, security, CI, and release
   documentation.
+- `FileOperations`, `SslOperations`, and `SystemOperations` facades, plus SSL deployment helpers
+  (deployable sites, site SSL status, order list, and batch certificate deployment).
+- GitHub Actions workflows: CI on JDK 17 and 21, CodeQL, manual integration tests, and a
+  tag-driven release workflow that publishes the jar, sources, and Javadoc to GitHub Releases.
+- Opt-in integration suites for the FTP, SSL, and system modules.
+
+### Fixed
+
+- Javadoc generation for the `release` profile (unescaped generic types and heading levels).
+- `SslCertificateTest` failing when the JVM default time zone is west of UTC.
 
 ### Removed
 
