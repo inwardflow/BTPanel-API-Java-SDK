@@ -17,6 +17,33 @@
 - Extensible low-level endpoint model for unsupported or newly discovered panel APIs.
 - Maven-based quality gates with formatting, style checks, unit tests, integration-test separation, and coverage reporting.
 
+## Installation
+
+Requires Java 17 or later. The SDK is not published to Maven Central yet. Use one of these options:
+
+- Download the jar (plus `-sources` and `-javadoc` jars) from
+  [GitHub Releases](https://github.com/inwardflow/BTPanel-API-Java-SDK/releases).
+- Or install it into your local Maven repository from a release tag:
+
+  ```bash
+  git clone --branch v0.1.0 https://github.com/inwardflow/BTPanel-API-Java-SDK.git
+  cd BTPanel-API-Java-SDK
+  ./mvnw install -DskipTests
+  ```
+
+  Then declare the dependency:
+
+  ```xml
+  <dependency>
+    <groupId>net.heimeng</groupId>
+    <artifactId>btpanel-api-java-sdk</artifactId>
+    <version>0.1.0</version>
+  </dependency>
+  ```
+
+The SDK logs through SLF4J and does not ship a logging backend. Add one (for example Logback)
+to your application if you want to see SDK logs.
+
 ## Quick Start
 
 ### Build

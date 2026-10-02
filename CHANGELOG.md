@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Unit tests for shared website parsing paths, including backups, PHP extensions, SSL certificate
+  lists, and facade delegation coverage for the preferred read-side method names.
+- Public repository metadata and community files such as contributing, security, CI, and release
+  documentation.
+- `FileOperations`, `SslOperations`, and `SystemOperations` facades, plus SSL deployment helpers
+  (deployable sites, site SSL status, order list, and batch certificate deployment).
+- GitHub Actions workflows: CI on JDK 17 and 21, CodeQL, manual integration tests, and a
+  tag-driven release workflow that publishes the jar, sources, and Javadoc to GitHub Releases.
+- Opt-in integration suites for the FTP, SSL, and system modules.
+
 ### Changed
 
 - Refactored the SDK around `BtApiManager` and domain facades for a more stable public entry point.
@@ -27,24 +39,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Changed the Maven coordinates to `net.heimeng:btpanel-api-java-sdk` and reset the version line to
   `0.x` to signal that the public API may still change between minor releases.
 
-### Added
+### Removed
 
-- Unit tests for shared website parsing paths, including backups, PHP extensions, SSL certificate
-  lists, and facade delegation coverage for the preferred read-side method names.
-- Public repository metadata and community files such as contributing, security, CI, and release
-  documentation.
-- `FileOperations`, `SslOperations`, and `SystemOperations` facades, plus SSL deployment helpers
-  (deployable sites, site SSL status, order list, and batch certificate deployment).
-- GitHub Actions workflows: CI on JDK 17 and 21, CodeQL, manual integration tests, and a
-  tag-driven release workflow that publishes the jar, sources, and Javadoc to GitHub Releases.
-- Opt-in integration suites for the FTP, SSL, and system modules.
+- Unused legacy API enum and outdated example classes that no longer matched the current SDK design.
+- Library-level binding to a concrete logging implementation.
 
 ### Fixed
 
 - Javadoc generation for the `release` profile (unescaped generic types and heading levels).
 - `SslCertificateTest` failing when the JVM default time zone is west of UTC.
+- `BtUtils.generateRequestTime()` returned milliseconds; the panel expects Unix seconds, so tokens
+  built from it were rejected. It now returns seconds and `DefaultBtClient` uses it directly.
+- Request signing now hashes with an explicit UTF-8 charset instead of the platform default.
 
-### Removed
+### Security
 
-- Unused legacy API enum and outdated example classes that no longer matched the current SDK design.
-- Library-level binding to a concrete logging implementation.
+- Debug logging no longer writes the full request URL unmasked. URL masking now uses the same
+  substring rules as parameter masking, so `request_token`, `ftp_password`, `new_password`, and
+  similar keys are redacted in both places.
