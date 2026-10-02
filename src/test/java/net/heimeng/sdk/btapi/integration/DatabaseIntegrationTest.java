@@ -167,9 +167,12 @@ class DatabaseIntegrationTest extends AbstractIntegrationTestSupport {
       }
 
       BtResult<Boolean> result =
-          apiManager.database().delete(new DatabaseDeleteRequest(databaseName, databaseInfo.getId()));
+          apiManager
+              .database()
+              .delete(new DatabaseDeleteRequest(databaseName, databaseInfo.getId()));
       if (!result.isSuccess()) {
-        logger.warn("Database cleanup failed, databaseName={}, reason={}", databaseName, result.getMsg());
+        logger.warn(
+            "Database cleanup failed, databaseName={}, reason={}", databaseName, result.getMsg());
       }
     } catch (Exception exception) {
       logger.warn(

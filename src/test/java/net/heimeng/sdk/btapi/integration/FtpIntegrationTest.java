@@ -72,7 +72,8 @@ class FtpIntegrationTest extends AbstractIntegrationTestSupport {
     ftpUsername = TestValueFactory.integrationFtpUser(suffix);
     ftpPassword = TestValueFactory.integrationPassword(suffix, 'a');
     updatedFtpPassword = TestValueFactory.integrationPassword(suffix, 'b');
-    ftpBasePath = appendChildPath(ftpBaseDirectory, TestValueFactory.integrationFtpBaseSegment(suffix));
+    ftpBasePath =
+        appendChildPath(ftpBaseDirectory, TestValueFactory.integrationFtpBaseSegment(suffix));
     ftpHomePath = appendChildPath(ftpBasePath, ftpUsername);
 
     logger.info(
