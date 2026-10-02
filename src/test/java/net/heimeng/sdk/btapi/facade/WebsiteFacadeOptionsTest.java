@@ -134,9 +134,7 @@ class WebsiteFacadeOptionsTest {
             .remark("Production site")
             .ftpAccount(TestValueFactory.sampleFtpUser(), TestValueFactory.samplePassword())
             .database(
-                TestValueFactory.sampleDatabaseName(),
-                TestValueFactory.samplePassword(),
-                "utf8mb4")
+                TestValueFactory.sampleDatabaseName(), TestValueFactory.samplePassword(), "utf8mb4")
             .build();
 
     assertTrue(request.createFtp());

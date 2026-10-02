@@ -213,10 +213,10 @@ public class CreateWebsiteApi extends BaseBtApi<BtResult<CreateWebsiteResult>> {
   }
 
   /**
-   * 解析API响应字符串为BtResult<CreateWebsiteResult>对象
+   * 解析API响应字符串为{@code BtResult<CreateWebsiteResult>}对象
    *
    * @param response API响应字符串
-   * @return BtResult<CreateWebsiteResult>对象
+   * @return {@code BtResult<CreateWebsiteResult>}对象
    * @throws BtApiException 当解析失败时抛出
    */
   @Override

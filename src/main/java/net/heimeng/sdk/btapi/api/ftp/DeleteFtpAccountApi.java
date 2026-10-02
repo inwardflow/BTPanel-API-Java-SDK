@@ -1,88 +1,45 @@
 package net.heimeng.sdk.btapi.api.ftp;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONException;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import net.heimeng.sdk.btapi.api.BaseBtApi;
-import net.heimeng.sdk.btapi.exception.BtApiException;
-import net.heimeng.sdk.btapi.model.BtResult;
-
 /**
- * 删除FTP账户API实现
- * <p>
- * 用于在宝塔面板中删除指定的FTP账户。
- * </p>
+ * 删除 FTP 账户的 API。
  *
- * @author InwardFlow
- * @since 2.0.0
+ * <p>根据用户名删除指定 FTP 账户，并统一解析布尔型执行结果。
  */
-public class DeleteFtpAccountApi extends BaseBtApi<BtResult<Boolean>> {
-    
-    /**
-     * API端点路径
-     */
-    private static final String ENDPOINT = "ftp?action=DeleteFtp";
-    
-    /**
-     * 构造函数，创建一个新的DeleteFtpAccountApi实例
-     * 
-     * @param username 要删除的FTP用户名
-     */
-    public DeleteFtpAccountApi(String username) {
-        super(ENDPOINT, HttpMethod.POST);
-        
-        if (StrUtil.isEmpty(username)) {
-            throw new IllegalArgumentException("Username cannot be empty");
-        }
-        
-        setUsername(username);
-    }
-    
-    /**
-     * 设置要删除的FTP用户名
-     * 
-     * @param username FTP用户名
-     * @return 当前API实例，支持链式调用
-     */
-    public DeleteFtpAccountApi setUsername(String username) {
-        addParam("name", username);
-        return this;
-    }
-    
-    /**
-     * 解析API响应字符串为BtResult<Boolean>对象
-     * 
-     * @param response API响应字符串
-     * @return BtResult<Boolean>对象，data为true表示删除成功
-     * @throws BtApiException 当解析失败时抛出
-     */
-    @Override
-    public BtResult<Boolean> parseResponse(String response) {
-        if (response == null || response.isEmpty()) {
-            throw new BtApiException("Empty response received");
-        }
+public class DeleteFtpAccountApi extends AbstractFtpBooleanApi {
 
-        try {
-            if (!JSONUtil.isTypeJSON(response)) {
-                throw new BtApiException("Invalid JSON response: " + response);
-            }
+  private static final String ENDPOINT = "ftp?action=DeleteUser";
 
-            JSONObject json = JSONUtil.parseObj(response);
-            BtResult<Boolean> result = new BtResult<>();
-            
-            // 检查响应状态
-            boolean success = json.getBool("status", false);
-            result.setStatus(success);
-            result.setMsg(json.getStr("msg", success ? "FTP account deleted successfully" : "Failed to delete FTP account"));
-            result.setData(success);
-            
-            return result;
+  public DeleteFtpAccountApi() {
+    super(ENDPOINT, "FTP account deleted successfully", "Failed to delete FTP account");
+  }
 
-        } catch (JSONException e) {
-            throw new BtApiException("Invalid JSON response: " + response);
-        } catch (Exception e) {
-            throw new BtApiException("Failed to parse delete FTP account response: " + e.getMessage(), e);
-        }
+  public DeleteFtpAccountApi(int id, String username) {
+    this();
+    setId(id);
+    setUsername(username);
+  }
+
+  public DeleteFtpAccountApi setId(int id) {
+    if (id <= 0) {
+      throw new IllegalArgumentException("id must be positive");
     }
+    addParam("id", id);
+    return this;
+  }
+
+  public DeleteFtpAccountApi setUsername(String username) {
+    if (username == null || username.isBlank()) {
+      throw new IllegalArgumentException("username cannot be blank");
+    }
+    addParam("username", username);
+    return this;
+  }
+
+  @Override
+  protected boolean validateParams() {
+    Object id = params.get("id");
+    return id instanceof Number numberValue
+        && numberValue.intValue() > 0
+        && hasRequiredParams("username");
+  }
 }

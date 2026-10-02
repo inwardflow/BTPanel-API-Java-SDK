@@ -1,108 +1,51 @@
 package net.heimeng.sdk.btapi.model.ssl;
 
-import lombok.Data;
-
 import java.util.Date;
 import java.util.List;
 
-/**
- * SSL证书信息模型类
- * <p>
- * 用于存储宝塔面板中SSL证书的基本信息。
- * </p>
- *
- * @author InwardFlow
- * @since 2.0.0
- */
+import lombok.Data;
+
+/** SSL certificate summary returned by the panel certificate list. */
 @Data
 public class SslCertificate {
-    
-    /**
-     * 证书ID
-     */
-    private int id;
-    
-    /**
-     * 证书名称
-     */
-    private String name;
-    
-    /**
-     * 证书类型（如免费、付费等）
-     */
-    private String type;
-    
-    /**
-     * 证书域名列表
-     */
-    private List<String> domains;
-    
-    /**
-     * 证书颁发者
-     */
-    private String issuer;
-    
-    /**
-     * 证书生效日期
-     */
-    private Date validFrom;
-    
-    /**
-     * 证书过期日期
-     */
-    private Date validTo;
-    
-    /**
-     * 证书状态（如有效、过期、即将过期等）
-     */
-    private String status;
-    
-    /**
-     * 是否为自动续期证书
-     */
-    private boolean autoRenew;
-    
-    /**
-     * 证书指纹
-     */
-    private String fingerprint;
-    
-    /**
-     * 判断证书是否有效
-     * 
-     * @return 证书是否有效
-     */
-    public boolean isValid() {
-        return "valid".equalsIgnoreCase(status);
+
+  private int id;
+  private String name;
+  private String type;
+  private List<String> domains;
+  private String issuer;
+  private Date validFrom;
+  private Date validTo;
+  private String status;
+  private boolean autoRenew;
+
+  /** Panel-side saved certificate hash used by {@code ssl?action=SetBatchCertToSite}. */
+  private String hash;
+
+  /**
+   * Backward-compatible fingerprint field.
+   *
+   * <p>Some historical SDK code treated the panel hash as a certificate fingerprint, so the parser
+   * still mirrors {@code hash} into this field when no dedicated fingerprint is present.
+   */
+  private String fingerprint;
+
+  public boolean isValid() {
+    return "valid".equalsIgnoreCase(status);
+  }
+
+  public boolean isExpired() {
+    return "expired".equalsIgnoreCase(status);
+  }
+
+  public boolean isExpiringSoon() {
+    return "expiring_soon".equalsIgnoreCase(status);
+  }
+
+  public String getFormattedValidityPeriod() {
+    if (validFrom == null || validTo == null) {
+      return "未知";
     }
-    
-    /**
-     * 判断证书是否已过期
-     * 
-     * @return 证书是否已过期
-     */
-    public boolean isExpired() {
-        return "expired".equalsIgnoreCase(status);
-    }
-    
-    /**
-     * 判断证书是否即将过期（30天内）
-     * 
-     * @return 证书是否即将过期
-     */
-    public boolean isExpiringSoon() {
-        return "expiring_soon".equalsIgnoreCase(status);
-    }
-    
-    /**
-     * 获取证书有效期的可读格式
-     * 
-     * @return 格式化后的有效期
-     */
-    public String getFormattedValidityPeriod() {
-        if (validFrom == null || validTo == null) {
-            return "未知";
-        }
-        return String.format("%tF 至 %tF", validFrom, validTo);
-    }
+    return String.format("%tF 至 %tF", validFrom, validTo);
+  }
 }

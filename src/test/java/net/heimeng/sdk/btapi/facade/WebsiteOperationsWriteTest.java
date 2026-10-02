@@ -81,7 +81,8 @@ class WebsiteOperationsWriteTest {
     assertFalse(params.containsKey("datauser"));
     assertNotNull(params.get("webname"));
     assertTrue(
-        params.get("webname")
+        params
+            .get("webname")
             .toString()
             .contains("\"domain\":\"" + TestValueFactory.sampleDomain() + "\""));
   }
@@ -167,7 +168,8 @@ class WebsiteOperationsWriteTest {
     when(client.execute(any(DeleteWebsiteApi.class))).thenReturn(successBoolean());
 
     BtResult<Boolean> result =
-        operations.delete(8, TestValueFactory.sampleDomain(), new WebsiteDeleteOptions(true, true, false));
+        operations.delete(
+            8, TestValueFactory.sampleDomain(), new WebsiteDeleteOptions(true, true, false));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(DeleteWebsiteApi.class));
@@ -307,8 +309,7 @@ class WebsiteOperationsWriteTest {
 
     BtResult<Boolean> result =
         operations.enablePasswordProtection(
-            8,
-            new WebsitePasswordProtectionOptions("admin", TestValueFactory.samplePassword()));
+            8, new WebsitePasswordProtectionOptions("admin", TestValueFactory.samplePassword()));
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(SetWebsitePasswordApi.class));

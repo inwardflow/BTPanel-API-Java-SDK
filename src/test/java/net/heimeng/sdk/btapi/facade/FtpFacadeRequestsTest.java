@@ -45,7 +45,10 @@ class FtpFacadeRequestsTest {
             IllegalArgumentException.class,
             () ->
                 new FtpPasswordUpdateRequest(
-                    1, TestValueFactory.sampleFtpUser(), " ", TestValueFactory.updatedSamplePassword()));
+                    1,
+                    TestValueFactory.sampleFtpUser(),
+                    " ",
+                    TestValueFactory.updatedSamplePassword()));
 
     assertEquals("path cannot be blank", exception.getMessage());
   }

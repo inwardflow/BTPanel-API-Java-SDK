@@ -74,10 +74,10 @@ public class GetWebsitesApi extends BaseBtApi<BtResult<List<WebsiteInfo>>> {
   }
 
   /**
-   * 解析API响应字符串为BtResult<List<WebsiteInfo>>对象
+   * 解析API响应字符串为{@code BtResult<List<WebsiteInfo>>}对象
    *
    * @param response API响应字符串
-   * @return BtResult<List<WebsiteInfo>>对象
+   * @return {@code BtResult<List<WebsiteInfo>>}对象
    * @throws BtApiException 当解析失败时抛出
    */
   @Override

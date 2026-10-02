@@ -89,7 +89,8 @@ class FtpOperationsTest {
                 api ->
                     api.getEndpoint().equals("ftp?action=DeleteUser")
                         && Integer.valueOf(1).equals(api.getParams().get("id"))
-                        && TestValueFactory.sampleFtpUser().equals(api.getParams().get("username"))));
+                        && TestValueFactory.sampleFtpUser()
+                            .equals(api.getParams().get("username"))));
   }
 
   @Test

@@ -1,210 +1,177 @@
 package net.heimeng.sdk.btapi.api.database;
 
+import java.time.Duration;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.heimeng.sdk.btapi.client.BtApiManager;
 import net.heimeng.sdk.btapi.exception.BtApiException;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.database.DatabaseInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
- * 数据库操作工具类
- * <p>
- * 提供一组便捷的数据库操作辅助方法，包括检查数据库是否存在、获取数据库信息等功能。
- * </p>
+ * 数据库辅助工具类。
  *
- * @author InwardFlow
- * @since 2.0.0
+ * <p>该工具类基于高层 {@link BtApiManager#database()} 门面提供一些常见查询与轮询能力， 并通过 {@link Optional}
+ * 与异常明确区分“未找到”和“请求失败”两类场景。
  */
-public class DatabaseUtils {
+public final class DatabaseUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseUtils.class);
+  private static final Duration DEFAULT_POLL_INTERVAL = Duration.ofSeconds(1);
+  private static final Duration DEFAULT_DELETE_CONFIRM_TIMEOUT = Duration.ofSeconds(5);
 
-    /**
-     * 检查指定名称的数据库是否存在
-     *
-     * @param apiManager API管理器实例
-     * @param dbName 数据库名称
-     * @return 数据库是否存在
-     */
-    public static boolean isDatabaseExists(BtApiManager apiManager, String dbName) {
-        if (apiManager == null || dbName == null) {
-            return false;
-        }
+  private DatabaseUtils() {}
 
-        try {
-            GetDatabasesApi getApi = new GetDatabasesApi();
-            BtResult<List<DatabaseInfo>> result = apiManager.execute(getApi);
-            return result.isSuccess() && result.getData() != null &&
-                    result.getData().stream().anyMatch(db -> dbName.equals(db.getName()));
-        } catch (BtApiException e) {
-            logger.error("检查数据库是否存在时发生异常: {}", e.getMessage());
-            return false;
-        }
+  /** 判断指定数据库是否存在。 */
+  public static boolean exists(BtApiManager apiManager, String databaseName) {
+    return findByName(apiManager, databaseName).isPresent();
+  }
+
+  /** 按数据库名称查找数据库信息。 */
+  public static Optional<DatabaseInfo> findByName(BtApiManager apiManager, String databaseName) {
+    validateApiManager(apiManager);
+    String validatedName = validateDatabaseName(databaseName);
+    return listDatabases(apiManager).stream()
+        .filter(database -> validatedName.equals(database.getName()))
+        .findFirst();
+  }
+
+  /** 按数据库 ID 查找数据库信息。 */
+  public static Optional<DatabaseInfo> findById(BtApiManager apiManager, int databaseId) {
+    validateApiManager(apiManager);
+    if (databaseId <= 0) {
+      throw new IllegalArgumentException("databaseId must be greater than zero");
+    }
+    return listDatabases(apiManager).stream()
+        .filter(database -> database.getId() == databaseId)
+        .findFirst();
+  }
+
+  /** 在给定超时时间内等待数据库创建完成。 */
+  public static Optional<DatabaseInfo> waitForCreation(
+      BtApiManager apiManager, String databaseName, Duration timeout) {
+    return waitForCreation(apiManager, databaseName, timeout, DEFAULT_POLL_INTERVAL);
+  }
+
+  /** 在给定超时时间与轮询间隔下等待数据库创建完成。 */
+  public static Optional<DatabaseInfo> waitForCreation(
+      BtApiManager apiManager, String databaseName, Duration timeout, Duration pollInterval) {
+    validateApiManager(apiManager);
+    String validatedName = validateDatabaseName(databaseName);
+    Duration validatedTimeout = validateDuration(timeout, "timeout");
+    Duration validatedPollInterval = validateDuration(pollInterval, "pollInterval");
+
+    long deadline = System.nanoTime() + validatedTimeout.toNanos();
+    while (System.nanoTime() < deadline) {
+      Optional<DatabaseInfo> database = findByName(apiManager, validatedName);
+      if (database.isPresent()) {
+        return database;
+      }
+      sleep(validatedPollInterval, "等待数据库创建完成");
     }
 
-    /**
-     * 根据名称获取数据库信息
-     *
-     * @param apiManager API管理器实例
-     * @param dbName 数据库名称
-     * @return 数据库信息对象，如果不存在则返回null
-     */
-    public static DatabaseInfo getDatabaseInfoByName(BtApiManager apiManager, String dbName) {
-        if (apiManager == null || dbName == null) {
-            return null;
-        }
+    return Optional.empty();
+  }
 
-        try {
-            GetDatabasesApi getApi = new GetDatabasesApi();
-            BtResult<List<DatabaseInfo>> result = apiManager.execute(getApi);
-            if (result.isSuccess() && result.getData() != null) {
-                return result.getData().stream()
-                        .filter(db -> dbName.equals(db.getName()))
-                        .findFirst()
-                        .orElse(null);
-            }
-            return null;
-        } catch (BtApiException e) {
-            logger.error("获取数据库信息时发生异常: {}", e.getMessage());
-            return null;
-        }
+  /** 在给定超时时间内等待数据库删除完成。 */
+  public static boolean waitForDeletion(
+      BtApiManager apiManager, String databaseName, Duration timeout) {
+    return waitForDeletion(apiManager, databaseName, timeout, DEFAULT_POLL_INTERVAL);
+  }
+
+  /** 在给定超时时间与轮询间隔下等待数据库删除完成。 */
+  public static boolean waitForDeletion(
+      BtApiManager apiManager, String databaseName, Duration timeout, Duration pollInterval) {
+    validateApiManager(apiManager);
+    String validatedName = validateDatabaseName(databaseName);
+    Duration validatedTimeout = validateDuration(timeout, "timeout");
+    Duration validatedPollInterval = validateDuration(pollInterval, "pollInterval");
+
+    long deadline = System.nanoTime() + validatedTimeout.toNanos();
+    while (System.nanoTime() < deadline) {
+      if (findByName(apiManager, validatedName).isEmpty()) {
+        return true;
+      }
+      sleep(validatedPollInterval, "等待数据库删除完成");
     }
 
-    /**
-     * 根据ID获取数据库信息
-     *
-     * @param apiManager API管理器实例
-     * @param dbId 数据库ID
-     * @return 数据库信息对象，如果不存在则返回null
-     */
-    public static DatabaseInfo getDatabaseInfoById(BtApiManager apiManager, int dbId) {
-        if (apiManager == null || dbId < 0) {
-            return null;
-        }
+    return false;
+  }
 
-        try {
-            GetDatabasesApi getApi = new GetDatabasesApi();
-            BtResult<List<DatabaseInfo>> result = apiManager.execute(getApi);
-            if (result.isSuccess() && result.getData() != null) {
-                return result.getData().stream()
-                        .filter(db -> db.getId() == dbId)
-                        .findFirst()
-                        .orElse(null);
-            }
-            return null;
-        } catch (BtApiException e) {
-            logger.error("根据ID获取数据库信息时发生异常: {}", e.getMessage());
-            return null;
-        }
+  /** 若数据库存在则删除，并在默认超时时间内确认删除结果。 */
+  public static boolean deleteIfExists(BtApiManager apiManager, String databaseName) {
+    return deleteIfExists(apiManager, databaseName, DEFAULT_DELETE_CONFIRM_TIMEOUT);
+  }
+
+  /** 若数据库存在则删除，并在指定超时时间内确认删除结果。 */
+  public static boolean deleteIfExists(
+      BtApiManager apiManager, String databaseName, Duration confirmationTimeout) {
+    validateApiManager(apiManager);
+    String validatedName = validateDatabaseName(databaseName);
+    Duration validatedTimeout = validateDuration(confirmationTimeout, "confirmationTimeout");
+
+    Optional<DatabaseInfo> database = findByName(apiManager, validatedName);
+    if (database.isEmpty()) {
+      LOGGER.info("数据库不存在，跳过删除：{}", validatedName);
+      return true;
     }
 
-    /**
-     * 等待数据库创建完成（适用于异步操作场景）
-     *
-     * @param apiManager API管理器实例
-     * @param dbName 数据库名称
-     * @param timeoutMs 超时时间（毫秒）
-     * @return 数据库信息对象，如果超时则返回null
-     */
-    public static DatabaseInfo waitForDatabaseCreation(BtApiManager apiManager, String dbName, long timeoutMs) {
-        if (apiManager == null || dbName == null) {
-            return null;
-        }
-
-        long startTime = System.currentTimeMillis();
-        long waitTime = 1000; // 初始等待时间1秒
-        
-        while (System.currentTimeMillis() - startTime < timeoutMs) {
-            try {
-                DatabaseInfo dbInfo = getDatabaseInfoByName(apiManager, dbName);
-                if (dbInfo != null) {
-                    return dbInfo;
-                }
-                Thread.sleep(waitTime);
-                // 指数退避，但不超过5秒
-                waitTime = Math.min(waitTime * 2, 5000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                logger.warn("等待数据库创建时被中断");
-                return null;
-            }
-        }
-        
-        logger.warn("等待数据库创建超时: {}", dbName);
-        return null;
+    DatabaseInfo databaseInfo = database.get();
+    BtResult<Boolean> deleteResult =
+        apiManager.database().delete(validatedName, databaseInfo.getId());
+    if (deleteResult == null) {
+      throw new BtApiException("Delete database response cannot be null");
+    }
+    if (!deleteResult.isSuccess()) {
+      throw new BtApiException("Failed to delete database: " + deleteResult.getMsg());
     }
 
-    /**
-     * 等待数据库删除完成（适用于异步操作场景）
-     *
-     * @param apiManager API管理器实例
-     * @param dbName 数据库名称
-     * @param timeoutMs 超时时间（毫秒）
-     * @return 数据库是否成功删除
-     */
-    public static boolean waitForDatabaseDeletion(BtApiManager apiManager, String dbName, long timeoutMs) {
-        if (apiManager == null || dbName == null) {
-            return false;
-        }
+    return waitForDeletion(apiManager, validatedName, validatedTimeout);
+  }
 
-        long startTime = System.currentTimeMillis();
-        long waitTime = 1000; // 初始等待时间1秒
-        
-        while (System.currentTimeMillis() - startTime < timeoutMs) {
-            try {
-                if (!isDatabaseExists(apiManager, dbName)) {
-                    return true;
-                }
-                Thread.sleep(waitTime);
-                // 指数退避，但不超过5秒
-                waitTime = Math.min(waitTime * 2, 5000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                logger.warn("等待数据库删除时被中断");
-                return false;
-            }
-        }
-        
-        logger.warn("等待数据库删除超时: {}", dbName);
-        return false;
+  private static List<DatabaseInfo> listDatabases(BtApiManager apiManager) {
+    BtResult<List<DatabaseInfo>> result = apiManager.database().list();
+    if (result == null) {
+      throw new BtApiException("Database list response cannot be null");
     }
-
-    /**
-     * 安全删除数据库（包含幂等性处理）
-     *
-     * @param apiManager API管理器实例
-     * @param dbName 数据库名称
-     * @return 删除操作是否成功
-     */
-    public static boolean safelyDeleteDatabase(BtApiManager apiManager, String dbName) {
-        if (apiManager == null || dbName == null) {
-            return false;
-        }
-
-        try {
-            // 先检查数据库是否存在
-            DatabaseInfo dbInfo = getDatabaseInfoByName(apiManager, dbName);
-            if (dbInfo == null) {
-                // 数据库不存在，视为删除成功（幂等性）
-                logger.info("数据库不存在，幂等性处理: {}", dbName);
-                return true;
-            }
-
-            // 执行删除操作
-            DeleteDatabaseApi deleteApi = new DeleteDatabaseApi(dbName, dbInfo.getId());
-            BtResult<Boolean> result = apiManager.execute(deleteApi);
-            
-            // 等待删除完成（异步操作场景）
-            waitForDatabaseDeletion(apiManager, dbName, TimeUnit.SECONDS.toMillis(5));
-            
-            return result.isSuccess();
-        } catch (Exception e) {
-            logger.error("安全删除数据库时发生异常: {}", e.getMessage());
-            return false;
-        }
+    if (!result.isSuccess()) {
+      throw new BtApiException("Failed to list databases: " + result.getMsg());
     }
+    return result.getData() == null
+        ? List.of()
+        : result.getData().stream().filter(Objects::nonNull).toList();
+  }
+
+  private static void validateApiManager(BtApiManager apiManager) {
+    Objects.requireNonNull(apiManager, "apiManager cannot be null");
+  }
+
+  private static String validateDatabaseName(String databaseName) {
+    if (databaseName == null || databaseName.isBlank()) {
+      throw new IllegalArgumentException("databaseName cannot be blank");
+    }
+    return databaseName.trim();
+  }
+
+  private static Duration validateDuration(Duration duration, String fieldName) {
+    Objects.requireNonNull(duration, fieldName + " cannot be null");
+    if (duration.isNegative() || duration.isZero()) {
+      throw new IllegalArgumentException(fieldName + " must be greater than zero");
+    }
+    return duration;
+  }
+
+  private static void sleep(Duration duration, String action) {
+    try {
+      Thread.sleep(duration.toMillis());
+    } catch (InterruptedException exception) {
+      Thread.currentThread().interrupt();
+      throw new BtApiException(action + "时线程被中断", exception);
+    }
+  }
 }

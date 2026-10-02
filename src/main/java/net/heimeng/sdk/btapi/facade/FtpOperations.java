@@ -38,7 +38,8 @@ public final class FtpOperations extends AbstractOperations {
 
   public BtResult<Boolean> delete(FtpDeleteRequest request) {
     Objects.requireNonNull(request, "request cannot be null");
-    return execute(new DeleteFtpAccountApi().setId(request.accountId()).setUsername(request.username()));
+    return execute(
+        new DeleteFtpAccountApi().setId(request.accountId()).setUsername(request.username()));
   }
 
   public BtResult<Boolean> updatePassword(FtpPasswordUpdateRequest request) {

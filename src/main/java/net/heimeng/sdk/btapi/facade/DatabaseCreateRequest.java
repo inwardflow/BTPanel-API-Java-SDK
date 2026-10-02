@@ -129,8 +129,17 @@ public record DatabaseCreateRequest(
 
     public DatabaseCreateRequest build() {
       return new DatabaseCreateRequest(
-          databaseName, username, password, type, charset, remark, dataAccess, address, listenIp,
-          host, sid);
+          databaseName,
+          username,
+          password,
+          type,
+          charset,
+          remark,
+          dataAccess,
+          address,
+          listenIp,
+          host,
+          sid);
     }
   }
 
