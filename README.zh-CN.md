@@ -99,7 +99,7 @@ import net.heimeng.sdk.btapi.facade.WebsiteCreateRequest;
 
 BtResult<java.util.List<WebsiteInfo>> websites = apiManager.website().list(1, 20);
 BtResult<Integer> taskCount = apiManager.system().getTaskCount();
-BtResult<String> nginxConfig = apiManager.website().getNginxConfig(1, "example.com");
+BtResult<String> nginxConfig = apiManager.website().getNginxConfig("example.com");
 BtResult<java.util.List<SslCertificate>> certificates = apiManager.ssl().list();
 BtResult<Boolean> createdDatabase =
     apiManager.database().create(DatabaseCreateRequest.builder("demo_db", "demo_user", "secret").build());
@@ -152,7 +152,6 @@ BtResult<CreateWebsiteResult> createdWebsite =
 - `updateRunPath(...)`
 - `toggleUserIni(...)`
 - `updatePhpVersion(...)`
-- `updatePhpExtension(...)`
 - `updateRewriteRules(...)`
 - `updateNginxConfig(...)`
 - `enablePasswordProtection(...)`
@@ -167,7 +166,7 @@ BtResult<CreateWebsiteResult> createdWebsite =
 - `create(WebsiteCreateRequest request)`
 - `database().create(DatabaseCreateRequest request)`
 - `database().delete(DatabaseDeleteRequest request)`
-- `database().updatePassword(DatabasePasswordUpdateRequest request)`
+- `database().updatePassword(int databaseId, DatabasePasswordUpdateRequest request)`
 - `ftp().create(FtpCreateRequest request)`
 - `ftp().delete(FtpDeleteRequest request)`
 - `ftp().updatePassword(FtpPasswordUpdateRequest request)`
@@ -175,7 +174,6 @@ BtResult<CreateWebsiteResult> createdWebsite =
 - `addDomain(int siteId, WebsiteDomainBinding binding)`
 - `removeDomain(int siteId, WebsiteDomainRemoval removal)`
 - `enablePasswordProtection(int siteId, WebsitePasswordProtectionOptions options)`
-- `updateRewriteRules(int siteId, WebsiteRewriteRulesOptions options)`
 - `updateNginxConfig(int siteId, WebsiteNginxConfigOptions options)`
 - `installSslCertificate(int siteId, WebsiteSslCertificateOptions options)`
 - `updateLimitNet(int siteId, WebsiteLimitNetOptions options)`
@@ -206,6 +204,7 @@ DatabaseCreateRequest databaseRequest =
 
 apiManager.database().create(databaseRequest);
 apiManager.database().updatePassword(
+    71,
     new DatabasePasswordUpdateRequest("demo_db", "demo_user", "new-secret"));
 
 FtpCreateRequest ftpRequest =
