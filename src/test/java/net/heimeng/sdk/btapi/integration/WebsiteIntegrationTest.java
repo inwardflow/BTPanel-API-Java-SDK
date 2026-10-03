@@ -168,6 +168,29 @@ class WebsiteIntegrationTest extends AbstractIntegrationTestSupport {
     }
   }
 
+  @Test
+  @DisplayName("Should write, read and clear website rewrite rules via the vhost rewrite file")
+  void testRewriteRulesRoundTrip() {
+    try {
+      createWebsiteAndResolveId();
+      String rules = "# sdk integration test\nlocation /it-probe { return 204; }";
+
+      BtResult<Boolean> saveResult = apiManager.website().updateRewriteRules(testDomain, rules);
+      assertTrue(saveResult.isSuccess(), "Failed to save rewrite rules: " + saveResult.getMsg());
+
+      BtResult<String> readResult = apiManager.website().getRewriteRules(testDomain);
+      assertTrue(readResult.isSuccess(), "Failed to read rewrite rules: " + readResult.getMsg());
+      assertEquals(rules, readResult.getData());
+
+      BtResult<Boolean> clearResult = apiManager.website().updateRewriteRules(testDomain, "");
+      assertTrue(clearResult.isSuccess(), "Failed to clear rewrite rules: " + clearResult.getMsg());
+      assertEquals("", apiManager.website().getRewriteRules(testDomain).getData());
+    } catch (BtApiException exception) {
+      logger.error("Failed while updating rewrite rules", exception);
+      fail("Failed while updating rewrite rules: " + exception.getMessage());
+    }
+  }
+
   private Integer createWebsiteAndResolveId() throws BtApiException {
     BtResult<CreateWebsiteResult> createResult = createWebsite();
     assertTrue(createResult.isSuccess(), "Failed to prepare website: " + createResult.getMsg());

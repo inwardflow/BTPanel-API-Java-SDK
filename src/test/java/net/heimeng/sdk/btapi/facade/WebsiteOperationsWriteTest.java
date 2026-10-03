@@ -18,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import net.heimeng.sdk.btapi.api.file.SaveFileContentApi;
 import net.heimeng.sdk.btapi.api.website.AddWebsiteDomainApi;
 import net.heimeng.sdk.btapi.api.website.CloseWebsitePasswordApi;
 import net.heimeng.sdk.btapi.api.website.CloseWebsiteSslApi;
@@ -283,6 +284,27 @@ class WebsiteOperationsWriteTest {
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(SetWebsitePhpExtensionsApi.class));
+  }
+
+  @Test
+  @DisplayName("updateRewriteRules(siteName) should write the vhost rewrite file via SaveFileBody")
+  void updateRewriteRulesBySiteNameWritesVhostFile() {
+    WebsiteOperations operations = new WebsiteOperations(client);
+    when(client.execute(any(SaveFileContentApi.class))).thenReturn(successBoolean());
+
+    BtResult<Boolean> result =
+        operations.updateRewriteRules("example.com", "rewrite ^ /index.php;");
+
+    assertTrue(result.isSuccess());
+    verify(client)
+        .execute(
+            argThat(
+                (SaveFileContentApi api) ->
+                    "files?action=SaveFileBody".equals(api.getEndpoint())
+                        && "/www/server/panel/vhost/rewrite/example.com.conf"
+                            .equals(api.getParams().get("path"))
+                        && "rewrite ^ /index.php;".equals(api.getParams().get("data"))
+                        && "utf-8".equals(api.getParams().get("encoding"))));
   }
 
   @Test

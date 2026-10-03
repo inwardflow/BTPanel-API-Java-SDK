@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import net.heimeng.sdk.btapi.api.file.GetFileContentApi;
+import net.heimeng.sdk.btapi.api.file.SaveFileContentApi;
 import net.heimeng.sdk.btapi.api.website.AddWebsiteDomainApi;
 import net.heimeng.sdk.btapi.api.website.CloseWebsitePasswordApi;
 import net.heimeng.sdk.btapi.api.website.CloseWebsiteSslApi;
@@ -41,6 +43,7 @@ import net.heimeng.sdk.btapi.api.website.SetWebsiteSslApi;
 import net.heimeng.sdk.btapi.api.website.SetWebsiteUserIniApi;
 import net.heimeng.sdk.btapi.api.website.StartWebsiteApi;
 import net.heimeng.sdk.btapi.api.website.StopWebsiteApi;
+import net.heimeng.sdk.btapi.api.website.WebsiteVhostPaths;
 import net.heimeng.sdk.btapi.client.BtClient;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.website.CreateWebsiteResult;
@@ -264,10 +267,60 @@ public final class WebsiteOperations extends AbstractOperations {
             .setEnabled(enabled));
   }
 
+  /**
+   * 读取站点的 Nginx 伪静态规则。
+   *
+   * <p>与面板 9.0 UI 一致，通过 {@code files?action=GetFileBody} 读取 {@link
+   * WebsiteVhostPaths#rewriteConfig(String)}。仅适用于 Nginx 站点和默认安装目录。
+   *
+   * @param siteName 站点名（主域名）
+   * @return 规则文本，未配置时为空字符串
+   */
+  public BtResult<String> getRewriteRules(String siteName) {
+    return execute(new GetFileContentApi().setPath(WebsiteVhostPaths.rewriteConfig(siteName)));
+  }
+
+  /**
+   * 覆盖站点的 Nginx 伪静态规则。
+   *
+   * <p>与面板 9.0 UI 一致，通过 {@code files?action=SaveFileBody} 以 UTF-8 写入 {@link
+   * WebsiteVhostPaths#rewriteConfig(String)}。传入空字符串可清空规则。
+   *
+   * @param siteName 站点名（主域名）
+   * @param content 规则文本，不能为 {@code null}
+   * @return 操作结果
+   */
+  public BtResult<Boolean> updateRewriteRules(String siteName, String content) {
+    Objects.requireNonNull(content, "content cannot be null");
+    return execute(
+        new SaveFileContentApi()
+            .setPath(WebsiteVhostPaths.rewriteConfig(siteName))
+            .setData(content)
+            .setEncoding("utf-8"));
+  }
+
+  /**
+   * 按站点 ID 读取伪静态规则。
+   *
+   * @param id 站点 ID
+   * @return 查询结果
+   * @deprecated 面板 9.0 UI 不使用 {@code site?action=getRewrite}。请改用 {@link #getRewriteRules(String)}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<String> getRewriteRules(int id) {
     return execute(new GetWebsiteRewriteRulesApi().setId(id));
   }
 
+  /**
+   * 按站点 ID 设置伪静态规则。
+   *
+   * @param siteId 站点 ID
+   * @param options 规则模板名与内容
+   * @return 操作结果
+   * @deprecated 面板 9.0 UI 不使用 {@code site?action=setRewrite}。请改用 {@link #updateRewriteRules(String,
+   *     String)}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<Boolean> updateRewriteRules(int siteId, WebsiteRewriteRulesOptions options) {
     Objects.requireNonNull(options, "options cannot be null");
     return execute(

@@ -7,7 +7,10 @@ import java.util.Objects;
  *
  * @param name rewrite template name
  * @param content rewrite content, may be blank to clear current content
+ * @deprecated 仅供已弃用的 {@link WebsiteOperations#updateRewriteRules(int, WebsiteRewriteRulesOptions)}
+ *     使用。请改用 {@link WebsiteOperations#updateRewriteRules(String, String)}。
  */
+@Deprecated(since = "0.2.0", forRemoval = true)
 public record WebsiteRewriteRulesOptions(String name, String content) {
 
   public WebsiteRewriteRulesOptions {
