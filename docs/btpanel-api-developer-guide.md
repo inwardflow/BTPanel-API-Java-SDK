@@ -321,8 +321,23 @@ id=71
 
 #### 修改数据库密码
 
+- 推荐接口：`POST /database?action=ResDatabasePassword`
+- 状态：面板 9.0 UI“改密”实际发送的接口（2026-10-03 抓包），SDK 0.2.0 起使用
+- 参数：`id`（数据库 ID）、`name`（数据库用户名）、`password`（新密码）、`data_name`（数据库名）
+
+请求参数示例：
+
+```text
+id=71
+name=test_user
+password=<new-password>
+data_name=test_db
+```
+
+旧接口：
+
 - 接口：`POST /database?action=ChangeDBPassword`
-- 状态：已验证失败
+- 状态：已验证失败，不在 9.0 UI 中
 
 当前复测：
 
