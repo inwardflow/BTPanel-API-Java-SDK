@@ -12,8 +12,11 @@ package net.heimeng.sdk.btapi.api.ssl;
  * </ul>
  *
  * <p>部分历史参数如 {@code force_https}、{@code auto_renew} 在当前路由下不再生效，因此这里保留 链式方法但不再发送这两个字段。
+ *
+ * <p>面板会同时把证书保存到证书夹，之后可通过 {@code get_cert_list} 查到并部署到其他站点（已在 BTPanel 9.0.0 上验证）。
+ *
+ * @see <a href="https://docs.bt.cn/api/site/actions/">宝塔官方文档：网站管理 SetSSL</a>
  */
-@Deprecated(since = "0.1.0", forRemoval = false)
 public class InstallSslCertificateApi extends AbstractSslBooleanApi {
 
   private static final String ENDPOINT = "site?action=SetSSL";
