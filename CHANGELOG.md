@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Simplified Chinese README (`README.zh-CN.md`) with language links in both READMEs.
 
+### Fixed
+
+- The SSL integration test now also deletes the panel's certificate directory
+  (`/www/server/panel/vhost/cert/<domain>`) during cleanup. Deleting a site leaves that directory
+  behind, and the panel later re-imports the certificates from it, so removing only the store entry
+  was not durable. `DeleteSslCertificateApi` now documents this behaviour.
+
 ## [0.1.0] - 2026-10-02
 
 First tagged release of the redesigned SDK. The public API may still change before 1.0.

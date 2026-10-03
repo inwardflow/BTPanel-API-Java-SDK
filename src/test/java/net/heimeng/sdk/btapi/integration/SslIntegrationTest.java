@@ -18,6 +18,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.heimeng.sdk.btapi.api.file.DeleteFileDirectoryApi;
 import net.heimeng.sdk.btapi.api.website.CreateWebsiteApi;
 import net.heimeng.sdk.btapi.api.website.DeleteWebsiteApi;
 import net.heimeng.sdk.btapi.api.website.GetWebsiteListApi;
@@ -38,6 +39,9 @@ class SslIntegrationTest extends AbstractIntegrationTestSupport {
 
   private static final Logger logger = LoggerFactory.getLogger(SslIntegrationTest.class);
 
+  /** 面板保存站点证书文件的目录。 */
+  private static final String PANEL_CERT_ROOT = "/www/server/panel/vhost/cert";
+
   private BtApiManager apiManager;
   private String testDomain;
   private String testWebroot;
@@ -55,8 +59,9 @@ class SslIntegrationTest extends AbstractIntegrationTestSupport {
   @AfterEach
   void tearDown() {
     try {
-      deleteSavedCertificatesQuietly();
       deleteWebsiteIfExists();
+      deleteCertificateDirectoryQuietly();
+      deleteSavedCertificatesQuietly();
     } finally {
       closeQuietly(apiManager);
     }
@@ -205,6 +210,28 @@ class SslIntegrationTest extends AbstractIntegrationTestSupport {
     List<String> domains = certificate.getDomains();
     return domain.equalsIgnoreCase(certificate.getName())
         || (domains != null && domains.contains(domain));
+  }
+
+  /**
+   * 删除面板为临时站点保存的证书文件目录。
+   *
+   * <p>删除站点不会删除 {@code /www/server/panel/vhost/cert/<域名>}。目录留下时，面板之后会把其中的证书重新导入证书夹，
+   * 只删除证书夹记录并不持久（BTPanel 9.0.0 实测）。
+   */
+  private void deleteCertificateDirectoryQuietly() {
+    if (!certificateInstalled || apiManager == null || testDomain == null) {
+      return;
+    }
+    try {
+      apiManager.execute(new DeleteFileDirectoryApi().setPath(PANEL_CERT_ROOT + "/" + testDomain));
+    } catch (Exception exception) {
+      if (!isFileNotFound(exception)) {
+        logger.warn(
+            "Certificate directory cleanup failed, testDomain={}, reason={}",
+            testDomain,
+            exception.getMessage());
+      }
+    }
   }
 
   /** 删除本测试安装进证书夹的证书。只删除域名与临时站点一致的证书，不影响面板上的其他证书。 */
