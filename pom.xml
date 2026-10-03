@@ -41,21 +41,21 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <hutool.version>5.8.40</hutool.version>
-        <lombok.version>1.18.38</lombok.version>
+        <hutool.version>5.8.47</hutool.version>
+        <lombok.version>1.18.48</lombok.version>
         <junit.version>5.10.2</junit.version>
         <mockito.version>5.24.0</mockito.version>
-        <slf4j.version>2.0.13</slf4j.version>
+        <slf4j.version>2.0.20</slf4j.version>
         <bouncycastle.version>1.86</bouncycastle.version>
         <maven.compiler.plugin.version>3.16.0</maven.compiler.plugin.version>
-        <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
-        <maven.failsafe.plugin.version>3.2.5</maven.failsafe.plugin.version>
-        <maven.checkstyle.plugin.version>3.3.1</maven.checkstyle.plugin.version>
+        <maven.surefire.plugin.version>3.6.0</maven.surefire.plugin.version>
+        <maven.failsafe.plugin.version>3.6.0</maven.failsafe.plugin.version>
+        <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
         <checkstyle.version>10.17.0</checkstyle.version>
         <checkstyle.suppressions.file>suppressions.xml</checkstyle.suppressions.file>
-        <jacoco.version>0.8.12</jacoco.version>
+        <jacoco.version>0.8.15</jacoco.version>
         <spotless.version>3.10.3</spotless.version>
-        <enforcer.version>3.5.0</enforcer.version>
+        <enforcer.version>3.6.3</enforcer.version>
         <skipITs>true</skipITs>
     </properties>
 
@@ -290,7 +290,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.3.1</version>
+                        <version>3.4.0</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
