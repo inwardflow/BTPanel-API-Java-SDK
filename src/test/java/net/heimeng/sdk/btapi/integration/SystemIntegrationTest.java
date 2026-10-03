@@ -21,8 +21,8 @@ import net.heimeng.sdk.btapi.api.system.GetNetworkStatusApi;
 import net.heimeng.sdk.btapi.api.system.GetSystemInfoApi;
 import net.heimeng.sdk.btapi.api.system.GetTaskCountApi;
 import net.heimeng.sdk.btapi.client.BtApiManager;
-import net.heimeng.sdk.btapi.client.BtClientFactory;
 import net.heimeng.sdk.btapi.exception.BtApiException;
+import net.heimeng.sdk.btapi.exception.BtAuthenticationException;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.system.DiskInfo;
 import net.heimeng.sdk.btapi.model.system.NetworkStatus;
@@ -123,16 +123,16 @@ class SystemIntegrationTest extends AbstractIntegrationTestSupport {
   @Test
   @DisplayName("使用无效 API Key 时应抛出业务异常")
   void testGetSystemInfoWithInvalidApiKey() {
+    // 复用测试的 SSL 配置，确保失败原因是密钥校验，而不是证书校验。
     BtApiManager invalidApiManager =
-        BtClientFactory.createApiManager(
-            getRequiredConfiguration(ENV_BASE_URL, "baseUrl"), "invalid-api-key");
+        createApiManager(getRequiredConfiguration(ENV_BASE_URL, "baseUrl"), "invalid-api-key");
 
     try {
-      BtApiException exception =
+      BtAuthenticationException exception =
           assertThrows(
-              BtApiException.class,
+              BtAuthenticationException.class,
               () -> invalidApiManager.execute(new GetSystemInfoApi()),
-              "使用无效 API Key 时应抛出 BtApiException");
+              "使用无效 API Key 时应抛出 BtAuthenticationException");
       assertNotNull(exception.getMessage(), "异常消息不能为空");
       assertFalse(exception.getMessage().isBlank(), "异常消息不能为空白");
     } finally {
@@ -144,7 +144,7 @@ class SystemIntegrationTest extends AbstractIntegrationTestSupport {
   @DisplayName("使用无效 URL 时应抛出异常")
   void testGetSystemInfoWithInvalidUrl() {
     BtApiManager invalidApiManager =
-        BtClientFactory.createApiManager(
+        createApiManager(
             "http://invalid.invalid:8888", getRequiredConfiguration(ENV_API_KEY, "apiKey"));
 
     try {

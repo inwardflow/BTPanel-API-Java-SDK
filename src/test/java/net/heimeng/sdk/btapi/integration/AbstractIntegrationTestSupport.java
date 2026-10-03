@@ -41,10 +41,21 @@ abstract class AbstractIntegrationTestSupport {
   }
 
   protected final BtSdkConfig createSdkConfig() {
+    return createSdkConfig(
+        getRequiredConfiguration(ENV_BASE_URL, "baseUrl"),
+        getRequiredConfiguration(ENV_API_KEY, "apiKey"));
+  }
+
+  /** 使用与正常测试相同的 SSL、超时和重试配置，仅替换地址与密钥，便于构造失败场景。 */
+  protected final BtApiManager createApiManager(String baseUrl, String apiKey) {
+    return BtClientFactory.createApiManager(createSdkConfig(baseUrl, apiKey));
+  }
+
+  private BtSdkConfig createSdkConfig(String baseUrl, String apiKey) {
     BtSdkConfig.Builder builder =
         BtSdkConfig.builder()
-            .baseUrl(getRequiredConfiguration(ENV_BASE_URL, "baseUrl"))
-            .apiKey(getRequiredConfiguration(ENV_API_KEY, "apiKey"))
+            .baseUrl(baseUrl)
+            .apiKey(apiKey)
             .connectTimeout(getIntConfiguration(ENV_CONNECT_TIMEOUT, "connectTimeout", 5000))
             .readTimeout(getIntConfiguration(ENV_READ_TIMEOUT, "readTimeout", 10000))
             .retryCount(getIntConfiguration(ENV_RETRY_COUNT, "retryCount", 3));
@@ -284,7 +295,10 @@ abstract class AbstractIntegrationTestSupport {
       return false;
     }
     String message = throwable.getMessage();
-    return message.contains("指定文件不存在") || message.toLowerCase().contains("file not found");
+    // DeleteFile 返回“指定文件不存在”，DeleteDir 返回“指定目录不存在”。
+    return message.contains("指定文件不存在")
+        || message.contains("指定目录不存在")
+        || message.toLowerCase().contains("file not found");
   }
 
   private Properties loadTestProperties() {

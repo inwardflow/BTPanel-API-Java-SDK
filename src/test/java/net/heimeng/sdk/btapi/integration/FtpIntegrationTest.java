@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.heimeng.sdk.btapi.api.file.CreateFileDirectoryApi;
-import net.heimeng.sdk.btapi.api.file.DeleteFileApi;
+import net.heimeng.sdk.btapi.api.file.DeleteFileDirectoryApi;
 import net.heimeng.sdk.btapi.api.ftp.GetFtpAccountsApi;
 import net.heimeng.sdk.btapi.api.website.DeleteWebsiteApi;
 import net.heimeng.sdk.btapi.api.website.GetWebsiteListApi;
@@ -88,8 +88,8 @@ class FtpIntegrationTest extends AbstractIntegrationTestSupport {
   void tearDown() {
     try {
       deleteFtpAccountIfExists();
-      deletePathQuietly(ftpHomePath);
-      deletePathQuietly(ftpBasePath);
+      deleteDirectoryQuietly(ftpHomePath);
+      deleteDirectoryQuietly(ftpBasePath);
       deleteWebsiteIfExists();
     } finally {
       closeQuietly(apiManager);
@@ -337,13 +337,13 @@ class FtpIntegrationTest extends AbstractIntegrationTestSupport {
     return null;
   }
 
-  private void deletePathQuietly(String path) {
+  private void deleteDirectoryQuietly(String path) {
     if (apiManager == null || path == null || path.isBlank()) {
       return;
     }
 
     try {
-      apiManager.execute(new DeleteFileApi().setPath(path));
+      apiManager.execute(new DeleteFileDirectoryApi().setPath(path));
     } catch (Exception exception) {
       if (isFileNotFound(exception)) {
         return;

@@ -7,8 +7,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import net.heimeng.sdk.btapi.api.file.CreateFileApi;
 import net.heimeng.sdk.btapi.api.file.CreateFileDirectoryApi;
 import net.heimeng.sdk.btapi.api.file.DeleteFileApi;
+import net.heimeng.sdk.btapi.api.file.DeleteFileDirectoryApi;
 import net.heimeng.sdk.btapi.api.file.GetFileContentApi;
 import net.heimeng.sdk.btapi.api.file.SaveFileContentApi;
 import net.heimeng.sdk.btapi.api.website.DeleteWebsiteApi;
@@ -46,6 +49,7 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
   private static final Logger logger = LoggerFactory.getLogger(FileIntegrationTest.class);
 
   private final Deque<String> cleanupPaths = new ArrayDeque<>();
+  private final Set<String> directoryPaths = new HashSet<>();
 
   private BtApiManager apiManager;
   private String websiteDomain;
@@ -108,7 +112,7 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
 
       assertTrue(result.isSuccess(), "创建目录失败: " + result.getMsg());
       assertTrue(result.getData(), "创建目录操作返回失败");
-      registerCleanup(testDirectoryPath);
+      registerDirectoryCleanup(testDirectoryPath);
     } catch (BtApiException exception) {
       logger.error("创建目录时发生 API 异常", exception);
       fail("创建目录时发生 API 异常: " + exception.getMessage());
@@ -184,7 +188,7 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
       BtResult<Boolean> createDirectoryResult =
           apiManager.execute(new CreateFileDirectoryApi().setPath(testDirectoryPath));
       assertTrue(createDirectoryResult.isSuccess(), "创建目录失败: " + createDirectoryResult.getMsg());
-      registerCleanup(testDirectoryPath);
+      registerDirectoryCleanup(testDirectoryPath);
 
       String fileInDirectory = appendChildPath(testDirectoryPath, "test-file.txt");
       saveFile(fileInDirectory, "目录内文件内容");
@@ -200,7 +204,7 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
       cleanupPaths.remove(fileInDirectory);
 
       BtResult<Boolean> deleteDirectoryResult =
-          apiManager.execute(new DeleteFileApi().setPath(testDirectoryPath));
+          apiManager.execute(new DeleteFileDirectoryApi().setPath(testDirectoryPath));
       assertTrue(deleteDirectoryResult.isSuccess(), "删除目录失败: " + deleteDirectoryResult.getMsg());
       cleanupPaths.remove(testDirectoryPath);
     } catch (BtApiException exception) {
@@ -218,7 +222,7 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
         apiManager.execute(new CreateFileDirectoryApi().setPath(testRootPath));
     assertTrue(result.isSuccess(), "创建文件测试根目录失败: " + result.getMsg());
     assertTrue(result.getData(), "创建文件测试根目录操作返回失败");
-    registerCleanup(testRootPath);
+    registerDirectoryCleanup(testRootPath);
   }
 
   private void saveFile(String path, String content) throws BtApiException {
@@ -231,6 +235,11 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
 
     assertTrue(result.isSuccess(), "保存文件内容失败: " + result.getMsg());
     assertTrue(result.getData(), "保存文件内容操作返回失败");
+    registerCleanup(path);
+  }
+
+  private void registerDirectoryCleanup(String path) {
+    directoryPaths.add(path);
     registerCleanup(path);
   }
 
@@ -331,7 +340,12 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
     }
 
     try {
-      apiManager.execute(new DeleteFileApi().setPath(path));
+      // 面板的 DeleteFile 无法删除目录，目录必须走 DeleteDir。
+      if (directoryPaths.contains(path)) {
+        apiManager.execute(new DeleteFileDirectoryApi().setPath(path));
+      } else {
+        apiManager.execute(new DeleteFileApi().setPath(path));
+      }
     } catch (Exception exception) {
       logger.warn("清理测试路径失败：{}，原因：{}", path, exception.getMessage());
     }
