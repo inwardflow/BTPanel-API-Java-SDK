@@ -5,6 +5,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -184,7 +186,7 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
       return (BtApiException) exception;
     }
     if (exception instanceof BtNetworkException) {
-      return new BtApiException("Network error", exception);
+      return new BtApiException("Network error: " + exception.getMessage(), exception);
     }
     return new BtApiException("Unexpected error during API execution", exception);
   }
@@ -291,7 +293,12 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
               response.statusCode(),
               attempt + 1,
               retryCount + 1);
-          sleepBeforeRetry();
+          Optional<Duration> retryAfter =
+              response
+                  .headers()
+                  .firstValue("Retry-After")
+                  .flatMap(value -> RetryPolicy.parseRetryAfter(value, Instant.now()));
+          sleepBeforeRetry(retryPolicy.backoffDelay(attempt, retryAfter));
           continue;
         }
 
@@ -303,7 +310,7 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
         log.warn("Timeout on attempt {}/{}", attempt + 1, retryCount + 1);
         if (attempt < retryCount
             && retryPolicy.shouldRetryException(method, exception, context.isForceRetry())) {
-          sleepBeforeRetry();
+          sleepBeforeRetry(retryPolicy.backoffDelay(attempt, Optional.empty()));
           continue;
         }
         throw new BtNetworkException("Request timeout after retries", exception);
@@ -317,8 +324,14 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
 
         if (attempt < retryCount
             && retryPolicy.shouldRetryException(method, exception, context.isForceRetry())) {
-          sleepBeforeRetry();
+          sleepBeforeRetry(retryPolicy.backoffDelay(attempt, Optional.empty()));
           continue;
+        }
+        if (RetryPolicy.isCertificateFailure(exception)) {
+          BtNetworkException tlsFailure =
+              new BtNetworkException(describeCertificateFailure(exception), exception);
+          context.setException(tlsFailure);
+          throw tlsFailure;
         }
         context.setException(exception);
         throw exception;
@@ -328,9 +341,31 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
     throw new BtNetworkException("Max retries exceeded: " + retryCount, context.getException());
   }
 
-  private void sleepBeforeRetry() {
+  /** 生成可直接照做的 TLS 失败说明。宝塔面板默认使用自签名证书，这是最常见的首次接入问题。 */
+  private String describeCertificateFailure(Throwable exception) {
+    Throwable rootCause = exception;
+    while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+      rootCause = rootCause.getCause();
+    }
+    if (config.getSslMode() == BtSdkConfig.SslMode.PINNED_PUBLIC_KEY) {
+      return "TLS certificate pinning failed for "
+          + config.getBaseUrl()
+          + ": "
+          + rootCause.getMessage();
+    }
+    return "The TLS certificate of "
+        + config.getBaseUrl()
+        + " is not trusted. BT Panel uses a self-signed certificate by default. Either install a"
+        + " trusted certificate on the panel (Settings > Security > Panel SSL; see"
+        + " https://docs.bt.cn/user-guide/ai/mcp-installation), or pin the panel's public key with"
+        + " BtSdkConfig.builder().pinnedPublicKeys(\"sha256/...\"). Do not disable certificate"
+        + " verification outside isolated test environments. Cause: "
+        + rootCause.getMessage();
+  }
+
+  private void sleepBeforeRetry(Duration delay) {
     try {
-      Thread.sleep(config.getRetryInterval().toMillis());
+      Thread.sleep(delay.toMillis());
     } catch (InterruptedException exception) {
       Thread.currentThread().interrupt();
       throw new BtNetworkException("Retry backoff interrupted", exception);

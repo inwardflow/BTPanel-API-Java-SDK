@@ -15,7 +15,10 @@ import javax.net.ssl.X509TrustManager;
 
 import net.heimeng.sdk.btapi.config.BtSdkConfig;
 
+import lombok.extern.slf4j.Slf4j;
+
 /** SSL 上下文配置器，负责把 {@link BtSdkConfig.SslMode} 应用到 HttpClient。 */
+@Slf4j
 final class SslContextConfigurer {
 
   private SslContextConfigurer() {}
@@ -25,7 +28,15 @@ final class SslContextConfigurer {
       case SYSTEM_TRUST:
         return;
       case INSECURE_TRUST_ALL:
+        log.warn(
+            "TLS certificate verification is DISABLED (INSECURE_TRUST_ALL). Connections to {} are"
+                + " open to man-in-the-middle attacks. Use pinnedPublicKeys(...) or a trusted panel"
+                + " certificate outside isolated test environments.",
+            config.getBaseUrl());
         builder.sslContext(buildInsecureSslContext());
+        return;
+      case PINNED_PUBLIC_KEY:
+        builder.sslContext(buildPinnedSslContext(config));
         return;
       case CUSTOM_TRUST_STORE:
         builder.sslContext(buildCustomTrustStoreSslContext(config));
@@ -58,6 +69,19 @@ final class SslContextConfigurer {
       return sslContext;
     } catch (Exception exception) {
       throw new IllegalStateException("Failed to initialize insecure SSL context", exception);
+    }
+  }
+
+  private static SSLContext buildPinnedSslContext(BtSdkConfig config) {
+    try {
+      SSLContext sslContext = SSLContext.getInstance("TLS");
+      sslContext.init(
+          null,
+          new TrustManager[] {new PinnedPublicKeyTrustManager(config.getPinnedPublicKeys())},
+          new SecureRandom());
+      return sslContext;
+    } catch (Exception exception) {
+      throw new IllegalStateException("Failed to initialize pinned SSL context", exception);
     }
   }
 

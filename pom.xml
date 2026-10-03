@@ -46,6 +46,7 @@
         <junit.version>5.10.2</junit.version>
         <mockito.version>5.12.0</mockito.version>
         <slf4j.version>2.0.13</slf4j.version>
+        <bouncycastle.version>1.86</bouncycastle.version>
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
         <maven.failsafe.plugin.version>3.2.5</maven.failsafe.plugin.version>
@@ -102,6 +103,14 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Generates throwaway certificates for TLS unit tests and the SSL integration test. -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+            <version>${bouncycastle.version}</version>
             <scope>test</scope>
         </dependency>
 

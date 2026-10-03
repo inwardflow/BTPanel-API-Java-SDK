@@ -3,8 +3,10 @@ package net.heimeng.sdk.btapi.config;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +18,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class BtSdkConfig {
 
+  private static final String DEFAULT_TRUST_STORE_TYPE = "PKCS12";
   private static final int DEFAULT_CONNECT_TIMEOUT_SECONDS = 10;
   private static final int DEFAULT_READ_TIMEOUT_SECONDS = 30;
   private static final int DEFAULT_RETRY_COUNT = 3;
@@ -30,6 +33,7 @@ public final class BtSdkConfig {
   private final RetryMode retryMode;
   private final int retryCount;
   private final Duration retryInterval;
+  private final Duration maxRetryInterval;
   private final int[] retryableStatusCodes;
   private final Map<String, String> extraHeaders;
   private final boolean enableResponseLog;
@@ -38,6 +42,7 @@ public final class BtSdkConfig {
   private final String trustStorePath;
   private final String trustStorePassword;
   private final String trustStoreType;
+  private final List<String> pinnedPublicKeys;
 
   private BtSdkConfig(Builder builder) {
     this.baseUrl = normalizeBaseUrl(builder.baseUrl);
@@ -51,6 +56,7 @@ public final class BtSdkConfig {
     this.retryMode = Objects.requireNonNull(builder.retryMode, "retryMode cannot be null");
     this.retryCount = requireNonNegative(builder.retryCount, "retryCount");
     this.retryInterval = requireNonNullAndPositive(builder.retryInterval, "retryInterval");
+    this.maxRetryInterval = requireNonNullAndPositive(builder.maxRetryInterval, "maxRetryInterval");
     this.retryableStatusCodes = builder.retryableStatusCodes.clone();
     this.extraHeaders = Map.copyOf(new LinkedHashMap<>(builder.extraHeaders));
     this.enableResponseLog = builder.enableResponseLog;
@@ -59,6 +65,7 @@ public final class BtSdkConfig {
     this.trustStorePath = normalizeOptional(builder.trustStorePath);
     this.trustStorePassword = builder.trustStorePassword;
     this.trustStoreType = normalizeOptional(builder.trustStoreType);
+    this.pinnedPublicKeys = normalizePins(builder.pinnedPublicKeys);
 
     validateBaseUrl(this.baseUrl);
     validateSslSettings();
@@ -105,6 +112,11 @@ public final class BtSdkConfig {
     return retryInterval;
   }
 
+  /** 指数退避的等待上限。 */
+  public Duration getMaxRetryInterval() {
+    return maxRetryInterval;
+  }
+
   public int[] getRetryableStatusCodes() {
     return retryableStatusCodes.clone();
   }
@@ -123,6 +135,11 @@ public final class BtSdkConfig {
 
   public SslMode getSslMode() {
     return sslMode;
+  }
+
+  /** {@link SslMode#PINNED_PUBLIC_KEY} 模式下允许的服务端公钥指纹，格式为 {@code sha256/<base64>}。 */
+  public List<String> getPinnedPublicKeys() {
+    return pinnedPublicKeys;
   }
 
   public String getTrustStorePath() {
@@ -178,6 +195,8 @@ public final class BtSdkConfig {
         + retryCount
         + ", retryInterval="
         + retryInterval
+        + ", maxRetryInterval="
+        + maxRetryInterval
         + ", retryableStatusCodes="
         + Arrays.toString(retryableStatusCodes)
         + ", extraHeaders="
@@ -194,10 +213,16 @@ public final class BtSdkConfig {
         + ", trustStoreType='"
         + (trustStoreType == null ? "" : trustStoreType)
         + '\''
+        + ", pinnedPublicKeys="
+        + pinnedPublicKeys
         + '}';
   }
 
   private void validateSslSettings() {
+    if (sslMode == SslMode.PINNED_PUBLIC_KEY && pinnedPublicKeys.isEmpty()) {
+      throw new IllegalArgumentException(
+          "At least one pinned public key is required when sslMode is PINNED_PUBLIC_KEY");
+    }
     if (sslMode != SslMode.CUSTOM_TRUST_STORE) {
       return;
     }
@@ -214,6 +239,9 @@ public final class BtSdkConfig {
   }
 
   private void validateRetrySettings() {
+    if (maxRetryInterval.compareTo(retryInterval) < 0) {
+      throw new IllegalArgumentException("maxRetryInterval cannot be less than retryInterval");
+    }
     if (retryMode == RetryMode.NONE || retryCount == 0) {
       return;
     }
@@ -221,6 +249,17 @@ public final class BtSdkConfig {
     if (retryableStatusCodes.length == 0) {
       throw new IllegalArgumentException("retryableStatusCodes cannot be empty");
     }
+  }
+
+  private static List<String> normalizePins(List<String> pins) {
+    List<String> normalized = new ArrayList<>();
+    for (String pin : pins) {
+      String validPin = CertificatePins.requireValid(pin);
+      if (!normalized.contains(validPin)) {
+        normalized.add(validPin);
+      }
+    }
+    return List.copyOf(normalized);
   }
 
   private static String normalizeBaseUrl(String rawBaseUrl) {
@@ -298,6 +337,7 @@ public final class BtSdkConfig {
     private RetryMode retryMode = RetryMode.SAFE_REQUESTS_ONLY;
     private int retryCount = DEFAULT_RETRY_COUNT;
     private Duration retryInterval = Duration.ofSeconds(1);
+    private Duration maxRetryInterval = Duration.ofSeconds(30);
     private int[] retryableStatusCodes = DEFAULT_RETRYABLE_STATUS_CODES.clone();
     private Map<String, String> extraHeaders = new LinkedHashMap<>();
     private boolean enableResponseLog = true;
@@ -305,7 +345,8 @@ public final class BtSdkConfig {
     private SslMode sslMode = SslMode.SYSTEM_TRUST;
     private String trustStorePath;
     private String trustStorePassword;
-    private String trustStoreType = "PKCS12";
+    private String trustStoreType = DEFAULT_TRUST_STORE_TYPE;
+    private List<String> pinnedPublicKeys = new ArrayList<>();
 
     private Builder() {}
 
@@ -370,8 +411,15 @@ public final class BtSdkConfig {
       return this;
     }
 
+    /** 首次重试前的基础等待时间，之后按指数增长并加入随机抖动。 */
     public Builder retryInterval(Duration retryInterval) {
       this.retryInterval = retryInterval;
+      return this;
+    }
+
+    /** 指数退避的等待上限，默认 30 秒；也用于限制服务端 {@code Retry-After} 的等待时间。 */
+    public Builder maxRetryInterval(Duration maxRetryInterval) {
+      this.maxRetryInterval = maxRetryInterval;
       return this;
     }
 
@@ -413,7 +461,7 @@ public final class BtSdkConfig {
       if (!verifySsl) {
         this.trustStorePath = null;
         this.trustStorePassword = null;
-        this.trustStoreType = "PKCS12";
+        this.trustStoreType = DEFAULT_TRUST_STORE_TYPE;
       }
       return this;
     }
@@ -423,18 +471,45 @@ public final class BtSdkConfig {
       if (sslMode != SslMode.CUSTOM_TRUST_STORE) {
         this.trustStorePath = null;
         this.trustStorePassword = null;
-        this.trustStoreType = "PKCS12";
+        this.trustStoreType = DEFAULT_TRUST_STORE_TYPE;
+      }
+      if (sslMode != SslMode.PINNED_PUBLIC_KEY) {
+        this.pinnedPublicKeys = new ArrayList<>();
       }
       return this;
     }
 
+    /**
+     * 只信任公钥指纹匹配的服务端证书，适用于宝塔默认的自签名面板证书。
+     *
+     * <p>比关闭证书校验安全得多：只有持有对应私钥的服务端才能通过握手。证书续期时只要公钥不变，指纹就不变。 可以用下面的命令获取指纹，并通过可信渠道（例如在面板服务器本机执行）核对：
+     *
+     * <pre>{@code
+     * openssl s_client -connect host:port </dev/null 2>/dev/null \
+     *   | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der \
+     *   | openssl dgst -sha256 -binary | openssl enc -base64
+     * }</pre>
+     *
+     * <p>条件允许时，更推荐按宝塔官方教程为面板申请受信任的 IP 证书，然后使用默认的 {@link SslMode#SYSTEM_TRUST}。
+     *
+     * @param pins 一个或多个 {@code sha256/<base64>} 格式的指纹；轮换公钥时可同时配置新旧指纹
+     * @return 当前 Builder
+     */
+    public Builder pinnedPublicKeys(String... pins) {
+      Objects.requireNonNull(pins, "pins cannot be null");
+      sslMode(SslMode.PINNED_PUBLIC_KEY);
+      this.pinnedPublicKeys = new ArrayList<>(Arrays.asList(pins));
+      return this;
+    }
+
     public Builder trustStore(String trustStorePath, String trustStorePassword) {
-      return trustStore(trustStorePath, trustStorePassword, "PKCS12");
+      return trustStore(trustStorePath, trustStorePassword, DEFAULT_TRUST_STORE_TYPE);
     }
 
     public Builder trustStore(
         String trustStorePath, String trustStorePassword, String trustStoreType) {
       this.sslMode = SslMode.CUSTOM_TRUST_STORE;
+      this.pinnedPublicKeys = new ArrayList<>();
       this.trustStorePath = trustStorePath;
       this.trustStorePassword = trustStorePassword;
       this.trustStoreType = trustStoreType;
@@ -464,9 +539,15 @@ public final class BtSdkConfig {
     ALL_REQUESTS
   }
 
+  /** 服务端证书的信任方式。 */
   public enum SslMode {
+    /** 使用 JDK 默认信任库校验证书链和主机名。面板配置了受信任证书时使用，这是默认值。 */
     SYSTEM_TRUST,
+    /** 使用自定义信任库（例如导入了面板自签 CA 的 PKCS12 文件）。 */
     CUSTOM_TRUST_STORE,
+    /** 只信任公钥指纹匹配的证书，适用于宝塔默认的自签名证书。见 {@link Builder#pinnedPublicKeys}。 */
+    PINNED_PUBLIC_KEY,
+    /** 不校验证书，会受到中间人攻击。只应在隔离的测试环境中使用，启用时 SDK 会输出警告日志。 */
     INSECURE_TRUST_ALL
   }
 }
