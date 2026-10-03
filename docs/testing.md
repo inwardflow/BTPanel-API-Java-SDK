@@ -116,11 +116,13 @@ SSL tests:
 - Reuse the website test configuration:
   - `BT_PANEL_TEST_DOMAIN_SUFFIX`
   - `BT_PANEL_TEST_WEBROOT_BASE`
-- Provide metadata for an already saved certificate in the panel:
-  - `BT_PANEL_TEST_SSL_CERT_COMMON_NAME`
-  - `BT_PANEL_TEST_SSL_CERT_DOMAINS`
-- Optional TLS verification control:
-  - `BT_PANEL_VERIFY_SSL`
+- No certificate needs to exist in the panel beforehand. The test generates its own.
+
+TLS settings (certificate verification is on by default):
+
+- `BT_PANEL_TLS_PIN`: the panel's public-key pin (`sha256/<base64>`). Use it for BT Panel's default
+  self-signed certificate. See README > Connecting to a Panel over HTTPS for how to read it.
+- `BT_PANEL_VERIFY_SSL=false`: disables verification. Use it only in an isolated test environment.
 
 Timeout and retry settings:
 
@@ -150,6 +152,9 @@ Matching `application-test.properties` keys:
 
 `SslIntegrationTest` currently covers:
 
+- Installing a certificate on a site via `site?action=SetSSL`
+- Turning site SSL off via `site?action=CloseSSLConf`
+- Deleting a saved certificate via `ssl?action=remove_cloud_cert`
 - Querying the saved certificate list via `ssl?action=get_cert_list`
 - Querying per-site SSL status via `site?action=GetSSL`
 - Querying commercial order data via `ssl?action=get_order_list`
@@ -159,19 +164,16 @@ Matching `application-test.properties` keys:
 Key behavior:
 
 1. The test creates an isolated temporary site.
-2. It does not upload PEM text directly.
-3. It expects a saved certificate to already exist in the panel certificate store. A self-signed
-   certificate for a placeholder domain is enough. Point `BT_PANEL_TEST_SSL_CERT_COMMON_NAME` (or
-   `BT_PANEL_TEST_SSL_CERT_DOMAINS`) at it, otherwise the deployment test is skipped.
-4. Certificate matching is based on configured CN/domain metadata rather than the temporary site
-   name.
-5. Cleanup deletes only the temporary site created by the test.
+2. It generates a throwaway self-signed certificate for that site's domain (BouncyCastle, test scope
+   only), so it does not depend on anything already in the panel and nothing is committed.
+3. `SetSSL` installs it. The panel also saves it into the certificate store.
+4. The test turns SSL off, then deploys the saved certificate with `SetBatchCertToSite`. This proves
+   that the deployment, not the earlier install, turned SSL back on.
+5. Cleanup deletes only the certificate issued for the temporary domain and the temporary site.
 
-For the currently validated BTPanel 9.0.0 developer API flow, the SSL integration test follows:
+Validated flow on BTPanel 9.0.0:
 
-`GetSSL -> get_order_list -> GetSiteDomain -> SetBatchCertToSite`
-
-It no longer treats `site?action=SetSSL` as the primary integration path.
+`SetSSL -> get_cert_list -> CloseSSLConf -> GetSiteDomain -> SetBatchCertToSite -> GetSSL`
 
 ## Current Coverage
 

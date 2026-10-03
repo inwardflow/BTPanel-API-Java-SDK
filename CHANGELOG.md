@@ -19,6 +19,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Opt-in integration suites for the FTP, SSL, and system modules.
 - `DeleteFileDirectoryApi` and `FileOperations.deleteDirectory(path)`. The panel's `DeleteFile`
   action cannot remove directories; they require `DeleteDir`.
+- `SslMode.PINNED_PUBLIC_KEY` and `BtSdkConfig.Builder.pinnedPublicKeys(...)`. These trust BT Panel's
+  default self-signed certificate by its public-key pin instead of disabling verification.
+  `CertificatePins.sha256(certificate)` computes a pin.
+- `RemotePaths` with `requireSafeAbsolutePath`, `requireDeletablePath`, and `isWithin`.
+- `BtSdkConfig.Builder.maxRetryInterval(...)` (default 30 s).
 
 ### Changed
 
@@ -46,6 +51,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Body-only requests were verified against BTPanel 9.0.0.
 - Certificate validation failures and unresolvable hosts are no longer retried, because retrying
   cannot fix them. Failure logs now include the exception type.
+- Retries use exponential backoff with jitter. `retryInterval` is the base and `maxRetryInterval` the
+  cap. A `Retry-After` response header is honoured up to the cap.
+- TLS failures now explain how to trust a self-signed panel (trusted panel certificate, or a pin)
+  instead of reporting a bare "Network error".
+- `INSECURE_TRUST_ALL` now logs a warning when a client is created.
+- **Breaking:** `WebsiteOperations.disableSsl` now takes the site name instead of the site ID,
+  matching the panel's `CloseSSLConf` action.
+- `InstallSslCertificateApi` (`SetSSL`) is no longer deprecated. It is a documented panel action, and
+  it also saves the certificate into the panel's store.
+- Integration tests verify TLS by default. Set `BT_PANEL_TLS_PIN` for self-signed panels.
+  `BT_PANEL_TEST_SSL_CERT_*` is gone, because the SSL test now generates its own certificate.
 
 ### Removed
 
@@ -64,6 +80,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   reached the authentication check.
 - The file and FTP integration tests now clean up directories with `DeleteDir`, so they no longer
   leave directories behind on the panel.
+- `CloseWebsiteSslApi` called `site?action=CloseSSL` with `id`. On BTPanel 9.0.0 the panel answers
+  "指定参数无效", so disabling SSL never worked. It now calls `CloseSSLConf` with `siteName` and
+  `updateOf=1`.
 
 ### Security
 
@@ -72,3 +91,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   similar keys are redacted in both places.
 - Passwords and request signatures no longer appear in request URLs, where panel access logs and
   proxies could record them.
+- File and directory deletion rejects relative paths, `..` segments, control characters, and
+  system or panel directories such as `/`, `/etc`, and `/www/wwwroot` before sending the request.

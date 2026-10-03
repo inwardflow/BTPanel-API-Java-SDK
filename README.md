@@ -215,12 +215,65 @@ apiManager.ftp().updatePassword(
 apiManager.ftp().delete(new FtpDeleteRequest(12, "demo_ftp"));
 ```
 
+## Connecting to a Panel over HTTPS
+
+BT Panel ships with a self-signed certificate, so the default `SYSTEM_TRUST` mode rejects it with a
+clear error. Pick one of these, in order of preference:
+
+1. **Install a trusted certificate on the panel** (Settings > Security > Panel SSL, which can issue a
+   trusted IP certificate; see the
+   [official guide](https://docs.bt.cn/user-guide/ai/mcp-installation)). The default configuration
+   then works unchanged.
+2. **Pin the panel's public key.** This is how to keep the self-signed certificate safely:
+
+   ```java
+   BtSdkConfig config =
+       BtSdkConfig.builder()
+           .baseUrl("https://your-panel-host:8888")
+           .apiKey(System.getenv("BT_PANEL_API_KEY"))
+           .pinnedPublicKeys("sha256/<base64-of-spki-sha256>")
+           .build();
+   ```
+
+   Read the pin on the panel server itself (or another channel you trust):
+
+   ```bash
+   openssl s_client -connect 127.0.0.1:8888 </dev/null 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64
+   ```
+
+   If the pin does not match, the error message shows the key the server actually presented. The
+   pin survives certificate renewal as long as the key pair stays the same. To rotate keys, configure
+   both the old and the new pin.
+3. **Use a custom trust store** with `trustStore(path, password[, type])` if you manage your own CA.
+
+`INSECURE_TRUST_ALL` disables verification and logs a warning on startup. Use it only in isolated
+test environments.
+
+Certificate errors and unresolvable hosts are never retried. Other failures are retried according
+to `RetryMode`, with exponential backoff and jitter capped by `maxRetryInterval`. A `Retry-After`
+header is honoured.
+
 ## SSL Notes
 
-- `install(domain, key, cert)` maps `domain` to the panel's site-name style API parameter.
+- `install(domain, key, cert)` maps `domain` to the panel's site-name style API parameter. The panel
+  also saves the certificate into its certificate store, so it can later be deployed to other sites.
 - `SslCertificate.domains` comes from the certificate `CN` and `SAN` values, so it may differ from the original site name used during installation.
-- If your panel uses a private CA, prefer `CUSTOM_TRUST_STORE` with `trustStore(path, password[, type])`.
-- Use `INSECURE_TRUST_ALL` only in tightly controlled test environments.
+
+## Deleting Files and Directories
+
+- `file().delete(path)` removes a file and `file().deleteDirectory(path)` removes a directory with its
+  contents. The panel moves both into its recycle bin when the bin is enabled.
+- Paths must be absolute. Paths containing `..`, and system or panel directories such as `/`, `/etc`,
+  or `/www/wwwroot` themselves, are rejected before any request is sent.
+- The API key has full control of the panel, and the panel cannot scope it. If paths come from
+  end users, check them with `RemotePaths.isWithin(allowedBase, path)` first.
+
+## API Sources
+
+The SDK follows what the panel actually sends. The panel UI uses the same API, so the browser's
+network inspector is the source of truth. The [official API reference](https://docs.bt.cn/api/) is
+useful, but it is not complete. Endpoints in this SDK are verified against a live BTPanel 9.0.0
+instance by the opt-in integration tests.
 
 ## Build and Test
 
