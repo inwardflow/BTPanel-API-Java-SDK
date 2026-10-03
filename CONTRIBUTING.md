@@ -18,6 +18,7 @@ Thank you for helping improve this SDK.
 - Keep live BTPanel calls out of the default build. Real-panel integration tests must stay opt-in.
 - As a library, the SDK should not force a concrete logging backend on consumers.
 - If a public API changes, update the relevant documentation in `README.md`, `docs/`, and `CHANGELOG.md`.
+- `README.md` and `README.zh-CN.md` must stay in sync: change both in the same pull request.
 
 ## Pull Request Expectations
 

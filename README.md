@@ -4,6 +4,8 @@
 [![Java](https://img.shields.io/badge/Java-17-blue.svg)](https://adoptium.net/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+English | [简体中文](README.zh-CN.md)
+
 `BTPanel API Java SDK` is a Java 17 client library for the BT Panel API. It combines a flexible low-level `BtApi<T>` model with higher-level facades for common automation tasks such as website management, database operations, file handling, FTP, SSL, and system inspection.
 
 ## Features
@@ -11,7 +13,7 @@
 - Java 17 `HttpClient` implementation.
 - Immutable `BtSdkConfig` with validation for timeouts, retries, and SSL mode.
 - Explicit retry strategy via `RetryMode`: `NONE`, `SAFE_REQUESTS_ONLY`, and `ALL_REQUESTS`.
-- Multiple SSL modes, including system trust, custom trust store, and insecure trust-all for controlled environments.
+- Multiple certificate trust modes: system trust, custom trust store, public-key pinning (for BT Panel's default self-signed certificate), and trust-all for isolated test environments only.
 - Stable high-level entry point through `BtApiManager`.
 - Facade-based access for common modules: `system()`, `website()`, `database()`, `file()`, `ftp()`, and `ssl()`.
 - Extensible low-level endpoint model for unsupported or newly discovered panel APIs.
@@ -83,6 +85,8 @@ try (BtApiManager apiManager = BtClientFactory.createApiManager(config)) {
   System.out.println(result.getData().getOs());
 }
 ```
+
+`connectTimeout(int)` and `readTimeout(int)` take seconds. Overloads that take a `Duration` are also available.
 
 ### Typical Usage
 
@@ -303,6 +307,7 @@ src/main/java/net/heimeng/sdk/btapi
 - [Architecture](docs/architecture.md)
 - [Testing](docs/testing.md)
 - [Quickstart Example](docs/examples/quickstart.md)
+- [BT Panel API Developer Guide](docs/btpanel-api-developer-guide.md) (Chinese)
 - [OpenAPI Workspace Notes](docs/openapi/README.md)
 - [Release Checklist](docs/release-checklist.md)
 - [Contributing](CONTRIBUTING.md)
