@@ -98,10 +98,12 @@ class WebsiteBooleanApisTest {
   @Test
   @DisplayName("启动站点 API 契约正确")
   void startWebsiteApiContract() {
-    StartWebsiteApi api = new StartWebsiteApi().setId(8);
+    StartWebsiteApi api = new StartWebsiteApi().setId(8).setName("example.com");
 
     assertEquals("site?action=SiteStart", api.getEndpoint());
+    assertEquals("example.com", api.getParams().get("name"));
     assertTrue(invokeValidate(api));
+    assertFalse(invokeValidate(new StartWebsiteApi().setId(8)));
   }
 
   @Test

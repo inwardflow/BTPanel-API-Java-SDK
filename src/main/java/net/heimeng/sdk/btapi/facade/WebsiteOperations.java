@@ -180,6 +180,25 @@ public final class WebsiteOperations extends AbstractOperations {
             .setDeletePath(options.deletePath()));
   }
 
+  /**
+   * 启动站点（{@code site?action=SiteStart}），与面板 UI 一致地同时发送站点 ID 和站点名。
+   *
+   * @param id 站点 ID
+   * @param siteName 站点名（主域名）
+   * @return 操作结果
+   */
+  public BtResult<Boolean> start(int id, String siteName) {
+    return execute(new StartWebsiteApi().setId(id).setName(siteName));
+  }
+
+  /**
+   * 仅按站点 ID 启动站点。
+   *
+   * @param id 站点 ID
+   * @return 操作结果
+   * @deprecated 面板启动站点时需要站点名 {@code name}，实测只传 ID 时返回 HTTP 404。请改用 {@link #start(int, String)}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<Boolean> start(int id) {
     return execute(new StartWebsiteApi().setId(id));
   }

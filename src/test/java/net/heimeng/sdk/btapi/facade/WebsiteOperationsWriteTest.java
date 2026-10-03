@@ -183,10 +183,15 @@ class WebsiteOperationsWriteTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(StartWebsiteApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.start(8);
+    BtResult<Boolean> result = operations.start(8, "example.com");
 
     assertTrue(result.isSuccess());
-    verify(client).execute(any(StartWebsiteApi.class));
+    verify(client)
+        .execute(
+            argThat(
+                (StartWebsiteApi api) ->
+                    Integer.valueOf(8).equals(api.getParams().get("id"))
+                        && "example.com".equals(api.getParams().get("name"))));
   }
 
   @Test
