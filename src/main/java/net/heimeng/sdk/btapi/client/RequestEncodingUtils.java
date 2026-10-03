@@ -25,7 +25,7 @@ final class RequestEncodingUtils {
 
   static String appendQueryParameters(
       String fullUrl, BtApi.HttpMethod method, Map<String, Object> params) {
-    if (params.isEmpty()) {
+    if (params.isEmpty() || !shouldAppendParamToUrl(method)) {
       return fullUrl;
     }
 
@@ -33,10 +33,6 @@ final class RequestEncodingUtils {
     boolean hasExistingParams = fullUrl.contains("?");
 
     for (Map.Entry<String, Object> entry : params.entrySet()) {
-      if (!shouldAppendParamToUrl(method, entry.getKey(), entry.getValue())) {
-        continue;
-      }
-
       urlBuilder.append(hasExistingParams ? '&' : '?');
       urlBuilder.append(entry.getKey());
       urlBuilder.append('=');
@@ -68,19 +64,15 @@ final class RequestEncodingUtils {
         || method == BtApi.HttpMethod.PATCH;
   }
 
-  private static boolean shouldAppendParamToUrl(BtApi.HttpMethod method, String key, Object value) {
-    if (method == BtApi.HttpMethod.GET || method == BtApi.HttpMethod.DELETE) {
-      return true;
-    }
-    if ("request_token".equals(key) || "request_time".equals(key)) {
-      return true;
-    }
-    if (!(value instanceof String stringValue)) {
-      return true;
-    }
-    return stringValue.length() <= 512
-        && stringValue.indexOf('\n') < 0
-        && stringValue.indexOf('\r') < 0;
+  /**
+   * 只有不带请求体的方法才把参数放进 URL。
+   *
+   * <p>已对真实面板验证：面板会读取表单请求体中的业务参数和签名参数。
+   *
+   * <p>因此 POST/PUT/PATCH 的参数只放请求体，避免密码和签名出现在 URL 与访问日志中。
+   */
+  private static boolean shouldAppendParamToUrl(BtApi.HttpMethod method) {
+    return method == BtApi.HttpMethod.GET || method == BtApi.HttpMethod.DELETE;
   }
 
   static String encodeValue(String value) {

@@ -27,11 +27,11 @@ class RequestEncodingUtilsTest {
   }
 
   @Test
-  @DisplayName("appendQueryParameters should keep multiline payload out of POST URL")
-  void appendQueryParametersSkipsMultilinePostValue() {
+  @DisplayName("appendQueryParameters should keep every POST parameter out of the URL")
+  void appendQueryParametersKeepsPostParamsInBody() {
     Map<String, Object> params = new LinkedHashMap<>();
     params.put("siteName", "example.com");
-    params.put("key", "line1\nline2");
+    params.put("ftp_password", "p1");
     params.put("request_token", "token-value");
     params.put("request_time", "1234567890");
 
@@ -39,10 +39,7 @@ class RequestEncodingUtilsTest {
         RequestEncodingUtils.appendQueryParameters(
             "http://localhost:8888/site?action=SetSSL", BtApi.HttpMethod.POST, params);
 
-    assertTrue(builtUrl.contains("siteName=example.com"));
-    assertTrue(builtUrl.contains("request_token=token-value"));
-    assertTrue(builtUrl.contains("request_time=1234567890"));
-    assertFalse(builtUrl.contains("key="));
+    assertEquals("http://localhost:8888/site?action=SetSSL", builtUrl);
   }
 
   @Test

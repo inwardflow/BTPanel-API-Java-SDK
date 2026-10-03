@@ -1,7 +1,6 @@
 package net.heimeng.sdk.btapi.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,8 +39,8 @@ class DefaultBtClientTest {
   }
 
   @Test
-  @DisplayName("POST form requests include content type and keep multiline payloads out of the URL")
-  void postFormRequestsIncludeContentTypeAndKeepMultilinePayloadsOutOfUrl() throws Exception {
+  @DisplayName("POST form requests send content type and keep all parameters in the body")
+  void postFormRequestsSendAllParametersInBody() throws Exception {
     AtomicReference<String> methodRef = new AtomicReference<>();
     AtomicReference<String> contentTypeRef = new AtomicReference<>();
     AtomicReference<String> queryRef = new AtomicReference<>();
@@ -73,14 +72,12 @@ class DefaultBtClientTest {
     assertTrue(
         contentTypeRef.get().startsWith("application/x-www-form-urlencoded"),
         "Expected form content type for POST body requests");
-    assertNotNull(queryRef.get());
-    assertTrue(queryRef.get().contains("siteName=example.com"));
-    assertTrue(queryRef.get().contains("request_time="));
-    assertTrue(queryRef.get().contains("request_token="));
-    assertFalse(queryRef.get().contains("key="));
-    assertFalse(queryRef.get().contains("csr="));
+    // Only the endpoint's own action stays in the URL; parameters and signature travel in the body.
+    assertEquals("action=SetSSL", queryRef.get());
     assertNotNull(bodyRef.get());
     assertTrue(bodyRef.get().contains("siteName=example.com"));
+    assertTrue(bodyRef.get().contains("request_time="));
+    assertTrue(bodyRef.get().contains("request_token="));
     assertTrue(bodyRef.get().contains("key=line1%0Aline2"));
     assertTrue(bodyRef.get().contains("csr=cert-line1%0Acert-line2"));
   }
