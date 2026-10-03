@@ -4,6 +4,7 @@ import net.heimeng.sdk.btapi.api.file.CompressFileApi;
 import net.heimeng.sdk.btapi.api.file.CreateFileApi;
 import net.heimeng.sdk.btapi.api.file.CreateFileDirectoryApi;
 import net.heimeng.sdk.btapi.api.file.DeleteFileApi;
+import net.heimeng.sdk.btapi.api.file.DeleteFileDirectoryApi;
 import net.heimeng.sdk.btapi.api.file.GetFileContentApi;
 import net.heimeng.sdk.btapi.api.file.MoveFileApi;
 import net.heimeng.sdk.btapi.api.file.RenameFileApi;
@@ -39,8 +40,13 @@ public final class FileOperations extends AbstractOperations {
     return execute(new CreateFileApi().setPath(path));
   }
 
+  /** 删除文件。删除目录请使用 {@link #deleteDirectory(String)}。 */
   public BtResult<Boolean> delete(String path) {
     return execute(new DeleteFileApi().setPath(path));
+  }
+
+  public BtResult<Boolean> deleteDirectory(String path) {
+    return execute(new DeleteFileDirectoryApi().setPath(path));
   }
 
   public BtResult<Boolean> rename(String oldPath, String newName) {

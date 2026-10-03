@@ -1,6 +1,6 @@
 package net.heimeng.sdk.btapi.api.file;
 
-/** 删除文件或目录的 API。 */
+/** 删除文件的 API。删除目录请使用 {@link DeleteFileDirectoryApi}。 */
 public class DeleteFileApi extends AbstractFileBooleanApi {
 
   private static final String ENDPOINT = "files?action=DeleteFile";

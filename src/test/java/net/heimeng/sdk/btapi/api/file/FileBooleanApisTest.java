@@ -33,6 +33,21 @@ class FileBooleanApisTest {
   }
 
   @Test
+  @DisplayName("删除目录 API 应使用 DeleteDir 端点")
+  void deleteDirectoryApiContract() {
+    DeleteFileDirectoryApi api = new DeleteFileDirectoryApi().setPath("/www/test-dir");
+
+    assertEquals("files?action=DeleteDir", api.getEndpoint());
+    assertEquals("/www/test-dir", api.getParams().get("path"));
+    assertTrue(invokeValidate(api));
+    assertFalse(invokeValidate(new DeleteFileDirectoryApi()));
+
+    BtResult<Boolean> result = api.parseResponse("{\"status\":true,\"msg\":\"删除目录成功!\"}");
+    assertTrue(result.isSuccess());
+    assertTrue(result.getData());
+  }
+
+  @Test
   @DisplayName("删除文件 API 契约正确")
   void deleteFileApiContract() {
     DeleteFileApi api = new DeleteFileApi().setPath("/www/test.txt");

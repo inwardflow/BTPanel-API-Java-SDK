@@ -16,6 +16,7 @@ import net.heimeng.sdk.btapi.api.file.CompressFileApi;
 import net.heimeng.sdk.btapi.api.file.CreateFileApi;
 import net.heimeng.sdk.btapi.api.file.CreateFileDirectoryApi;
 import net.heimeng.sdk.btapi.api.file.DeleteFileApi;
+import net.heimeng.sdk.btapi.api.file.DeleteFileDirectoryApi;
 import net.heimeng.sdk.btapi.api.file.GetFileContentApi;
 import net.heimeng.sdk.btapi.api.file.MoveFileApi;
 import net.heimeng.sdk.btapi.api.file.RenameFileApi;
@@ -80,6 +81,18 @@ class FileOperationsTest {
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(CreateFileApi.class));
+  }
+
+  @Test
+  @DisplayName("删除目录应委托到 DeleteDir API")
+  void deleteDirectoryDelegatesToClient() {
+    FileOperations operations = new FileOperations(client);
+    when(client.execute(any(DeleteFileDirectoryApi.class))).thenReturn(successBoolean());
+
+    BtResult<Boolean> result = operations.deleteDirectory("/www/test-dir");
+
+    assertTrue(result.isSuccess());
+    verify(client).execute(any(DeleteFileDirectoryApi.class));
   }
 
   @Test
