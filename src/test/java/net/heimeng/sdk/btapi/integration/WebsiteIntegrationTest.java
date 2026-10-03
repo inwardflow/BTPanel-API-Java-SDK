@@ -191,6 +191,29 @@ class WebsiteIntegrationTest extends AbstractIntegrationTestSupport {
     }
   }
 
+  @Test
+  @DisplayName("Should read and save website nginx config via the vhost nginx file")
+  void testNginxConfigRoundTrip() {
+    try {
+      createWebsiteAndResolveId();
+
+      BtResult<String> readResult = apiManager.website().getNginxConfig(testDomain);
+      assertTrue(readResult.isSuccess(), "Failed to read nginx config: " + readResult.getMsg());
+      String config = readResult.getData();
+      assertTrue(
+          config.contains("server_name " + testDomain),
+          "Config should belong to the temporary site");
+
+      // 原样写回，避免写入无效配置导致 Nginx 重载失败。
+      BtResult<Boolean> saveResult = apiManager.website().updateNginxConfig(testDomain, config);
+      assertTrue(saveResult.isSuccess(), "Failed to save nginx config: " + saveResult.getMsg());
+      assertEquals(config, apiManager.website().getNginxConfig(testDomain).getData());
+    } catch (BtApiException exception) {
+      logger.error("Failed while round-tripping nginx config", exception);
+      fail("Failed while round-tripping nginx config: " + exception.getMessage());
+    }
+  }
+
   private Integer createWebsiteAndResolveId() throws BtApiException {
     BtResult<CreateWebsiteResult> createResult = createWebsite();
     assertTrue(createResult.isSuccess(), "Failed to prepare website: " + createResult.getMsg());

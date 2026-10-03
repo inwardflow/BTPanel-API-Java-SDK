@@ -330,10 +330,61 @@ public final class WebsiteOperations extends AbstractOperations {
             .setContent(options.content()));
   }
 
+  /**
+   * 读取站点的 Nginx 配置文件。
+   *
+   * <p>与面板 9.0 UI 一致，通过 {@code files?action=GetFileBody} 读取 {@link
+   * WebsiteVhostPaths#nginxConfig(String)}。仅适用于 Nginx 站点和默认安装目录。
+   *
+   * @param siteName 站点名（主域名）
+   * @return 配置文件内容
+   */
+  public BtResult<String> getNginxConfig(String siteName) {
+    return execute(new GetFileContentApi().setPath(WebsiteVhostPaths.nginxConfig(siteName)));
+  }
+
+  /**
+   * 覆盖站点的 Nginx 配置文件。
+   *
+   * <p>与面板 9.0 UI 一致，通过 {@code files?action=SaveFileBody} 以 UTF-8 写入 {@link
+   * WebsiteVhostPaths#nginxConfig(String)}。写入无效配置会导致 Nginx 重载失败，调用前请自行校验内容。
+   *
+   * @param siteName 站点名（主域名）
+   * @param content 完整的配置文件内容，不能为 {@code null}
+   * @return 操作结果
+   */
+  public BtResult<Boolean> updateNginxConfig(String siteName, String content) {
+    Objects.requireNonNull(content, "content cannot be null");
+    return execute(
+        new SaveFileContentApi()
+            .setPath(WebsiteVhostPaths.nginxConfig(siteName))
+            .setData(content)
+            .setEncoding("utf-8"));
+  }
+
+  /**
+   * 按站点 ID 和域名读取 Nginx 配置。
+   *
+   * @param id 站点 ID
+   * @param domain 站点域名
+   * @return 查询结果
+   * @deprecated 面板 9.0 UI 不使用 {@code site?action=getConf}。请改用 {@link #getNginxConfig(String)}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<String> getNginxConfig(Integer id, String domain) {
     return execute(new GetWebsiteNginxConfigApi().setId(id).setDomain(domain));
   }
 
+  /**
+   * 按站点 ID 设置 Nginx 配置。
+   *
+   * @param siteId 站点 ID
+   * @param options 域名与配置内容
+   * @return 操作结果
+   * @deprecated 面板 9.0 UI 不使用 {@code site?action=setConf}。请改用 {@link #updateNginxConfig(String,
+   *     String)}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<Boolean> updateNginxConfig(Integer siteId, WebsiteNginxConfigOptions options) {
     Objects.requireNonNull(options, "options cannot be null");
     return execute(
