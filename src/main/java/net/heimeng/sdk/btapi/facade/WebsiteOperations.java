@@ -161,6 +161,26 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new StartWebsiteApi().setId(id));
   }
 
+  /**
+   * 停止站点（{@code site?action=SiteStop}），与面板 UI 一致地同时发送站点 ID 和站点名。
+   *
+   * @param id 站点 ID
+   * @param siteName 站点名（主域名）
+   * @return 操作结果
+   */
+  public BtResult<Boolean> stop(int id, String siteName) {
+    return execute(new StopWebsiteApi().setId(id).setName(siteName));
+  }
+
+  /**
+   * 仅按站点 ID 停止站点。
+   *
+   * @param id 站点 ID
+   * @return 操作结果
+   * @deprecated 面板 UI 停止站点时会同时发送站点名 {@code name}，只传 ID 的调用与 UI 行为不一致。请改用 {@link #stop(int,
+   *     String)}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<Boolean> stop(int id) {
     return execute(new StopWebsiteApi().setId(id));
   }

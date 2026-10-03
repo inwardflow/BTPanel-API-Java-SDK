@@ -107,10 +107,14 @@ class WebsiteBooleanApisTest {
   @Test
   @DisplayName("停止站点 API 契约正确")
   void stopWebsiteApiContract() {
-    StopWebsiteApi api = new StopWebsiteApi().setId(8);
+    StopWebsiteApi api = new StopWebsiteApi().setId(8).setName("example.com");
 
-    assertEquals("site?action=StopSite", api.getEndpoint());
+    assertEquals("site?action=SiteStop", api.getEndpoint());
+    assertEquals(8, api.getParams().get("id"));
+    assertEquals("example.com", api.getParams().get("name"));
     assertTrue(invokeValidate(api));
+    assertFalse(invokeValidate(new StopWebsiteApi()));
+    assertThrows(IllegalArgumentException.class, () -> new StopWebsiteApi().setName(" "));
   }
 
   @Test

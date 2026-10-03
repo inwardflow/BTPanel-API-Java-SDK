@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -193,10 +194,16 @@ class WebsiteOperationsWriteTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(StopWebsiteApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.stop(8);
+    BtResult<Boolean> result = operations.stop(8, "example.com");
 
     assertTrue(result.isSuccess());
-    verify(client).execute(any(StopWebsiteApi.class));
+    verify(client)
+        .execute(
+            argThat(
+                (StopWebsiteApi api) ->
+                    "site?action=SiteStop".equals(api.getEndpoint())
+                        && Integer.valueOf(8).equals(api.getParams().get("id"))
+                        && "example.com".equals(api.getParams().get("name"))));
   }
 
   @Test
