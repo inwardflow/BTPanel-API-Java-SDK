@@ -204,6 +204,28 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new SetWebsiteRunPathApi().setId(siteId).setRunPath(runPath));
   }
 
+  /**
+   * 切换站点的防跨站（{@code .user.ini}）开关（{@code site?action=SetDirUserINI}）。
+   *
+   * <p>每次调用切换一次状态；当前状态见 {@link #getConfig(Integer, String)} 返回的 {@code userini} 字段。
+   *
+   * @param siteId 站点 ID
+   * @param path 站点根目录
+   * @return 操作结果
+   */
+  public BtResult<Boolean> toggleUserIni(int siteId, String path) {
+    return execute(new SetWebsiteUserIniApi().setId(siteId).setPath(path));
+  }
+
+  /**
+   * 仅按站点根目录切换防跨站开关。
+   *
+   * @param path 站点根目录
+   * @return 操作结果
+   * @deprecated 面板 UI 切换防跨站时会同时发送站点 {@code id}，只传目录的调用与 UI 行为不一致。请改用 {@link #toggleUserIni(int,
+   *     String)}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<Boolean> toggleUserIni(String path) {
     return execute(new SetWebsiteUserIniApi().setPath(path));
   }

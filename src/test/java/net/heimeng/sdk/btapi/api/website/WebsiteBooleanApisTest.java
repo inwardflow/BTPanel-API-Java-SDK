@@ -156,10 +156,13 @@ class WebsiteBooleanApisTest {
   @Test
   @DisplayName("切换防跨站配置 API 契约正确")
   void setWebsiteUserIniApiContract() {
-    SetWebsiteUserIniApi api = new SetWebsiteUserIniApi().setPath("/www/wwwroot/demo");
+    SetWebsiteUserIniApi api = new SetWebsiteUserIniApi().setId(8).setPath("/www/wwwroot/demo");
 
     assertEquals("site?action=SetDirUserINI", api.getEndpoint());
+    assertEquals(8, api.getParams().get("id"));
+    assertEquals("/www/wwwroot/demo", api.getParams().get("path"));
     assertTrue(invokeValidate(api));
+    assertThrows(IllegalArgumentException.class, () -> new SetWebsiteUserIniApi().setId(0));
   }
 
   @Test
