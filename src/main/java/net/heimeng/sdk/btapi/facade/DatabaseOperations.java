@@ -68,6 +68,29 @@ public final class DatabaseOperations extends AbstractOperations {
     return delete(new DatabaseDeleteRequest(databaseName, databaseId));
   }
 
+  /**
+   * 修改 MySQL 数据库用户的密码（{@code database?action=ResDatabasePassword}）。
+   *
+   * @param databaseId 数据库 ID（{@link DatabaseInfo#getId()}）
+   * @param request 数据库名、用户名与新密码
+   * @return 操作结果
+   */
+  public BtResult<Boolean> updatePassword(int databaseId, DatabasePasswordUpdateRequest request) {
+    Objects.requireNonNull(request, "request cannot be null");
+    return execute(
+        new ChangeDatabasePasswordApi(
+            databaseId, request.databaseName(), request.username(), request.newPassword()));
+  }
+
+  /**
+   * 不带数据库 ID 修改密码。
+   *
+   * @param request 数据库名、用户名与新密码
+   * @return 操作结果
+   * @deprecated 面板 UI 改密时会发送数据库 {@code id}，面板据此定位数据库。请改用 {@link #updatePassword(int,
+   *     DatabasePasswordUpdateRequest)}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<Boolean> updatePassword(DatabasePasswordUpdateRequest request) {
     Objects.requireNonNull(request, "request cannot be null");
     return execute(

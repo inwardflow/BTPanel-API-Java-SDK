@@ -144,6 +144,7 @@ class DatabaseOperationsTest {
 
     BtResult<Boolean> result =
         operations.updatePassword(
+            9,
             new DatabasePasswordUpdateRequest(
                 TestValueFactory.sampleDatabaseName(),
                 TestValueFactory.sampleDatabaseUser(),
@@ -154,10 +155,11 @@ class DatabaseOperationsTest {
         .execute(
             argThat(
                 api ->
-                    api.getEndpoint().equals("database?action=ChangeDBPassword")
-                        && TestValueFactory.sampleDatabaseName().equals(api.getParams().get("name"))
-                        && TestValueFactory.sampleDatabaseUser()
-                            .equals(api.getParams().get("username"))
+                    api.getEndpoint().equals("database?action=ResDatabasePassword")
+                        && Integer.valueOf(9).equals(api.getParams().get("id"))
+                        && TestValueFactory.sampleDatabaseName()
+                            .equals(api.getParams().get("data_name"))
+                        && TestValueFactory.sampleDatabaseUser().equals(api.getParams().get("name"))
                         && TestValueFactory.updatedSamplePassword()
                             .equals(api.getParams().get("password"))));
   }
