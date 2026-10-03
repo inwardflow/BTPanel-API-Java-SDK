@@ -104,10 +104,44 @@ public final class FileOperations extends AbstractOperations {
     return execute(new MoveFileApi().setSource(source).setTarget(target).setType(type));
   }
 
+  /**
+   * 压缩文件或目录（{@code files?action=Zip}）。
+   *
+   * @param sourcePath 被压缩项的完整路径
+   * @param archivePath 压缩包的完整路径，例如 {@code /www/backup/logs.tar.gz}
+   * @param format 压缩格式，例如 {@code tar.gz} 或 {@code zip}
+   * @return 操作结果
+   */
+  public BtResult<Boolean> compressTo(String sourcePath, String archivePath, String format) {
+    return execute(
+        new CompressFileApi()
+            .setSourcePath(sourcePath)
+            .setArchivePath(archivePath)
+            .setFormat(format));
+  }
+
+  /**
+   * 压缩文件或目录，压缩包放在被压缩项所在目录。
+   *
+   * @param path 被压缩项的完整路径
+   * @param filename 压缩包文件名，未带扩展名时按格式补全
+   * @param format 压缩格式
+   * @return 操作结果
+   * @deprecated 面板 9.0 用 {@code files?action=Zip} 压缩，需要压缩包的完整路径。请改用 {@link #compressTo(String,
+   *     String, String)}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<Boolean> compress(String path, String filename, String format) {
     return execute(new CompressFileApi().setPath(path).setFilename(filename).setFormat(format));
   }
 
+  /**
+   * 解压压缩包（{@code files?action=UnZip}），使用 UI 默认的编码 {@code UTF-8} 和目录权限 {@code 755}。
+   *
+   * @param path 压缩包的完整路径
+   * @param target 解压目录
+   * @return 操作结果
+   */
   public BtResult<Boolean> uncompress(String path, String target) {
     return execute(new UncompressFileApi().setPath(path).setTarget(target));
   }

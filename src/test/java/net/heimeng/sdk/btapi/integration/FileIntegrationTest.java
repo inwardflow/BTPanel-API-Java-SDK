@@ -249,6 +249,36 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
     }
   }
 
+  @Test
+  @DisplayName("应能通过 Zip/UnZip 压缩并解压文件")
+  void testCompressAndUncompressFile() {
+    try {
+      ensureWebsiteExists();
+      ensureRootDirectory();
+      saveFile(testFilePath, testContent);
+
+      String archivePath = appendChildPath(testRootPath, "archive.tar.gz");
+      BtResult<Boolean> zipResult =
+          apiManager.file().compressTo(testFilePath, archivePath, "tar.gz");
+      assertTrue(zipResult.isSuccess(), "压缩失败: " + zipResult.getMsg());
+      registerCleanup(archivePath);
+
+      BtResult<Boolean> mkdirResult =
+          apiManager.execute(new CreateFileDirectoryApi().setPath(testDirectoryPath));
+      assertTrue(mkdirResult.isSuccess(), "创建解压目录失败: " + mkdirResult.getMsg());
+      registerDirectoryCleanup(testDirectoryPath);
+
+      BtResult<Boolean> unzipResult = apiManager.file().uncompress(archivePath, testDirectoryPath);
+      assertTrue(unzipResult.isSuccess(), "解压失败: " + unzipResult.getMsg());
+      String extractedPath = appendChildPath(testDirectoryPath, getFileName(testFilePath));
+      registerCleanup(extractedPath);
+      assertEquals(testContent, readFile(extractedPath));
+    } catch (BtApiException exception) {
+      logger.error("压缩/解压文件时发生 API 异常", exception);
+      fail("压缩/解压文件时发生 API 异常: " + exception.getMessage());
+    }
+  }
+
   private String readFile(String path) throws BtApiException {
     BtResult<String> result = apiManager.file().getContent(path);
     assertTrue(result.isSuccess(), "读取文件失败: " + path + " " + result.getMsg());
