@@ -14,6 +14,7 @@ import net.heimeng.sdk.btapi.api.website.CreateWebsiteBackupApi;
 import net.heimeng.sdk.btapi.api.website.DeleteWebsiteApi;
 import net.heimeng.sdk.btapi.api.website.DeleteWebsiteBackupApi;
 import net.heimeng.sdk.btapi.api.website.DeleteWebsiteDomainApi;
+import net.heimeng.sdk.btapi.api.website.GetPhpRuntimeConfigApi;
 import net.heimeng.sdk.btapi.api.website.GetPhpVersionsApi;
 import net.heimeng.sdk.btapi.api.website.GetWebsiteBackupsApi;
 import net.heimeng.sdk.btapi.api.website.GetWebsiteConfigApi;
@@ -89,6 +90,16 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new GetPhpVersionsApi());
   }
 
+  /**
+   * 获取指定 PHP 版本的运行配置（{@code ajax?action=GetPHPConfig}），包括扩展列表和禁用函数等字段。
+   *
+   * @param phpVersion 不带点的版本号，例如 {@code 81}
+   * @return 配置对象的原始 {@code Map}
+   */
+  public BtResult<Map<String, Object>> getPhpRuntimeConfig(String phpVersion) {
+    return execute(new GetPhpRuntimeConfigApi().setVersion(phpVersion));
+  }
+
   public BtResult<CreateWebsiteResult> create(CreateWebsiteApi api) {
     Objects.requireNonNull(api, "api cannot be null");
     return execute(api);
@@ -120,6 +131,15 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(api);
   }
 
+  /**
+   * 按站点 ID 获取站点详情。
+   *
+   * @param id 站点 ID
+   * @return 查询结果
+   * @deprecated 面板 9.0 UI 不调用 {@code site?action=GetSiteStatus}。请改用 {@link #listRaw(Integer,
+   *     Integer, Integer, String, String)} 按站点名搜索，或用 {@link #getConfig(Integer, String)} 获取目录配置。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<Map<String, Object>> getDetail(int id) {
     return execute(new GetWebsiteDetailApi().setId(id));
   }
@@ -277,10 +297,29 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new SetWebsitePhpVersionApi().setId(siteId).setPhpVersion(phpVersion));
   }
 
+  /**
+   * 按站点获取 PHP 扩展列表。
+   *
+   * @param id 站点 ID
+   * @return 查询结果
+   * @deprecated 面板 9.0 没有按站点查询 PHP 扩展的接口。请改用 {@link #getPhpRuntimeConfig(String)}，按站点的 PHP 版本（见
+   *     {@link #getPhpVersion(String)}）查询。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<List<Map<String, Object>>> listPhpExtensions(int id) {
     return execute(new GetWebsitePhpExtensionsApi().setId(id));
   }
 
+  /**
+   * 按站点切换 PHP 扩展。
+   *
+   * @param siteId 站点 ID
+   * @param moduleName 扩展名
+   * @param enabled 是否启用
+   * @return 操作结果
+   * @deprecated 面板 9.0 没有按站点切换 PHP 扩展的接口，扩展需在软件商店按 PHP 版本安装或卸载，SDK 暂不提供替代方法。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<Boolean> updatePhpExtension(int siteId, String moduleName, boolean enabled) {
     return execute(
         new SetWebsitePhpExtensionsApi()
@@ -446,6 +485,15 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new CloseWebsiteSslApi().setSiteName(siteName));
   }
 
+  /**
+   * 按站点获取 SSL 证书列表。
+   *
+   * @param id 站点 ID
+   * @return 查询结果
+   * @deprecated 面板 9.0 UI 不调用 {@code site?action=GetSSLCertList}，实测返回“指定参数无效”。请改用 {@link
+   *     SslOperations#getWebsiteStatus(String)} 或 {@link SslOperations#list()}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<List<Map<String, Object>>> listSslCertificates(int id) {
     return execute(new GetWebsiteSslListApi().setId(id));
   }

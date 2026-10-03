@@ -1,6 +1,12 @@
 package net.heimeng.sdk.btapi.api.website;
 
-/** 切换站点 PHP 扩展状态的 API。 */
+/**
+ * 切换站点 PHP 扩展状态的 API。 *
+ *
+ * @deprecated 面板 9.0 没有按站点切换 PHP 扩展的接口，{@code site?action=SetPHPModules} 不在 UI 中。扩展需在软件商店的 PHP 设置中按
+ *     PHP 版本安装或卸载，SDK 暂不提供替代接口。
+ */
+@Deprecated(since = "0.2.0", forRemoval = true)
 public class SetWebsitePhpExtensionsApi extends AbstractWebsiteBooleanApi {
 
   private static final String ENDPOINT = "site?action=SetPHPModules";

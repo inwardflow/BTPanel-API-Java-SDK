@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import net.heimeng.sdk.btapi.exception.BtApiException;
 import net.heimeng.sdk.btapi.facade.WebsiteCreateRequest;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.website.CreateWebsiteResult;
+import net.heimeng.sdk.btapi.model.website.PhpVersion;
 
 @DisplayName("Website integration tests")
 @EnabledIfEnvironmentVariable(named = "ENABLE_INTEGRATION_TESTS", matches = "true")
@@ -238,6 +240,32 @@ class WebsiteIntegrationTest extends AbstractIntegrationTestSupport {
     BtResult<Map<String, Object>> config = apiManager.website().getConfig(websiteId, testWebroot);
     assertTrue(config.isSuccess(), "Failed to read site directory config: " + config.getMsg());
     return config.getData().get("userini");
+  }
+
+  @Test
+  @DisplayName("Should read PHP runtime config via GetPHPConfig for an installed PHP version")
+  void testGetPhpRuntimeConfig() {
+    try {
+      BtResult<List<PhpVersion>> versions = apiManager.website().listPhpVersions();
+      assertTrue(versions.isSuccess(), "Failed to list PHP versions: " + versions.getMsg());
+      String installed =
+          versions.getData().stream()
+              .map(PhpVersion::getVersion)
+              .filter(version -> version != null && version.matches("\\d{2}"))
+              .filter(version -> !"00".equals(version))
+              .findFirst()
+              .orElse(null);
+      assumeTrue(installed != null, "No PHP runtime is installed on the panel");
+
+      BtResult<Map<String, Object>> config = apiManager.website().getPhpRuntimeConfig(installed);
+      assertTrue(config.isSuccess(), "Failed to read PHP config: " + config.getMsg());
+      assertTrue(
+          config.getData().containsKey("disable_functions"),
+          "PHP config should contain disable_functions");
+    } catch (BtApiException exception) {
+      logger.error("Failed while reading PHP runtime config", exception);
+      fail("Failed while reading PHP runtime config: " + exception.getMessage());
+    }
   }
 
   private Integer createWebsiteAndResolveId() throws BtApiException {
