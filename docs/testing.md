@@ -212,9 +212,9 @@ See `docs/openapi/live-validation-matrix.md` for the UI evidence behind each end
 
 ### Last live run
 
-Run on 2026-10-02 against BTPanel 9.0.0 on Ubuntu 22.04: all 26 integration tests passed (Database 4, File 5,
-FTP 4, SSL 3, System 7, Website 3), with no skips. The panel's site, database, and FTP counts were
-unchanged afterwards, which confirms that cleanup works.
+Run on 2026-10-03 against BTPanel 9.0.0 on Ubuntu 22.04: all 35 integration tests passed (Database 5,
+File 7, FTP 4, SSL 3, System 7, Website 9), with no skips. No temporary site, database, or FTP account
+was left on the panel afterwards.
 
 ## Recommendations
 

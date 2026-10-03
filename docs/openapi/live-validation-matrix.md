@@ -45,7 +45,7 @@ Status legend:
 | `data?action=setPs` (`table=sites`) | `SetWebsitePsApi`, `updateRemark` | UI capture `{table, id, ps}` | ✅ Matches UI | |
 | `site?action=AddDomain` | `AddWebsiteDomainApi`, `addDomain` | UI capture `{id, webname, domain}` | ✅ Matches UI | |
 | `site?action=DelDomain` | `DeleteWebsiteDomainApi`, `removeDomain` | UI capture `{id, webname, domain, port}` | ✅ Matches UI | |
-| `site?action=SiteStart` | `StartWebsiteApi`, `start` | UI capture `{id, name}` | ✅ Matches UI | The SDK sends only `id`; whether the panel needs `name` is pending the live run. |
+| `site?action=SiteStart` | `StartWebsiteApi`, `start(int, String)` | UI capture `{id, name}`; live: `{id}` alone returns HTTP 404 | 🔧 Fixed | The SDK sent only `id`. |
 | `site?action=SiteStop` | `StopWebsiteApi`, `stop(int, String)` | UI capture `{id, name}` | 🔧 Fixed | Was `site?action=StopSite {id}`, which is not in the 9.0 UI. |
 | `site?action=GetSitePHPVersion` | `GetWebsitePhpVersionApi`, `getPhpVersion(String)` | UI capture `{siteName}` → `{"phpversion": "81", ...}` | 🔧 Fixed | Was `site?action=getPhpVersion {id}`. |
 | `site?action=SetPHPVersion` | `SetWebsitePhpVersionApi`, `updatePhpVersion(String, String)` | UI capture `{siteName, version, other}` | 🔧 Fixed | Was `site?action=SetPhpVersion {id, php_version}`. |
@@ -62,7 +62,7 @@ Status legend:
 | `files?action=GetFileBody` on `vhost/nginx/<site>.conf` | `getNginxConfig(String)` | UI capture (配置文件 tab) | 🔧 Fixed | Was `site?action=getConf {id, domain}`. |
 | `files?action=SaveFileBody` on `vhost/nginx/<site>.conf` | `updateNginxConfig(String, String)` | UI capture `{path, data, encoding=utf-8}` | 🔧 Fixed | Was `site?action=setConf {id, domain, content}`. |
 | `site?action=getRewrite` / `setRewrite` / `getConf` / `setConf` | `GetWebsiteRewriteRulesApi`, `SetWebsiteRewriteRulesApi`, `GetWebsiteNginxConfigApi`, `SetWebsiteNginxConfigApi` | Not in UI bundle | ⚠️ Deprecated | Replaced by the vhost-file methods above. |
-| `site?action=ToBackup` | `CreateWebsiteBackupApi`, `createBackup` | UI capture `{id, backstage=1}` | ✅ Matches UI | The SDK omits `backstage=1` (the UI runs the backup as a background task). |
+| `site?action=ToBackup` | `CreateWebsiteBackupApi`, `createBackup` | UI capture `{id, backstage=1}`; live `{id}` → 备份成功 | ✅ Matches UI | Without `backstage=1` the panel backs up synchronously; the UI uses `backstage=1` to queue a background task. |
 | `site?action=DelBackup` | `DeleteWebsiteBackupApi`, `deleteBackup` | UI capture `{id}` | ✅ Matches UI | |
 | `site?action=GetSiteStatus` | `GetWebsiteDetailApi`, `getDetail` | Not in UI bundle | ⚠️ Deprecated | Site details come from the site list (`listRaw`) and `getConfig`. |
 | `site?action=get_site_types` | `GetWebsiteTypesApi`, `listTypes` | UI capture (site list load) | ✅ Matches UI | |
@@ -131,6 +131,14 @@ Status legend:
 
 ## Live API verification
 
-The rows marked 🔧 have unit tests and new integration tests (`WebsiteIntegrationTest`,
-`FileIntegrationTest`, `DatabaseIntegrationTest`). Running them against the panel with the developer
-API key is tracked in the pull request.
+Run on 2026-10-03 against the same panel with the developer API key (`request_time`/`request_token`):
+
+- `./mvnw -Pintegration-tests verify`: all 35 integration tests pass (Database 5, File 7, FTP 4,
+  SSL 3, System 7, Website 9), including every 🔧 row above. Temporary sites, databases, FTP users and
+  files are removed afterwards.
+- Every replaced action returns `{"status": false, "msg": "指定参数无效!"}` through the API, the
+  panel's response to an unknown action: `StopSite`, `getPhpVersion`, `SetPhpVersion`, `getRewrite`,
+  `getConf`, `GetSiteStatus`, `GetPHPModules`, `GetSSLCertList`, `RenameFile`, `MoveFile`,
+  `Compress`, `UnCompress`, `ChangeDBPassword`.
+- `SiteStart` with only `{id}` returns HTTP 404; `SiteStop` accepts `{id}` alone as well as
+  `{id, name}`.
