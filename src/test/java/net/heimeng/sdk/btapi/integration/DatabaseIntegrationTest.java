@@ -22,6 +22,7 @@ import net.heimeng.sdk.btapi.client.BtApiManager;
 import net.heimeng.sdk.btapi.exception.BtApiException;
 import net.heimeng.sdk.btapi.facade.DatabaseCreateRequest;
 import net.heimeng.sdk.btapi.facade.DatabaseDeleteRequest;
+import net.heimeng.sdk.btapi.facade.DatabasePasswordUpdateRequest;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.database.DatabaseInfo;
 
@@ -118,6 +119,30 @@ class DatabaseIntegrationTest extends AbstractIntegrationTestSupport {
     assertTrue(deleteResult.isSuccess(), "Failed to delete database: " + deleteResult.getMsg());
     assertTrue(Boolean.TRUE.equals(deleteResult.getData()), "Delete database should return true");
     assertFalse(isDatabaseExists(testDbName), "Database should no longer exist");
+  }
+
+  @Test
+  @DisplayName("Should change database password via ResDatabasePassword")
+  void testUpdateDatabasePassword() throws BtApiException {
+    BtResult<Boolean> createResult =
+        apiManager
+            .database()
+            .create(DatabaseCreateRequest.builder(testDbName, testDbUser, testDbPassword).build());
+    assertTrue(createResult.isSuccess(), "Failed to prepare database: " + createResult.getMsg());
+
+    DatabaseInfo databaseInfo = getDatabaseInfoByName(testDbName);
+    assertNotNull(databaseInfo, "Database should exist before changing its password");
+
+    String newPassword = "It" + uniqueSuffix() + uniqueSuffix();
+    BtResult<Boolean> result =
+        apiManager
+            .database()
+            .updatePassword(
+                databaseInfo.getId(),
+                new DatabasePasswordUpdateRequest(testDbName, testDbUser, newPassword));
+
+    assertTrue(result.isSuccess(), "Failed to change database password: " + result.getMsg());
+    assertTrue(Boolean.TRUE.equals(result.getData()), "Password change should return true");
   }
 
   @Test
