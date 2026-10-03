@@ -7,7 +7,11 @@ package net.heimeng.sdk.btapi.api.website;
  *
  * @author InwardFlow
  * @since 2.0.0
+ * @deprecated 面板 9.0 UI 不调用 {@code site?action=GetSSLCertList}，实测返回“指定参数无效”。站点 SSL 状态请改用 {@link
+ *     net.heimeng.sdk.btapi.facade.SslOperations#getWebsiteStatus(String)}，证书列表请改用 {@link
+ *     net.heimeng.sdk.btapi.facade.SslOperations#list()}。
  */
+@Deprecated(since = "0.2.0", forRemoval = true)
 public class GetWebsiteSslListApi extends AbstractWebsiteMapListQueryApi {
 
   /** API端点路径 */

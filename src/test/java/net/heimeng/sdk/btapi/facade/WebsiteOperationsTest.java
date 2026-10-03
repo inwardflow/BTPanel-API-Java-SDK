@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import net.heimeng.sdk.btapi.api.file.GetFileContentApi;
+import net.heimeng.sdk.btapi.api.website.GetPhpRuntimeConfigApi;
 import net.heimeng.sdk.btapi.api.website.GetPhpVersionsApi;
 import net.heimeng.sdk.btapi.api.website.GetWebsiteBackupsApi;
 import net.heimeng.sdk.btapi.api.website.GetWebsiteConfigApi;
@@ -167,6 +168,23 @@ class WebsiteOperationsTest {
                 (GetWebsitePhpVersionApi api) ->
                     "site?action=GetSitePHPVersion".equals(api.getEndpoint())
                         && "example.com".equals(api.getParams().get("siteName"))));
+  }
+
+  @Test
+  @DisplayName("getPhpRuntimeConfig should delegate to GetPhpRuntimeConfigApi")
+  void getPhpRuntimeConfigDelegatesToClient() {
+    WebsiteOperations operations = new WebsiteOperations(client);
+    BtResult<Map<String, Object>> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(Map.of("disable_functions", "exec"));
+    when(client.execute(any(GetPhpRuntimeConfigApi.class))).thenReturn(response);
+
+    BtResult<Map<String, Object>> result = operations.getPhpRuntimeConfig("81");
+
+    assertEquals("exec", result.getData().get("disable_functions"));
+    verify(client)
+        .execute(
+            argThat((GetPhpRuntimeConfigApi api) -> "81".equals(api.getParams().get("version"))));
   }
 
   @Test

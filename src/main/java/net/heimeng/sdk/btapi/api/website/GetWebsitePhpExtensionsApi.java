@@ -7,7 +7,10 @@ package net.heimeng.sdk.btapi.api.website;
  *
  * @author InwardFlow
  * @since 2.0.0
+ * @deprecated 面板 9.0 没有按站点查询 PHP 扩展的接口，{@code site?action=GetPHPModules} 不在 UI 中。PHP 扩展属于 PHP
+ *     版本，请改用 {@link GetPhpRuntimeConfigApi}。
  */
+@Deprecated(since = "0.2.0", forRemoval = true)
 public class GetWebsitePhpExtensionsApi extends AbstractWebsiteMapListQueryApi {
 
   /** API端点路径 */
