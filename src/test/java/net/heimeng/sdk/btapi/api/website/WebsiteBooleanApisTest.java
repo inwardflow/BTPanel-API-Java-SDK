@@ -68,10 +68,13 @@ class WebsiteBooleanApisTest {
   @Test
   @DisplayName("关闭 SSL API 契约正确")
   void closeWebsiteSslApiContract() {
-    CloseWebsiteSslApi api = new CloseWebsiteSslApi().setId(8);
+    CloseWebsiteSslApi api = new CloseWebsiteSslApi().setSiteName("example.com");
 
-    assertEquals("site?action=CloseSSL", api.getEndpoint());
+    assertEquals("site?action=CloseSSLConf", api.getEndpoint());
+    assertEquals("example.com", api.getParams().get("siteName"));
+    assertEquals(1, api.getParams().get("updateOf"));
     assertTrue(invokeValidate(api));
+    assertFalse(invokeValidate(new CloseWebsiteSslApi()));
   }
 
   @Test

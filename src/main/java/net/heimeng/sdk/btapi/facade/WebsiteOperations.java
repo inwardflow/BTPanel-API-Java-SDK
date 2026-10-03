@@ -256,8 +256,9 @@ public final class WebsiteOperations extends AbstractOperations {
             .setForceHttps(options.forceHttps()));
   }
 
-  public BtResult<Boolean> disableSsl(int siteId) {
-    return execute(new CloseWebsiteSslApi().setId(siteId));
+  /** 关闭站点 SSL。面板按站点名定位站点，见 {@link CloseWebsiteSslApi}。 */
+  public BtResult<Boolean> disableSsl(String siteName) {
+    return execute(new CloseWebsiteSslApi().setSiteName(siteName));
   }
 
   public BtResult<List<Map<String, Object>>> listSslCertificates(int id) {

@@ -349,7 +349,7 @@ class WebsiteOperationsWriteTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(CloseWebsiteSslApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.disableSsl(8);
+    BtResult<Boolean> result = operations.disableSsl("example.com");
 
     assertTrue(result.isSuccess());
     verify(client).execute(any(CloseWebsiteSslApi.class));
