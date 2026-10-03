@@ -322,6 +322,25 @@ class WebsiteOperationsWriteTest {
   }
 
   @Test
+  @DisplayName("updateNginxConfig(siteName) should write the vhost nginx file via SaveFileBody")
+  void updateNginxConfigBySiteNameWritesVhostFile() {
+    WebsiteOperations operations = new WebsiteOperations(client);
+    when(client.execute(any(SaveFileContentApi.class))).thenReturn(successBoolean());
+
+    BtResult<Boolean> result = operations.updateNginxConfig("example.com", "server { listen 80; }");
+
+    assertTrue(result.isSuccess());
+    verify(client)
+        .execute(
+            argThat(
+                (SaveFileContentApi api) ->
+                    "/www/server/panel/vhost/nginx/example.com.conf"
+                            .equals(api.getParams().get("path"))
+                        && "server { listen 80; }".equals(api.getParams().get("data"))
+                        && "utf-8".equals(api.getParams().get("encoding"))));
+  }
+
+  @Test
   @DisplayName("updateNginxConfig should delegate to SetWebsiteNginxConfigApi")
   void updateNginxConfigDelegatesToClient() {
     WebsiteOperations operations = new WebsiteOperations(client);

@@ -216,6 +216,24 @@ class WebsiteOperationsTest {
   }
 
   @Test
+  @DisplayName("getNginxConfig(siteName) should read the vhost nginx file via GetFileBody")
+  void getNginxConfigBySiteNameReadsVhostFile() {
+    WebsiteOperations operations = new WebsiteOperations(client);
+    when(client.execute(any(GetFileContentApi.class)))
+        .thenReturn(successString("server { listen 80; }"));
+
+    BtResult<String> result = operations.getNginxConfig("example.com");
+
+    assertEquals("server { listen 80; }", result.getData());
+    verify(client)
+        .execute(
+            argThat(
+                (GetFileContentApi api) ->
+                    "/www/server/panel/vhost/nginx/example.com.conf"
+                        .equals(api.getParams().get("path"))));
+  }
+
+  @Test
   @DisplayName("getNginxConfig should delegate to GetWebsiteNginxConfigApi")
   void getNginxConfigDelegatesToClient() {
     WebsiteOperations operations = new WebsiteOperations(client);
