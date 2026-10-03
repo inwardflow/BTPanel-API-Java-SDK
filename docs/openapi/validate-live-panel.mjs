@@ -41,6 +41,15 @@ function loadConfig() {
   };
 }
 
+/**
+ * Random throwaway password for resources the validator creates and deletes.
+ * Generated per run so no credential-like literal lives in the repository.
+ */
+function generateTestPassword() {
+  // The panel requires mixed character classes; the suffix guarantees them.
+  return `${crypto.randomBytes(12).toString("base64url")}Aa1!`;
+}
+
 function createSignedParams(apiKey, businessParams = {}) {
   const requestTime = Math.floor(Date.now() / 1000).toString();
   const inner = crypto.createHash("md5").update(apiKey).digest("hex");
@@ -173,18 +182,18 @@ async function main() {
   const timestamp = Date.now();
   const suffix = timestamp.toString().slice(-8);
   const ftpUsername = `sdkit${timestamp.toString().slice(-8)}`;
-  const ftpPassword = `SdkIt${timestamp.toString().slice(-6)}A1!`;
-  const ftpPassword2 = `SdkIt${timestamp.toString().slice(-6)}B2!`;
+  const ftpPassword = generateTestPassword();
+  const ftpPassword2 = generateTestPassword();
   const legacyFtpUsername = `lgit${timestamp.toString().slice(-8)}`;
-  const legacyFtpPassword = `LgIt${timestamp.toString().slice(-6)}A1!`;
-  const legacyFtpPassword2 = `LgIt${timestamp.toString().slice(-6)}B2!`;
+  const legacyFtpPassword = generateTestPassword();
+  const legacyFtpPassword2 = generateTestPassword();
   const ftpBasePath = `/www/wwwroot/.sdk-it-${timestamp}`;
   const ftpHomePath = `${ftpBasePath}/${ftpUsername}`;
   const legacyFtpPath = `${ftpBasePath}/${legacyFtpUsername}`;
   const dbName = `itdb${suffix}`;
   const dbUser = `itusr${suffix}`;
-  const dbPassword = `DbIt${timestamp.toString().slice(-6)}A1!`;
-  const dbPassword2 = `DbIt${timestamp.toString().slice(-6)}B2!`;
+  const dbPassword = generateTestPassword();
+  const dbPassword2 = generateTestPassword();
   const domainSuffixRaw = (config.props["test.domain"] ?? "test.example.com").trim();
   const domainSuffix = domainSuffixRaw.replace(/^\.+/, "");
   const siteDomain = `itsite-${suffix}.${domainSuffix}`;
