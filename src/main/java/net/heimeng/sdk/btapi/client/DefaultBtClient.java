@@ -302,7 +302,7 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
       } catch (java.net.http.HttpTimeoutException | java.net.SocketTimeoutException exception) {
         log.warn("Timeout on attempt {}/{}", attempt + 1, retryCount + 1);
         if (attempt < retryCount
-            && retryPolicy.shouldRetryException(method, context.isForceRetry())) {
+            && retryPolicy.shouldRetryException(method, exception, context.isForceRetry())) {
           sleepBeforeRetry();
           continue;
         }
@@ -312,11 +312,11 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
             "Request failed on attempt {}/{}: {}",
             attempt + 1,
             retryCount + 1,
-            exception.getMessage(),
+            exception.toString(),
             exception);
 
         if (attempt < retryCount
-            && retryPolicy.shouldRetryException(method, context.isForceRetry())) {
+            && retryPolicy.shouldRetryException(method, exception, context.isForceRetry())) {
           sleepBeforeRetry();
           continue;
         }

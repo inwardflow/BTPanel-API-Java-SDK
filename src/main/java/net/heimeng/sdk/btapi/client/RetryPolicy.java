@@ -1,5 +1,8 @@
 package net.heimeng.sdk.btapi.client;
 
+import java.net.UnknownHostException;
+import java.nio.channels.UnresolvedAddressException;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -25,8 +28,26 @@ final class RetryPolicy {
     return canRetryByMode(method) && isRetryableStatusCode(statusCode);
   }
 
-  boolean shouldRetryException(BtApi.HttpMethod method, boolean forceRetry) {
+  boolean shouldRetryException(BtApi.HttpMethod method, Throwable exception, boolean forceRetry) {
+    if (isPermanentFailure(exception)) {
+      return false;
+    }
     return forceRetry || canRetryByMode(method);
+  }
+
+  /** 证书校验失败、域名无法解析等确定性错误重试也不会成功，应直接失败。 */
+  static boolean isPermanentFailure(Throwable exception) {
+    for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
+      if (cause instanceof CertificateException
+          || cause instanceof UnknownHostException
+          || cause instanceof UnresolvedAddressException) {
+        return true;
+      }
+      if (cause.getCause() == cause) {
+        break;
+      }
+    }
+    return false;
   }
 
   private boolean canRetryByMode(BtApi.HttpMethod method) {
