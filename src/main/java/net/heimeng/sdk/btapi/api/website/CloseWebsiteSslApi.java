@@ -1,84 +1,36 @@
 package net.heimeng.sdk.btapi.api.website;
 
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import net.heimeng.sdk.btapi.api.BaseBtApi;
-import net.heimeng.sdk.btapi.exception.BtApiException;
-import net.heimeng.sdk.btapi.model.BtResult;
-
 /**
- * 关闭网站SSL证书API实现
- * <p>
- * 用于关闭宝塔面板中网站的SSL证书配置。
- * </p>
+ * 关闭站点 SSL 的 API（面板 {@code site?action=CloseSSLConf}）。
  *
- * @author InwardFlow
- * @since 2.0.0
+ * <p>官方文档要求传入站点名 {@code siteName} 和固定值 {@code updateOf=1}。旧版本使用的 {@code CloseSSL} + {@code id} 在
+ * BTPanel 9.0.0 上会返回“指定参数无效”。
+ *
+ * @see <a href="https://docs.bt.cn/api/site/actions/">宝塔官方文档：网站管理</a>
  */
-public class CloseWebsiteSslApi extends BaseBtApi<BtResult<Boolean>> {
-    
-    /**
-     * API端点路径
-     */
-    private static final String ENDPOINT = "site?action=CloseSSL";
-    
-    /**
-     * 构造函数，创建一个新的CloseWebsiteSslApi实例
-     */
-    public CloseWebsiteSslApi() {
-        super(ENDPOINT, HttpMethod.POST);
-    }
-    
-    /**
-     * 设置网站ID
-     * 
-     * @param id 网站ID
-     * @return 当前API实例，支持链式调用
-     */
-    public CloseWebsiteSslApi setId(Integer id) {
-        addParam("id", id);
-        return this;
-    }
-    
-    /**
-     * 验证请求参数是否有效
-     * 
-     * @return 如果请求参数有效则返回true，否则返回false
-     */
-    @Override
-    protected boolean validateParams() {
-        return params.containsKey("id");
-    }
-    
-    /**
-     * 解析API响应字符串为BtResult<Boolean>对象
-     * 
-     * @param response API响应字符串
-     * @return BtResult<Boolean>对象
-     * @throws BtApiException 当解析失败时抛出
-     */
-    @Override
-    public BtResult<Boolean> parseResponse(String response) {
-        if (response == null || response.isEmpty()) {
-            throw new BtApiException("Empty response received");
-        }
-        
-        try {
-            if (!JSONUtil.isTypeJSON(response)) {
-                throw new BtApiException("Invalid JSON response: " + response);
-            }
-            
-            JSONObject json = JSONUtil.parseObj(response);
-            BtResult<Boolean> result = new BtResult<>();
-            boolean status = json.getBool("status", false);
-            
-            result.setStatus(status);
-            result.setMsg(json.getStr("msg", status ? "关闭成功" : "关闭失败"));
-            result.setData(status);
-            
-            return result;
-        } catch (Exception e) {
-            throw new BtApiException("Failed to parse close website SSL response: " + e.getMessage(), e);
-        }
-    }
+public class CloseWebsiteSslApi extends AbstractWebsiteBooleanApi {
+
+  private static final String ENDPOINT = "site?action=CloseSSLConf";
+
+  public CloseWebsiteSslApi() {
+    super(ENDPOINT, "SSL 已关闭", "关闭 SSL 失败");
+    addParam("updateOf", 1);
+  }
+
+  /**
+   * 设置要关闭 SSL 的站点。
+   *
+   * @param siteName 站点名称（主域名）
+   * @return 当前 API 实例
+   */
+  public CloseWebsiteSslApi setSiteName(String siteName) {
+    requireNonBlank(siteName, "siteName");
+    addParam("siteName", siteName);
+    return this;
+  }
+
+  @Override
+  protected boolean validateParams() {
+    return hasNonBlankStringParam("siteName");
+  }
 }

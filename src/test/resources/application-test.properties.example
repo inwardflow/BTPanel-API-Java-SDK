@@ -1,0 +1,33 @@
+# 复制本文件为 application-test.properties 后可在本地执行集成测试。
+# CI 或共享环境更推荐通过环境变量注入。
+baseUrl=https://localhost:8888
+apiKey=your-api-key
+
+# 宝塔默认使用自签名证书。推荐配置面板公钥指纹（sha256/<base64>），获取方法见 README。
+# 仅在隔离测试环境中，才可设置 verifySsl=false 关闭证书校验。
+tlsPin=
+# verifySsl=false
+
+# 数据库集成测试配置
+test.dbName=bt_test_db
+test.dbUser=bt_test_user
+test.dbPassword=change-me
+
+# 文件集成测试配置
+test.filePath=/www/wwwroot/integration-test/test.txt
+
+# FTP 集成测试配置（可选）
+# 未配置时会优先复用 test.webroot，其次回退到 test.filePath 的父目录。
+test.ftpRoot=/www/wwwroot
+
+# 网站与 SSL 集成测试配置
+# test.domain 可填写域名后缀，例如 example.com；
+# 也可填写一个完整测试域名，例如 test.example.com，测试时会自动生成隔离子域名。
+test.domain=example.com
+# test.webroot 可填写站点根目录的基础目录，例如 /www/wwwroot；
+# 也可填写一个现有测试站点目录，例如 /www/wwwroot/test.example.com。
+test.webroot=/www/wwwroot
+
+connectTimeout=5000
+readTimeout=10000
+retryCount=3

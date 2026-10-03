@@ -1,129 +1,117 @@
 package net.heimeng.sdk.btapi.client;
 
-import net.heimeng.sdk.btapi.config.BtSdkConfig;
-import net.heimeng.sdk.btapi.exception.BtApiException;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-/**
- * BtClient的单元测试类
- * <p>
- * 测试宝塔客户端的创建、配置和基础功能
- * </p>
- */
-@ExtendWith(MockitoExtension.class)
-@DisplayName("宝塔客户端单元测试")
-public class BtClientTest {
+import net.heimeng.sdk.btapi.config.BtSdkConfig;
 
-    @Mock
-    private BtClient mockClient;
+@DisplayName("BtClient factory and configuration tests")
+class BtClientTest {
 
-    @Test
-    @DisplayName("测试使用构造函数创建客户端")
-    void testConstructor() {
-        // 使用构造函数创建客户端
-        BtSdkConfig config = BtSdkConfig.builder()
-                .baseUrl("http://localhost:8888")
-                .apiKey("test_api_key")
-                .build();
-        
-        BtClient client = new DefaultBtClient(config);
-        
-        // 验证客户端创建成功
-        assertNotNull(client);
-    }
+  @Test
+  @DisplayName("Factory creates a client from a validated config")
+  void createClientFromConfig() {
+    BtSdkConfig config =
+        BtSdkConfig.builder()
+            .baseUrl("http://localhost:8888/")
+            .apiKey("test-api-key")
+            .readTimeout(Duration.ofSeconds(20))
+            .build();
 
-    @Test
-    @DisplayName("测试使用工厂方法创建客户端")
-    void testFactoryCreateClient() {
-        // 使用工厂方法创建客户端
-        BtClient client = BtClientFactory.createClient("http://localhost:8888", "test_api_key");
-        
-        // 验证客户端创建成功
-        assertNotNull(client);
-    }
+    BtClient client = BtClientFactory.createClient(config);
 
-    @Test
-    @DisplayName("测试使用自定义配置创建客户端")
-    void testFactoryCreateClientWithConfig() {
-        // 创建自定义配置
-        BtSdkConfig config = BtSdkConfig.builder()
-                .baseUrl("http://localhost:8888")
-                .apiKey("test_api_key")
-                .connectTimeout(10)
-                .readTimeout(20)
-                .build();
-        
-        // 使用工厂方法创建客户端
-        BtClient client = BtClientFactory.createClient(config);
-        
-        // 验证客户端创建成功
-        assertNotNull(client);
-    }
+    assertNotNull(client);
+    assertFalse(client.isClosed());
+    assertEquals("http://localhost:8888", client.getConfig().getBaseUrl());
 
-    @Test
-    @DisplayName("测试创建客户端时URL格式验证")
-    void testCreateClientWithInvalidUrl() {
-        // 测试使用无效URL创建客户端
-        assertThrows(BtApiException.class, () -> {
-            BtClientFactory.createClient("invalid-url", "test_api_key");
-        }, "使用无效URL时应抛出BtApiException");
-    }
+    client.close();
+    assertTrue(client.isClosed());
+  }
 
-    @Test
-    @DisplayName("测试创建客户端时API密钥验证")
-    void testCreateClientWithEmptyApiKey() {
-        // 测试使用空API密钥创建客户端
-        assertThrows(BtApiException.class, () -> {
-            BtClientFactory.createClient("http://localhost:8888", "");
-        }, "使用空API密钥时应抛出BtApiException");
-    }
+  @Test
+  @DisplayName("Factory creates a manager for high-level operations")
+  void createApiManager() {
+    BtApiManager apiManager =
+        BtClientFactory.createApiManager("http://localhost:8888", "test-api-key");
 
-    @Test
-    @DisplayName("测试创建客户端时null参数验证")
-    void testCreateClientWithNullParameters() {
-        // 测试使用null URL创建客户端
-        assertThrows(BtApiException.class, () -> {
-            BtClientFactory.createClient(null, "test_api_key");
-        }, "使用null URL时应抛出BtApiException");
-        
-        // 测试使用null API密钥创建客户端
-        assertThrows(BtApiException.class, () -> {
-            BtClientFactory.createClient("http://localhost:8888", null);
-        }, "使用null API密钥时应抛出BtApiException");
-        
-        // 测试使用null配置创建客户端
-        assertThrows(BtApiException.class, () -> {
-            BtClientFactory.createClient(null);
-        }, "使用null配置时应抛出BtApiException");
-    }
+    assertNotNull(apiManager);
+    assertNotNull(apiManager.system());
+    assertNotNull(apiManager.website());
 
-    @Test
-    @DisplayName("测试客户端配置的正确性")
-    void testClientConfiguration() {
-        // 创建自定义配置
-        BtSdkConfig config = BtSdkConfig.builder()
-                .baseUrl("http://example.com:8888")
-                .apiKey("test_config_api_key")
-                .connectTimeout(8)
-                .readTimeout(15)
-                .retryCount(3)
-                .retryInterval(Duration.ofMillis(2000))
-                .build();
-        
-        // 使用工厂方法创建客户端
-        BtClient client = BtClientFactory.createClient(config);
-        
-        // 验证客户端创建成功
-        assertNotNull(client);
-        // 在实际项目中，您可能需要添加更多的配置验证
-    }
+    apiManager.close();
+  }
+
+  @Test
+  @DisplayName("Invalid base URL is rejected eagerly")
+  void rejectInvalidBaseUrl() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> BtClientFactory.createClient("invalid-url", "test-api-key"));
+
+    assertTrue(exception.getMessage().contains("baseUrl"));
+  }
+
+  @Test
+  @DisplayName("Blank API key is rejected eagerly")
+  void rejectBlankApiKey() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> BtClientFactory.createClient("http://localhost:8888", " "));
+
+    assertTrue(exception.getMessage().contains("apiKey"));
+  }
+
+  @Test
+  @DisplayName("Null config is rejected eagerly")
+  void rejectNullConfig() {
+    NullPointerException exception =
+        assertThrows(
+            NullPointerException.class, () -> BtClientFactory.createClient((BtSdkConfig) null));
+
+    assertTrue(exception.getMessage().contains("config"));
+  }
+
+  @Test
+  @DisplayName("Builder supports duration-based timeout configuration")
+  void durationBasedTimeoutConfiguration() {
+    BtSdkConfig config =
+        BtClientFactory.configBuilder()
+            .baseUrl("https://panel.example.com:8888")
+            .apiKey("test-api-key")
+            .connectTimeout(Duration.ofSeconds(5))
+            .readTimeout(Duration.ofSeconds(15))
+            .retryCount(2)
+            .build();
+
+    assertEquals(5000, config.getConnectTimeout());
+    assertEquals(15000, config.getReadTimeout());
+    assertEquals(2, config.getRetryCount());
+  }
+
+  @Test
+  @DisplayName("Invalid duration configuration surfaces as IllegalArgumentException")
+  void invalidDurationConfiguration() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                BtSdkConfig.builder()
+                    .baseUrl("http://localhost:8888")
+                    .apiKey("test-api-key")
+                    .retryInterval(Duration.ZERO)
+                    .build());
+
+    assertInstanceOf(IllegalArgumentException.class, exception);
+  }
 }

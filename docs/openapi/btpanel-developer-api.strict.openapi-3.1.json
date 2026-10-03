@@ -1,0 +1,5326 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BTPanel Developer API (Strict OpenAPI 3.1)",
+    "version": "2026-03-28",
+    "description": "Strict OpenAPI 3.1 alias document for BTPanel developer APIs. Use `x-bt-real-url` as the actual request target during debugging."
+  },
+  "servers": [
+    {
+      "url": "https://example.com:8888",
+      "description": "Root BTPanel base URL. Do not append the panel entry path used for browser login pages."
+    }
+  ],
+  "security": [
+    {
+      "BtRequestTime": [],
+      "BtRequestToken": []
+    }
+  ],
+  "externalDocs": {
+    "description": "Historical official BTPanel PDF reference.",
+    "url": "https://www.bt.cn/data/api-doc.pdf"
+  },
+  "tags": [
+    {
+      "name": "System",
+      "description": "System status, disk, network, panel update, and task-count endpoints."
+    },
+    {
+      "name": "Site",
+      "description": "Website creation, listing, deletion, PHP, and SSL-related endpoints."
+    },
+    {
+      "name": "Database",
+      "description": "Database listing and write operations."
+    },
+    {
+      "name": "Files",
+      "description": "File and directory browsing plus read/write operations."
+    },
+    {
+      "name": "FTP",
+      "description": "FTP account listing and management endpoints."
+    },
+    {
+      "name": "SSL",
+      "description": "Saved certificate listing and deployment-related endpoints."
+    }
+  ],
+  "paths": {
+    "/bt/system/GetSystemTotal": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get system overview",
+        "operationId": "systemGetSystemTotal",
+        "description": "Get system overview.\n\nReal request: `POST /system?action=GetSystemTotal`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemTotalResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "system": "Ubuntu 22.04.5 LTS",
+                      "version": "9.0.0",
+                      "cpuRealUsed": 12.5,
+                      "memTotal": 7975,
+                      "memRealUsed": 2350,
+                      "time": "2026-03-25 16:12:33"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/system",
+        "x-bt-real-url": "/system?action=GetSystemTotal",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetSystemTotal",
+        "x-bt-sdk-endpoint": "system?action=GetSystemTotal"
+      }
+    },
+    "/bt/system/GetDiskInfo": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get disk usage list",
+        "operationId": "systemGetDiskInfo",
+        "description": "Get disk usage list.\n\nReal request: `POST /system?action=GetDiskInfo`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseArray"
+                },
+                "examples": {
+                  "success": {
+                    "value": [
+                      {
+                        "path": "/",
+                        "size": [
+                          "100G",
+                          "40G",
+                          "60G",
+                          "40%"
+                        ],
+                        "inode": [
+                          "1000000",
+                          "120000",
+                          "880000",
+                          "12%"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/system",
+        "x-bt-real-url": "/system?action=GetDiskInfo",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetDiskInfo",
+        "x-bt-sdk-endpoint": "system?action=GetDiskInfo"
+      }
+    },
+    "/bt/system/GetNetWork": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get network metrics",
+        "operationId": "systemGetNetWork",
+        "description": "Get network metrics.\n\nReal request: `POST /system?action=GetNetWork`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "up": 123456,
+                      "down": 456789,
+                      "upTotal": 102400000,
+                      "downTotal": 204800000
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/system",
+        "x-bt-real-url": "/system?action=GetNetWork",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetNetWork",
+        "x-bt-sdk-endpoint": "system?action=GetNetWork"
+      }
+    },
+    "/bt/system/UpdatePanel": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Check panel update",
+        "operationId": "systemUpdatePanel",
+        "description": "Check panel update.\n\nReal request: `POST /ajax?action=UpdatePanel`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "version": "9.0.1",
+                      "updateMsg": "发现新版"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ajax",
+        "x-bt-real-url": "/ajax?action=UpdatePanel",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "UpdatePanel",
+        "x-bt-sdk-endpoint": "ajax?action=UpdatePanel"
+      }
+    },
+    "/bt/system/GetTaskCount": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get pending task count",
+        "operationId": "systemGetTaskCount",
+        "description": "Get pending task count.\n\nReal request: `POST /ajax?action=GetTaskCount`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "task": 0,
+                      "download": 0,
+                      "restart": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ajax",
+        "x-bt-real-url": "/ajax?action=GetTaskCount",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetTaskCount",
+        "x-bt-sdk-endpoint": "ajax?action=GetTaskCount"
+      }
+    },
+    "/bt/site/get_site_types": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "List site categories",
+        "operationId": "sitegetsitetypes",
+        "description": "List site categories.\n\nReal request: `POST /site?action=get_site_types`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseArray"
+                },
+                "examples": {
+                  "success": {
+                    "value": [
+                      {
+                        "id": 0,
+                        "name": "默认分类",
+                        "ps": "系统默认"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=get_site_types",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "get_site_types",
+        "x-bt-sdk-endpoint": "site?action=get_site_types"
+      }
+    },
+    "/bt/site/ListLegacy": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "List websites (legacy data endpoint)",
+        "operationId": "siteListLegacy",
+        "description": "List websites (legacy data endpoint).\n\nReal request: `POST /data?action=getData&table=sites`.\n\nAuth mode: developer API signature (`request_time` + `request_token`). This route is kept for compatibility.\n\nStatus: deprecated compatibility route. Do not prefer this endpoint on current panel versions.",
+        "deprecated": true,
+        "requestBody": {
+          "required": false,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p": {
+                    "type": "integer",
+                    "description": "Page number.",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "Page size.",
+                    "example": 10
+                  },
+                  "type": {
+                    "type": "integer",
+                    "description": "站点分类 ID，`-1` 表示全部",
+                    "example": -1
+                  },
+                  "order": {
+                    "type": "string",
+                    "description": "Sort field or sort direction.",
+                    "example": ""
+                  },
+                  "tojs": {
+                    "type": "string",
+                    "description": "可JSONP 回调名",
+                    "example": ""
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Search keyword.",
+                    "example": ""
+                  }
+                },
+                "additionalProperties": false
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "p": 1,
+                    "limit": 10,
+                    "type": -1,
+                    "order": "",
+                    "tojs": "",
+                    "search": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtPageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": 1,
+                          "name": "demo.example.com",
+                          "path": "/www/wwwroot/demo.example.com"
+                        }
+                      ],
+                      "page": "1",
+                      "count": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/data",
+        "x-bt-real-url": "/data?action=getData&table=sites",
+        "x-bt-source": "legacy-compatible",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-sdk-endpoint": "data?action=getData&table=sites"
+      }
+    },
+    "/bt/site/AddSite": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Create website",
+        "operationId": "siteAddSite",
+        "description": "Create website.\n\nReal request: `POST /site?action=AddSite`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "webname": {
+                    "type": "string",
+                    "description": "Website definition payload.",
+                    "contentMediaType": "application/json",
+                    "contentSchema": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "domain": {
+                          "type": "string"
+                        },
+                        "domainlist": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "count": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "domain",
+                        "domainlist",
+                        "count"
+                      ]
+                    },
+                    "example": "{\"domain\":\"demo.example.com\",\"domainlist\":[],\"count\":0}"
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot/demo.example.com"
+                  },
+                  "type_id": {
+                    "type": "integer",
+                    "description": "站点分类 ID",
+                    "example": 0
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "项目类型",
+                    "example": "PHP"
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "PHP 版本",
+                    "example": "74"
+                  },
+                  "port": {
+                    "type": "integer",
+                    "description": "站点监听端口",
+                    "example": 80
+                  },
+                  "ps": {
+                    "type": "string",
+                    "description": "Remark or display note.",
+                    "example": "demo.example.com"
+                  },
+                  "ftp": {
+                    "oneOf": [
+                      {
+                        "type": "integer",
+                        "enum": [
+                          0,
+                          1
+                        ]
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ],
+                    "description": "是否同步创建 FTP",
+                    "example": 0
+                  },
+                  "ftp_username": {
+                    "type": "string",
+                    "description": "FTP username.",
+                    "example": "demoftp"
+                  },
+                  "ftp_password": {
+                    "type": "string",
+                    "description": "FTP password.",
+                    "example": "<password>"
+                  },
+                  "sql": {
+                    "oneOf": [
+                      {
+                        "type": "integer",
+                        "enum": [
+                          0,
+                          1
+                        ]
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ],
+                    "description": "是否同步创建数据库",
+                    "example": 0
+                  },
+                  "codeing": {
+                    "type": "string",
+                    "description": "数据库字符集",
+                    "example": "utf8mb4"
+                  },
+                  "datauser": {
+                    "type": "string",
+                    "description": "数据库用户名，启用数据库时填写",
+                    "example": "demodb"
+                  },
+                  "datapassword": {
+                    "type": "string",
+                    "description": "数据库密码，启用数据库时填写",
+                    "example": "<password>"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "webname",
+                  "path",
+                  "type_id",
+                  "type",
+                  "version",
+                  "port",
+                  "ps"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "webname": "{\"domain\":\"demo.example.com\",\"domainlist\":[],\"count\":0}",
+                    "path": "/www/wwwroot/demo.example.com",
+                    "type_id": 0,
+                    "type": "PHP",
+                    "version": "74",
+                    "port": 80,
+                    "ps": "demo.example.com",
+                    "ftp": 0,
+                    "sql": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateSiteResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "siteStatus": true,
+                      "ftpStatus": false,
+                      "databaseStatus": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=AddSite",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "AddSite",
+        "x-bt-sdk-endpoint": "site?action=AddSite"
+      }
+    },
+    "/bt/site/DeleteSite": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Delete website",
+        "operationId": "siteDeleteSite",
+        "description": "Delete website.\n\nReal request: `POST /site?action=DeleteSite`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "webname": {
+                    "type": "string",
+                    "description": "Website definition payload.",
+                    "example": "demo.example.com"
+                  },
+                  "ftp": {
+                    "oneOf": [
+                      {
+                        "type": "integer",
+                        "enum": [
+                          0,
+                          1
+                        ]
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ],
+                    "description": "是否删除关联 FTP",
+                    "example": 0
+                  },
+                  "database": {
+                    "oneOf": [
+                      {
+                        "type": "integer",
+                        "enum": [
+                          0,
+                          1
+                        ]
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ],
+                    "description": "是否删除关联数据库",
+                    "example": 0
+                  },
+                  "path": {
+                    "oneOf": [
+                      {
+                        "type": "integer",
+                        "enum": [
+                          0,
+                          1
+                        ]
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ],
+                    "description": "Absolute panel path.",
+                    "example": 0
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "webname"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "webname": "demo.example.com",
+                    "ftp": 0,
+                    "database": 0,
+                    "path": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "删除成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=DeleteSite",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "DeleteSite",
+        "x-bt-sdk-endpoint": "site?action=DeleteSite"
+      }
+    },
+    "/bt/site/GetSiteStatus": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Get Site Status",
+        "operationId": "siteGetSiteStatus",
+        "description": "Get Site Status.\n\nReal request: `POST /site?action=GetSiteStatus`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "run": true,
+                      "siteStatus": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=GetSiteStatus",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetSiteStatus",
+        "x-bt-sdk-endpoint": "site?action=GetSiteStatus"
+      }
+    },
+    "/bt/site/AddDomain": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Add Domain",
+        "operationId": "siteAddDomain",
+        "description": "Add Domain.\n\nReal request: `POST /site?action=AddDomain`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "webname": {
+                    "type": "string",
+                    "description": "Website definition payload.",
+                    "example": "demo.example.com"
+                  },
+                  "domain": {
+                    "type": "string",
+                    "description": "要新增的域名",
+                    "example": "www.demo.example.com"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "webname",
+                  "domain"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "webname": "demo.example.com",
+                    "domain": "www.demo.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "域名添加成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=AddDomain",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "AddDomain",
+        "x-bt-sdk-endpoint": "site?action=AddDomain"
+      }
+    },
+    "/bt/site/DelDomain": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Del Domain",
+        "operationId": "siteDelDomain",
+        "description": "Del Domain.\n\nReal request: `POST /site?action=DelDomain`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "webname": {
+                    "type": "string",
+                    "description": "Website definition payload.",
+                    "example": "demo.example.com"
+                  },
+                  "domain": {
+                    "type": "string",
+                    "description": "待删除域名",
+                    "example": "www.demo.example.com"
+                  },
+                  "port": {
+                    "type": "integer",
+                    "description": "该域名绑定端口",
+                    "example": 80
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "webname",
+                  "domain",
+                  "port"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "webname": "demo.example.com",
+                    "domain": "www.demo.example.com",
+                    "port": 80
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "域名删除成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=DelDomain",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "DelDomain",
+        "x-bt-sdk-endpoint": "site?action=DelDomain"
+      }
+    },
+    "/bt/site/GetDomains": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "BTPanel operation",
+        "operationId": "siteGetDomains",
+        "description": "BTPanel operation.\n\nReal request: `POST /data?action=getData&table=domain`.\n\nAuth mode: developer API signature (`request_time` + `request_token`). This route is kept for compatibility.\n\nStatus: deprecated compatibility route. Do not prefer this endpoint on current panel versions.",
+        "deprecated": true,
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "list": {
+                    "type": "boolean",
+                    "description": "固定`true`，表示返回列表",
+                    "example": true
+                  },
+                  "search": {
+                    "type": "integer",
+                    "description": "Search keyword.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "list",
+                  "search"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "list": true,
+                    "search": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseArray"
+                },
+                "examples": {
+                  "success": {
+                    "value": [
+                      {
+                        "id": 1,
+                        "name": "demo.example.com",
+                        "port": 80
+                      },
+                      {
+                        "id": 2,
+                        "name": "www.demo.example.com",
+                        "port": 80
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/data",
+        "x-bt-real-url": "/data?action=getData&table=domain",
+        "x-bt-source": "legacy-compatible",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-sdk-endpoint": "data?action=getData&table=domain"
+      }
+    },
+    "/bt/site/GetBackups": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "BTPanel operation",
+        "operationId": "siteGetBackups",
+        "description": "BTPanel operation.\n\nReal request: `POST /data?action=getData&table=backup`.\n\nAuth mode: developer API signature (`request_time` + `request_token`). This route is kept for compatibility.\n\nStatus: deprecated compatibility route. Do not prefer this endpoint on current panel versions.",
+        "deprecated": true,
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p": {
+                    "type": "integer",
+                    "description": "Page number.",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "Page size.",
+                    "example": 5
+                  },
+                  "type": {
+                    "type": "integer",
+                    "description": "备份类型，站点备份通常`0`",
+                    "example": 0
+                  },
+                  "search": {
+                    "type": "integer",
+                    "description": "Search keyword.",
+                    "example": 1
+                  },
+                  "tojs": {
+                    "type": "string",
+                    "description": "可JSONP 回调名",
+                    "example": ""
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "search"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "p": 1,
+                    "limit": 5,
+                    "type": 0,
+                    "search": 1,
+                    "tojs": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtPageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": 9,
+                          "filename": "demo.example.com_20260325.tar.gz"
+                        }
+                      ],
+                      "page": "1",
+                      "count": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/data",
+        "x-bt-real-url": "/data?action=getData&table=backup",
+        "x-bt-source": "legacy-compatible",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-sdk-endpoint": "data?action=getData&table=backup"
+      }
+    },
+    "/bt/site/ToBackup": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "To Backup",
+        "operationId": "siteToBackup",
+        "description": "To Backup.\n\nReal request: `POST /site?action=ToBackup`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "站点备份创建成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=ToBackup",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "ToBackup",
+        "x-bt-sdk-endpoint": "site?action=ToBackup"
+      }
+    },
+    "/bt/site/DelBackup": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Del Backup",
+        "operationId": "siteDelBackup",
+        "description": "Del Backup.\n\nReal request: `POST /site?action=DelBackup`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 9
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 9
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "站点备份删除成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=DelBackup",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "DelBackup",
+        "x-bt-sdk-endpoint": "site?action=DelBackup"
+      }
+    },
+    "/bt/site/GetDirUserINI": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Get Dir User INI",
+        "operationId": "siteGetDirUserINI",
+        "description": "Get Dir User INI.\n\nReal request: `POST /site?action=GetDirUserINI`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot/demo.example.com"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "path"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "path": "/www/wwwroot/demo.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "open_basedir": "/www/wwwroot/demo.example.com/:/tmp/"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=GetDirUserINI",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetDirUserINI",
+        "x-bt-sdk-endpoint": "site?action=GetDirUserINI"
+      }
+    },
+    "/bt/site/SetDirUserINI": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Set Dir User INI",
+        "operationId": "siteSetDirUserINI",
+        "description": "Set Dir User INI.\n\nReal request: `POST /site?action=SetDirUserINI`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot/demo.example.com"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "path"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "path": "/www/wwwroot/demo.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "防跨站配置切换成"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=SetDirUserINI",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SetDirUserINI",
+        "x-bt-sdk-endpoint": "site?action=SetDirUserINI"
+      }
+    },
+    "/bt/site/GetLimitNet": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Get Limit Net",
+        "operationId": "siteGetLimitNet",
+        "description": "Get Limit Net.\n\nReal request: `POST /site?action=GetLimitNet`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "limit": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=GetLimitNet",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetLimitNet",
+        "x-bt-sdk-endpoint": "site?action=GetLimitNet"
+      }
+    },
+    "/bt/site/SetLimitNet": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Set Limit Net",
+        "operationId": "siteSetLimitNet",
+        "description": "Set Limit Net.\n\nReal request: `POST /site?action=SetLimitNet`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "enabled": {
+                    "oneOf": [
+                      {
+                        "type": "integer",
+                        "enum": [
+                          0,
+                          1
+                        ]
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ],
+                    "description": "是否启用流量限制",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "enabled"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "enabled": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "设置成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=SetLimitNet",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SetLimitNet",
+        "x-bt-sdk-endpoint": "site?action=SetLimitNet"
+      }
+    },
+    "/bt/site/setPs": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "BTPanel operation",
+        "operationId": "sitesetPs",
+        "description": "BTPanel operation.\n\nReal request: `POST /data?action=setPs&table=sites`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "ps": {
+                    "type": "string",
+                    "description": "Remark or display note.",
+                    "example": "demo.example.com"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "ps"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "ps": "demo.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "站点备注修改成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/data",
+        "x-bt-real-url": "/data?action=setPs&table=sites",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-sdk-endpoint": "data?action=setPs&table=sites"
+      }
+    },
+    "/bt/site/GetSSLCertList": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "List site SSL certificates (legacy endpoint)",
+        "operationId": "siteGetSSLCertList",
+        "description": "List site SSL certificates (legacy endpoint).\n\nReal request: `POST /site?action=GetSSLCertList`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).\n\nValidation: Live validation on 2026-03-29 returned `{\"status\":false,\"msg\":\"指定参数无效!\"}` for both `id` and `siteName` payloads.\n\nStatus: deprecated compatibility route. Do not prefer this endpoint on current panel versions.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "certs": [
+                        {
+                          "id": 3,
+                          "name": "demo.example.com",
+                          "type": "Let's Encrypt"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=GetSSLCertList",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetSSLCertList",
+        "x-bt-sdk-endpoint": "site?action=GetSSLCertList",
+        "x-bt-sdk-note": "Live validation returned invalid-parameter errors; do not treat as a current developer API route.",
+        "deprecated": true,
+        "x-bt-validation-status": "failed-live-probe",
+        "x-bt-validation-note": "2026-03-29 developer-signature probe returned invalid params for both id and siteName payloads."
+      }
+    },
+    "/bt/site/SetSSL": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Install site SSL from PEM (legacy endpoint)",
+        "operationId": "siteSetSSL",
+        "description": "Install site SSL from PEM (legacy endpoint).\n\nReal request: `POST /site?action=SetSSL`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).\n\nValidation: Live validation on 2026-03-29 returned HTTP 404 for both historical payload shapes.\n\nStatus: deprecated compatibility route. Do not prefer this endpoint on current panel versions.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "domain": {
+                    "type": "string",
+                    "description": "证书绑定域名",
+                    "example": "demo.example.com"
+                  },
+                  "cert": {
+                    "type": "string",
+                    "description": "PEM 证书内容",
+                    "example": "<certificate-pem>"
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "PEM 私钥内容",
+                    "example": "<private-key-pem>"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "domain",
+                  "cert",
+                  "key"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "domain": "demo.example.com",
+                    "cert": "<certificate-pem>",
+                    "key": "<private-key-pem>"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "SSL 部署成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=SetSSL",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SetSSL",
+        "x-bt-sdk-endpoint": "site?action=SetSSL",
+        "x-bt-sdk-facade-method": "apiManager.ssl().install(domain, key, cert)",
+        "x-bt-sdk-note": "Retained only for backward compatibility; live validation returned HTTP 404 on the current panel.",
+        "deprecated": true,
+        "x-bt-validation-status": "failed-live-probe",
+        "x-bt-validation-note": "2026-03-29 developer-signature probe returned HTTP 404 for both observed SDK payload shapes."
+      }
+    },
+    "/bt/site/CloseSSL": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Disable site SSL (legacy endpoint)",
+        "operationId": "siteCloseSSL",
+        "description": "Disable site SSL (legacy endpoint).\n\nReal request: `POST /site?action=CloseSSL`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).\n\nValidation: Live validation on 2026-03-29 returned `{\"status\":false,\"msg\":\"指定参数无效!\"}`.\n\nStatus: deprecated compatibility route. Do not prefer this endpoint on current panel versions.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "SSL 已关"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=CloseSSL",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "CloseSSL",
+        "x-bt-sdk-endpoint": "site?action=CloseSSL",
+        "x-bt-sdk-note": "Live validation returned invalid-parameter errors; do not treat as a current developer API route.",
+        "deprecated": true,
+        "x-bt-validation-status": "failed-live-probe",
+        "x-bt-validation-note": "2026-03-29 developer-signature probe returned invalid params."
+      }
+    },
+    "/bt/site/GetPHPVersion": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Get PHPVersion",
+        "operationId": "siteGetPHPVersion",
+        "description": "Get PHPVersion.\n\nReal request: `POST /site?action=GetPHPVersion`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseArray"
+                },
+                "examples": {
+                  "success": {
+                    "value": [
+                      {
+                        "version": "74",
+                        "status": true
+                      },
+                      {
+                        "version": "82",
+                        "status": true
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=GetPHPVersion",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetPHPVersion",
+        "x-bt-sdk-endpoint": "site?action=GetPHPVersion"
+      }
+    },
+    "/bt/site/getPhpVersion": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "get Php Version",
+        "operationId": "sitegetPhpVersion",
+        "description": "get Php Version.\n\nReal request: `POST /site?action=getPhpVersion`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "74"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/LooseObject"
+                    }
+                  ]
+                },
+                "examples": {
+                  "success": {
+                    "value": "74"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=getPhpVersion",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "getPhpVersion",
+        "x-bt-sdk-endpoint": "site?action=getPhpVersion"
+      }
+    },
+    "/bt/site/SetPhpVersion": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Set Php Version",
+        "operationId": "siteSetPhpVersion",
+        "description": "Set Php Version.\n\nReal request: `POST /site?action=SetPhpVersion`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "php_version": {
+                    "type": "string",
+                    "description": "目标 PHP 版本",
+                    "example": "82"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "php_version"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "php_version": "82"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "切换成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=SetPhpVersion",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SetPhpVersion",
+        "x-bt-sdk-endpoint": "site?action=SetPhpVersion"
+      }
+    },
+    "/bt/site/GetPHPModules": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Get PHPModules",
+        "operationId": "siteGetPHPModules",
+        "description": "Get PHPModules.\n\nReal request: `POST /site?action=GetPHPModules`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseArray"
+                },
+                "examples": {
+                  "success": {
+                    "value": [
+                      {
+                        "name": "redis",
+                        "status": true
+                      },
+                      {
+                        "name": "imagick",
+                        "status": false
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=GetPHPModules",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetPHPModules",
+        "x-bt-sdk-endpoint": "site?action=GetPHPModules"
+      }
+    },
+    "/bt/site/SetPHPModules": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Set PHPModules",
+        "operationId": "siteSetPHPModules",
+        "description": "Set PHPModules.\n\nReal request: `POST /site?action=SetPHPModules`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "module_name": {
+                    "type": "string",
+                    "description": "扩展模块名",
+                    "example": "redis"
+                  },
+                  "enabled": {
+                    "oneOf": [
+                      {
+                        "type": "integer",
+                        "enum": [
+                          0,
+                          1
+                        ]
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ],
+                    "description": "是否启用",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "module_name",
+                  "enabled"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "module_name": "redis",
+                    "enabled": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "设置成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=SetPHPModules",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SetPHPModules",
+        "x-bt-sdk-endpoint": "site?action=SetPHPModules"
+      }
+    },
+    "/bt/site/getConf": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "get Conf",
+        "operationId": "sitegetConf",
+        "description": "get Conf.\n\nReal request: `POST /site?action=getConf`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "domain": {
+                    "type": "string",
+                    "description": "站点主域名",
+                    "example": "demo.example.com"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "domain"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "domain": "demo.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "server {\n    listen 80;\n    server_name demo.example.com;\n}"
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=getConf",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "getConf",
+        "x-bt-sdk-endpoint": "site?action=getConf"
+      }
+    },
+    "/bt/site/setConf": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "set Conf",
+        "operationId": "sitesetConf",
+        "description": "set Conf.\n\nReal request: `POST /site?action=setConf`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "domain": {
+                    "type": "string",
+                    "description": "站点主域名",
+                    "example": "demo.example.com"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "完整 Nginx 配置文本",
+                    "example": "server { ... }"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "domain",
+                  "content"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "domain": "demo.example.com",
+                    "content": "server {\n    listen 80;\n    server_name demo.example.com;\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "保存成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=setConf",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "setConf",
+        "x-bt-sdk-endpoint": "site?action=setConf"
+      }
+    },
+    "/bt/site/getRewrite": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "get Rewrite",
+        "operationId": "sitegetRewrite",
+        "description": "get Rewrite.\n\nReal request: `POST /site?action=getRewrite`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "location / {\n    try_files $uri $uri/ /index.php?$query_string;\n}"
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=getRewrite",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "getRewrite",
+        "x-bt-sdk-endpoint": "site?action=getRewrite"
+      }
+    },
+    "/bt/site/setRewrite": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "set Rewrite",
+        "operationId": "sitesetRewrite",
+        "description": "set Rewrite.\n\nReal request: `POST /site?action=setRewrite`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Resource name.",
+                    "example": "thinkphp"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "伪静态规则内容",
+                    "example": "location / { ... }"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "name",
+                  "content"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "name": "custom",
+                    "content": "location / {\n    try_files $uri $uri/ /index.php?$query_string;\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "保存成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=setRewrite",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "setRewrite",
+        "x-bt-sdk-endpoint": "site?action=setRewrite"
+      }
+    },
+    "/bt/site/GetRootPath": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "BTPanel operation",
+        "operationId": "siteGetRootPath",
+        "description": "BTPanel operation.\n\nReal request: `POST /data?action=getKey&table=sites&key=path`.\n\nAuth mode: developer API signature (`request_time` + `request_token`). This route is kept for compatibility.\n\nStatus: deprecated compatibility route. Do not prefer this endpoint on current panel versions.",
+        "deprecated": true,
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "/www/wwwroot/demo.example.com"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "$ref": "#/components/schemas/LooseObject"
+                    }
+                  ]
+                },
+                "examples": {
+                  "success": {
+                    "value": "/www/wwwroot/demo.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/data",
+        "x-bt-real-url": "/data?action=getKey&table=sites&key=path",
+        "x-bt-source": "legacy-compatible",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-sdk-endpoint": "data?action=getKey&table=sites&key=path"
+      }
+    },
+    "/bt/site/SetPath": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Set Path",
+        "operationId": "siteSetPath",
+        "description": "Set Path.\n\nReal request: `POST /site?action=SetPath`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot/demo-new"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "path"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "path": "/www/wwwroot/demo-new"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "修改成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=SetPath",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SetPath",
+        "x-bt-sdk-endpoint": "site?action=SetPath"
+      }
+    },
+    "/bt/site/SetSiteRunPath": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Set Site Run Path",
+        "operationId": "siteSetSiteRunPath",
+        "description": "Set Site Run Path.\n\nReal request: `POST /site?action=SetSiteRunPath`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "runPath": {
+                    "type": "string",
+                    "description": "运行目录，相对或绝对路径",
+                    "example": "/public"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "runPath"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "runPath": "/public"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "设置成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=SetSiteRunPath",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SetSiteRunPath",
+        "x-bt-sdk-endpoint": "site?action=SetSiteRunPath"
+      }
+    },
+    "/bt/site/SetHasPwd": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Set Has Pwd",
+        "operationId": "siteSetHasPwd",
+        "description": "Set Has Pwd.\n\nReal request: `POST /site?action=SetHasPwd`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  },
+                  "username": {
+                    "type": "string",
+                    "description": "Username.",
+                    "example": "demo"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Password.",
+                    "example": "<password>"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "username",
+                  "password"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1,
+                    "username": "demo",
+                    "password": "<password>"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "设置成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=SetHasPwd",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SetHasPwd",
+        "x-bt-sdk-endpoint": "site?action=SetHasPwd"
+      }
+    },
+    "/bt/site/CloseHasPwd": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Close Has Pwd",
+        "operationId": "siteCloseHasPwd",
+        "description": "Close Has Pwd.\n\nReal request: `POST /site?action=CloseHasPwd`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "访问密码已关"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=CloseHasPwd",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "CloseHasPwd",
+        "x-bt-sdk-endpoint": "site?action=CloseHasPwd"
+      }
+    },
+    "/bt/site/logsOpen": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "logs Open",
+        "operationId": "sitelogsOpen",
+        "description": "logs Open.\n\nReal request: `POST /site?action=logsOpen`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "日志状态切换成"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=logsOpen",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "logsOpen",
+        "x-bt-sdk-endpoint": "site?action=logsOpen"
+      }
+    },
+    "/bt/site/SiteStart": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Site Start",
+        "operationId": "siteSiteStart",
+        "description": "Site Start.\n\nReal request: `POST /site?action=SiteStart`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "站点已启"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=SiteStart",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SiteStart",
+        "x-bt-sdk-endpoint": "site?action=SiteStart"
+      }
+    },
+    "/bt/site/StopSite": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Stop Site",
+        "operationId": "siteStopSite",
+        "description": "Stop Site.\n\nReal request: `POST /site?action=StopSite`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 1
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "站点已停"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=StopSite",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "StopSite",
+        "x-bt-sdk-endpoint": "site?action=StopSite"
+      }
+    },
+    "/bt/database/ListV9": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "BTPanel operation",
+        "operationId": "databaseListV9",
+        "description": "BTPanel operation.\n\nReal request: `POST /datalist/data/get_data_list`.\n\nSDK endpoint: `/datalist/data/get_data_list`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p": {
+                    "type": "integer",
+                    "description": "Page number.",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "Page size.",
+                    "example": 10
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Search keyword.",
+                    "example": ""
+                  },
+                  "table": {
+                    "type": "string",
+                    "description": "Logical resource table name.",
+                    "example": "databases",
+                    "enum": [
+                      "databases"
+                    ]
+                  },
+                  "order": {
+                    "type": "string",
+                    "description": "Sort field or sort direction.",
+                    "example": ""
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "table",
+                  "p",
+                  "limit"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "p": 1,
+                    "limit": 10,
+                    "search": "",
+                    "table": "databases",
+                    "order": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtPageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": 55,
+                          "name": "demo_db",
+                          "username": "demo_user",
+                          "db_type": "MySQL"
+                        }
+                      ],
+                      "page": 1,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/datalist/data/get_data_list",
+        "x-bt-real-url": "/datalist/data/get_data_list",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-sdk-endpoint": "/datalist/data/get_data_list"
+      }
+    },
+    "/bt/database/AddDatabase": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Create database",
+        "operationId": "databaseAddDatabase",
+        "description": "Create database.\n\nReal request: `POST /database?action=AddDatabase`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Resource name.",
+                    "example": "demo_db"
+                  },
+                  "db_user": {
+                    "type": "string",
+                    "description": "数据库用户名",
+                    "example": "demo_user"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Password.",
+                    "example": "<password>"
+                  },
+                  "codeing": {
+                    "type": "string",
+                    "description": "字符集",
+                    "example": "utf8mb4"
+                  },
+                  "dtype": {
+                    "type": "string",
+                    "description": "数据库类型",
+                    "example": "MySQL",
+                    "enum": [
+                      "MySQL",
+                      "MongoDb"
+                    ]
+                  },
+                  "ps": {
+                    "type": "string",
+                    "description": "Remark or display note.",
+                    "example": "demo_db"
+                  },
+                  "dataAccess": {
+                    "type": "string",
+                    "description": "数据库访问来源",
+                    "example": "127.0.0.1"
+                  },
+                  "address": {
+                    "type": "string",
+                    "description": "数据库地址",
+                    "example": "127.0.0.1"
+                  },
+                  "sid": {
+                    "type": "integer",
+                    "description": "数据库实SID，本MySQL 通常`0`",
+                    "example": 0
+                  },
+                  "listen_ip": {
+                    "type": "string",
+                    "description": "监听 IP 范围",
+                    "example": "0.0.0.0/0"
+                  },
+                  "host": {
+                    "type": "string",
+                    "description": "主机地址，通常可留空",
+                    "example": ""
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "db_user",
+                  "password",
+                  "codeing",
+                  "dtype",
+                  "dataAccess",
+                  "sid"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "name": "demo_db",
+                    "db_user": "demo_user",
+                    "password": "<password>",
+                    "codeing": "utf8mb4",
+                    "dtype": "MySQL",
+                    "ps": "demo_db",
+                    "dataAccess": "127.0.0.1",
+                    "address": "127.0.0.1",
+                    "sid": 0,
+                    "listen_ip": "0.0.0.0/0",
+                    "host": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "添加成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/database",
+        "x-bt-real-url": "/database?action=AddDatabase",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "AddDatabase",
+        "x-bt-sdk-endpoint": "database?action=AddDatabase"
+      }
+    },
+    "/bt/database/ChangeDBPassword": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Change database password",
+        "operationId": "databaseChangeDBPassword",
+        "description": "Change database password.\n\nReal request: `POST /database?action=ChangeDBPassword`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).\n\nValidation: Live validation on 2026-03-28 returned `{\"status\":false,\"msg\":\"指定参数无效!\"}`. Action name or parameters likely changed.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Resource name.",
+                    "example": "demo_db"
+                  },
+                  "username": {
+                    "type": "string",
+                    "description": "Username.",
+                    "example": "demo_user"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Password.",
+                    "example": "New<password>"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "username",
+                  "password"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "name": "demo_db",
+                    "username": "demo_user",
+                    "password": "New<password>"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "修改成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/database",
+        "x-bt-real-url": "/database?action=ChangeDBPassword",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "ChangeDBPassword",
+        "x-bt-sdk-endpoint": "database?action=ChangeDBPassword"
+      }
+    },
+    "/bt/database/DeleteDatabase": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Delete database",
+        "operationId": "databaseDeleteDatabase",
+        "description": "Delete database.\n\nReal request: `POST /database?action=DeleteDatabase`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Resource name.",
+                    "example": "demo_db"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 55
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "name": "demo_db",
+                    "id": 55
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "删除成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/database",
+        "x-bt-real-url": "/database?action=DeleteDatabase",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "DeleteDatabase",
+        "x-bt-sdk-endpoint": "database?action=DeleteDatabase"
+      }
+    },
+    "/bt/files/GetFileBody": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Read file contents",
+        "operationId": "filesGetFileBody",
+        "description": "Read file contents.\n\nReal request: `POST /files?action=GetFileBody`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot/demo.example.com/index.html"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "path"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "path": "/www/wwwroot/demo.example.com/index.html"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "<h1>Hello BT Panel</h1>"
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=GetFileBody",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetFileBody",
+        "x-bt-sdk-endpoint": "files?action=GetFileBody"
+      }
+    },
+    "/bt/files/SaveFileBody": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Save file contents",
+        "operationId": "filesSaveFileBody",
+        "description": "Save file contents.\n\nReal request: `POST /files?action=SaveFileBody`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot/demo.example.com/index.html"
+                  },
+                  "data": {
+                    "type": "string",
+                    "description": "新的文件内容",
+                    "example": "<h1>Hello BT Panel</h1>"
+                  },
+                  "encoding": {
+                    "type": "string",
+                    "description": "文本编码，默`utf-8`",
+                    "example": "utf-8"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "data"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "path": "/www/wwwroot/demo.example.com/index.html",
+                    "data": "<h1>Hello BT Panel</h1>",
+                    "encoding": "utf-8"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "保存成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=SaveFileBody",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SaveFileBody",
+        "x-bt-sdk-endpoint": "files?action=SaveFileBody"
+      }
+    },
+    "/bt/files/CreateDir": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Create directory",
+        "operationId": "filesCreateDir",
+        "description": "Create directory.\n\nReal request: `POST /files?action=CreateDir`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot/demo-dir"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "path"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "path": "/www/wwwroot/demo-dir"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "创建成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=CreateDir",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "CreateDir",
+        "x-bt-sdk-endpoint": "files?action=CreateDir"
+      }
+    },
+    "/bt/files/CreateFile": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Create File",
+        "operationId": "filesCreateFile",
+        "description": "Create File.\n\nReal request: `POST /files?action=CreateFile`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot/demo.example.com/index.html"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "path"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "path": "/www/wwwroot/demo.example.com/index.html"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "创建成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=CreateFile",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "CreateFile",
+        "x-bt-sdk-endpoint": "files?action=CreateFile"
+      }
+    },
+    "/bt/files/DeleteFile": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Delete file or directory",
+        "operationId": "filesDeleteFile",
+        "description": "Delete file or directory.\n\nReal request: `POST /files?action=DeleteFile`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot/demo.example.com/index.html"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "path"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "path": "/www/wwwroot/demo.example.com/index.html"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "删除成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=DeleteFile",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "DeleteFile",
+        "x-bt-sdk-endpoint": "files?action=DeleteFile"
+      }
+    },
+    "/bt/files/RenameFile": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Rename file or directory",
+        "operationId": "filesRenameFile",
+        "description": "Rename file or directory.\n\nReal request: `POST /files?action=RenameFile`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "oldpath": {
+                    "type": "string",
+                    "description": "原始路径",
+                    "example": "/www/wwwroot/demo.example.com/index.html"
+                  },
+                  "newname": {
+                    "type": "string",
+                    "description": "新的文件名或目录名，不含父路径",
+                    "example": "index.bak.html"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "oldpath",
+                  "newname"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "oldpath": "/www/wwwroot/demo.example.com/index.html",
+                    "newname": "index.bak.html"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "重命名成"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=RenameFile",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "RenameFile",
+        "x-bt-sdk-endpoint": "files?action=RenameFile"
+      }
+    },
+    "/bt/files/MoveFile": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Move file or directory",
+        "operationId": "filesMoveFile",
+        "description": "Move file or directory.\n\nReal request: `POST /files?action=MoveFile`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "description": "源路径",
+                    "example": "/www/wwwroot/demo.example.com/index.html"
+                  },
+                  "target": {
+                    "type": "string",
+                    "description": "目标目录或目标文件路径",
+                    "example": "/www/wwwroot/demo.example.com/archive"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "文件类型标记，按面板当前实现传值",
+                    "example": "mv"
+                  },
+                  "moveType": {
+                    "type": "string",
+                    "description": "移动模式，按面板当前实现传值",
+                    "example": "cut"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "source",
+                  "target"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "source": "/www/wwwroot/demo.example.com/index.html",
+                    "target": "/www/wwwroot/demo.example.com/archive",
+                    "type": "mv",
+                    "moveType": "cut"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "移动成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=MoveFile",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "MoveFile",
+        "x-bt-sdk-endpoint": "files?action=MoveFile"
+      }
+    },
+    "/bt/files/Compress": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Compress files",
+        "operationId": "filesCompress",
+        "description": "Compress files.\n\nReal request: `POST /files?action=Compress`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot"
+                  },
+                  "filename": {
+                    "type": "string",
+                    "description": "待压缩的文件或目录名",
+                    "example": "demo.example.com"
+                  },
+                  "format": {
+                    "type": "string",
+                    "description": "压缩格式",
+                    "example": "zip",
+                    "enum": [
+                      "zip",
+                      "tar.gz",
+                      "tar"
+                    ]
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "filename",
+                  "format"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "path": "/www/wwwroot",
+                    "filename": "demo.example.com",
+                    "format": "zip"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "压缩成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=Compress",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "Compress",
+        "x-bt-sdk-endpoint": "files?action=Compress"
+      }
+    },
+    "/bt/files/UnCompress": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Extract archive",
+        "operationId": "filesUnCompress",
+        "description": "Extract archive.\n\nReal request: `POST /files?action=UnCompress`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot/demo.zip"
+                  },
+                  "target": {
+                    "type": "string",
+                    "description": "解压目标目录",
+                    "example": "/www/wwwroot/demo-unpack"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "target"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "path": "/www/wwwroot/demo.zip",
+                    "target": "/www/wwwroot/demo-unpack"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "解压成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=UnCompress",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "UnCompress",
+        "x-bt-sdk-endpoint": "files?action=UnCompress"
+      }
+    },
+    "/bt/ftp/ListV9": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "BTPanel operation",
+        "operationId": "ftpListV9",
+        "description": "BTPanel operation.\n\nReal request: `POST /datalist/data/get_data_list`.\n\nSDK endpoint: `/datalist/data/get_data_list`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p": {
+                    "type": "integer",
+                    "description": "Page number.",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "Page size.",
+                    "example": 10
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Search keyword.",
+                    "example": ""
+                  },
+                  "table": {
+                    "type": "string",
+                    "description": "Logical resource table name.",
+                    "example": "ftps",
+                    "enum": [
+                      "ftps"
+                    ]
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "table",
+                  "p",
+                  "limit"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "p": 1,
+                    "limit": 10,
+                    "search": "",
+                    "table": "ftps"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtPageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": 1,
+                          "name": "demoftp",
+                          "path": "/www/wwwroot/demo.example.com"
+                        }
+                      ],
+                      "page": 1,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/datalist/data/get_data_list",
+        "x-bt-real-url": "/datalist/data/get_data_list",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-sdk-endpoint": "/datalist/data/get_data_list"
+      }
+    },
+    "/bt/ftp/AddFtp": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "Create FTP account (legacy endpoint)",
+        "operationId": "ftpAddFtp",
+        "description": "Create FTP account (legacy endpoint).\n\nReal request: `POST /ftp?action=AddFtp`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).\n\nValidation: Live validation on 2026-03-28 returned `{\"status\":false,\"msg\":\"指定参数无效!\"}`. Use `AddUser` instead.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Resource name.",
+                    "example": "demoftp"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Password.",
+                    "example": "<password>"
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "Absolute panel path.",
+                    "example": "/www/wwwroot/demo.example.com"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "description": "磁盘配额，`0` 表示不限",
+                    "example": 0
+                  },
+                  "ps": {
+                    "type": "integer",
+                    "description": "Remark or display note.",
+                    "example": 0,
+                    "enum": [
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "password",
+                  "path"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "name": "demoftp",
+                    "password": "<password>",
+                    "path": "/www/wwwroot/demo.example.com",
+                    "size": 0,
+                    "ps": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "创建成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ftp",
+        "x-bt-real-url": "/ftp?action=AddFtp",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "AddFtp",
+        "x-bt-sdk-endpoint": "ftp?action=AddFtp"
+      }
+    },
+    "/bt/ftp/DeleteFtp": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "Delete FTP account (legacy endpoint)",
+        "operationId": "ftpDeleteFtp",
+        "description": "Delete FTP account (legacy endpoint).\n\nReal request: `POST /ftp?action=DeleteFtp`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).\n\nValidation: The historical route is not the preferred current-panel delete flow. Use `DeleteUser` instead.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Resource name.",
+                    "example": "demoftp"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "name"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "name": "demoftp"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "删除成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ftp",
+        "x-bt-real-url": "/ftp?action=DeleteFtp",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "DeleteFtp",
+        "x-bt-sdk-endpoint": "ftp?action=DeleteFtp"
+      }
+    },
+    "/bt/ftp/ChangeFtpPassword": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "Change FTP password",
+        "operationId": "ftpChangeFtpPassword",
+        "description": "Change FTP password.\n\nReal request: `POST /ftp?action=ChangeFtpPassword`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).\n\nValidation: The historical route still exists in documentation, but the current panel flow prefers `SetUser`. Parameter contract remains unverified.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Resource name.",
+                    "example": "demoftp"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Password.",
+                    "example": "New<password>"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "password"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "name": "demoftp",
+                    "password": "New<password>"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "修改成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ftp",
+        "x-bt-real-url": "/ftp?action=ChangeFtpPassword",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "ChangeFtpPassword",
+        "x-bt-sdk-endpoint": "ftp?action=ChangeFtpPassword"
+      }
+    },
+    "/bt/ssl/GetCertList": {
+      "post": {
+        "tags": [
+          "SSL"
+        ],
+        "summary": "List saved SSL certificates (invalid captured route)",
+        "operationId": "sslGetCertList",
+        "description": "List saved SSL certificates (invalid captured route).\n\nReal request: `POST /ssl/cert/get_cert_list`.\n\nSDK endpoint: `/ssl/cert/get_cert_list`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).\n\nValidation: Live validation on 2026-03-29 returned `{\"status\":false,\"msg\":\"没有在模型中找到指定模块\"}`.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table": {
+                    "type": "string",
+                    "description": "Logical resource table name.",
+                    "example": "ssl",
+                    "enum": [
+                      "ssl"
+                    ]
+                  },
+                  "p": {
+                    "type": "integer",
+                    "description": "Page number.",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "Page size.",
+                    "example": 100
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Search keyword.",
+                    "example": ""
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "table"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "table": "ssl",
+                    "p": 1,
+                    "limit": 100,
+                    "search": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtPageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": 3,
+                          "name": "demo.example.com",
+                          "type": "Let's Encrypt"
+                        }
+                      ],
+                      "page": 1,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ssl/cert/get_cert_list",
+        "x-bt-real-url": "/ssl/cert/get_cert_list",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-sdk-endpoint": "/ssl/cert/get_cert_list",
+        "x-bt-validation-status": "passed-live-probe",
+        "x-bt-validation-note": "2026-03-29 developer-signature probe succeeded and returned a JSON array."
+      }
+    },
+    "/bt/ssl/SaveSSL": {
+      "post": {
+        "tags": [
+          "SSL"
+        ],
+        "summary": "Save SSL certificate (legacy endpoint)",
+        "operationId": "sslSaveSSL",
+        "description": "Save SSL certificate (legacy endpoint).\n\nReal request: `POST /ssl?action=SaveSSL`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).\n\nValidation: Live validation on 2026-03-29 returned HTTP 404.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string",
+                    "description": "证书域名",
+                    "example": "demo.example.com"
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "PEM 私钥内容",
+                    "example": "<private-key-pem>"
+                  },
+                  "cert": {
+                    "type": "string",
+                    "description": "PEM 证书内容",
+                    "example": "<certificate-pem>"
+                  },
+                  "force_https": {
+                    "type": "integer",
+                    "description": "是否启用强制 HTTPS",
+                    "example": 0,
+                    "enum": [
+                      0,
+                      1
+                    ]
+                  },
+                  "auto_renew": {
+                    "type": "integer",
+                    "description": "是否启用自动续签",
+                    "example": 0,
+                    "enum": [
+                      0,
+                      1
+                    ]
+                  },
+                  "ca": {
+                    "type": "string",
+                    "description": "可CA 证书链",
+                    "example": "<certificate-pem>"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "domain",
+                  "key",
+                  "cert"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "domain": "demo.example.com",
+                    "key": "<private-key-pem>",
+                    "cert": "<certificate-pem>",
+                    "force_https": 0,
+                    "auto_renew": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "安装成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ssl",
+        "x-bt-real-url": "/ssl?action=SaveSSL",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SaveSSL",
+        "x-bt-sdk-endpoint": "ssl?action=SaveSSL",
+        "x-bt-validation-status": "failed-live-probe",
+        "x-bt-validation-note": "2026-03-29 developer-signature probe returned HTTP 404."
+      }
+    },
+    "/bt/ssl/DeleteSSL": {
+      "post": {
+        "tags": [
+          "SSL"
+        ],
+        "summary": "Delete SSL",
+        "operationId": "sslDeleteSSL",
+        "description": "Delete SSL.\n\nReal request: `POST /ssl?action=DeleteSSL`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Resource identifier.",
+                    "example": 3
+                  },
+                  "domain": {
+                    "type": "string",
+                    "description": "可选证书域名",
+                    "example": "demo.example.com"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "id": 3,
+                    "domain": "demo.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "删除成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ssl",
+        "x-bt-real-url": "/ssl?action=DeleteSSL",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "DeleteSSL",
+        "x-bt-sdk-endpoint": "ssl?action=DeleteSSL"
+      }
+    },
+    "/bt/ftp/AddUser": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "Create FTP account",
+        "operationId": "ftpAddUser",
+        "description": "Create FTP account.\n\nReal request: `POST /ftp?action=AddUser`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "ftp_username",
+                  "ftp_password",
+                  "path",
+                  "ps"
+                ],
+                "properties": {
+                  "ftp_username": {
+                    "type": "string",
+                    "example": "demoftp",
+                    "description": "FTP username."
+                  },
+                  "ftp_password": {
+                    "type": "string",
+                    "example": "<password>",
+                    "description": "FTP password."
+                  },
+                  "path": {
+                    "type": "string",
+                    "example": "/www/wwwroot/demo.example.com",
+                    "description": "Absolute panel path."
+                  },
+                  "ps": {
+                    "type": "string",
+                    "example": "demoftp",
+                    "description": "Remark or display note."
+                  }
+                }
+              }
+            }
+          },
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise."
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "添加成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ftp",
+        "x-bt-real-url": "/ftp?action=AddUser",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "AddUser",
+        "x-bt-sdk-endpoint": "ftp?action=AddUser"
+      }
+    },
+    "/bt/ftp/SetUser": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "Update FTP account",
+        "operationId": "ftpSetUser",
+        "description": "Update FTP account.\n\nReal request: `POST /ftp?action=SetUser`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "ftp_username",
+                  "new_password",
+                  "path"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1,
+                    "description": "Resource identifier."
+                  },
+                  "ftp_username": {
+                    "type": "string",
+                    "example": "demoftp",
+                    "description": "FTP username."
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "example": "New<password>",
+                    "description": "New password."
+                  },
+                  "path": {
+                    "type": "string",
+                    "example": "/www/wwwroot/demo.example.com",
+                    "description": "Absolute panel path."
+                  }
+                }
+              }
+            }
+          },
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise."
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "修改成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ftp",
+        "x-bt-real-url": "/ftp?action=SetUser",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SetUser",
+        "x-bt-sdk-endpoint": "ftp?action=SetUser"
+      }
+    },
+    "/bt/ftp/DeleteUser": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "Delete FTP account",
+        "operationId": "ftpDeleteUser",
+        "description": "Delete FTP account.\n\nReal request: `POST /ftp?action=DeleteUser`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "username"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1,
+                    "description": "Resource identifier."
+                  },
+                  "username": {
+                    "type": "string",
+                    "example": "demoftp",
+                    "description": "Username."
+                  }
+                }
+              }
+            }
+          },
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise."
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "删除成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ftp",
+        "x-bt-real-url": "/ftp?action=DeleteUser",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "DeleteUser",
+        "x-bt-sdk-endpoint": "ftp?action=DeleteUser"
+      }
+    },
+    "/bt/site/GetSSL": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Get site SSL status",
+        "operationId": "siteGetSSL",
+        "description": "Get site SSL status.\n\nReal request: `POST /site?action=GetSSL`.\n\nSource: captured in BTPanel UI and then revalidated with developer API signature.\n\nValidation: Passed DevTools capture replay and signed live probe on 2026-03-29. `status=false` means the site currently has no deployed certificate.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "siteName": {
+                    "type": "string",
+                    "description": "Website domain name."
+                  }
+                },
+                "required": [
+                  "siteName"
+                ]
+              },
+              "examples": {
+                "undeployed": {
+                  "value": {
+                    "siteName": "ssl-cd260f86.test.example.com"
+                  }
+                },
+                "deployed": {
+                  "value": {
+                    "siteName": "ui-sslprobe-58376820.test.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-url": "/site?action=GetSSL",
+        "x-bt-source": "devtools-capture+developer-signature",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetSSL",
+        "x-bt-sdk-endpoint": "site?action=GetSSL",
+        "x-bt-sdk-facade-method": "apiManager.ssl().getWebsiteStatus(siteName)",
+        "x-bt-sdk-note": "Validated facade entry for site SSL status.",
+        "x-bt-validation-status": "passed-live-probe",
+        "x-bt-validation-note": "Captured from the SSL panel and revalidated with developer signature on 2026-03-29."
+      }
+    },
+    "/bt/ssl/GetOrderList": {
+      "post": {
+        "tags": [
+          "SSL"
+        ],
+        "summary": "List SSL orders for a site",
+        "operationId": "sslGetOrderList",
+        "description": "List SSL orders for a site.\n\nReal request: `POST /ssl?action=get_order_list`.\n\nSource: captured in BTPanel UI and then revalidated with developer API signature.\n\nValidation: Passed DevTools capture replay and signed live probe on 2026-03-29.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "siteName": {
+                    "type": "string",
+                    "description": "Website domain name."
+                  }
+                },
+                "required": [
+                  "siteName"
+                ]
+              },
+              "examples": {
+                "basic": {
+                  "value": {
+                    "siteName": "ui-sslprobe-58376820.test.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-url": "/ssl?action=get_order_list",
+        "x-bt-source": "devtools-capture+developer-signature",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "get_order_list",
+        "x-bt-sdk-endpoint": "ssl?action=get_order_list",
+        "x-bt-sdk-facade-method": "apiManager.ssl().listOrders(siteName)",
+        "x-bt-sdk-note": "Validated facade entry for site SSL order records.",
+        "x-bt-validation-status": "passed-live-probe",
+        "x-bt-validation-note": "DevTools capture and signature probe both returned HTTP 200 with an array response."
+      }
+    },
+    "/bt/ssl/GetSiteDomain": {
+      "post": {
+        "tags": [
+          "SSL"
+        ],
+        "summary": "Resolve deployable sites for certificate",
+        "operationId": "sslGetSiteDomain",
+        "description": "Resolve deployable sites for certificate.\n\nReal request: `POST /ssl?action=GetSiteDomain`.\n\nSource: captured in BTPanel UI and then revalidated with developer API signature.\n\nValidation: Passed DevTools capture replay and signed live probe on 2026-03-29.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cert_list": {
+                    "type": "string",
+                    "description": "JSON array string of certificate names."
+                  }
+                },
+                "required": [
+                  "cert_list"
+                ]
+              },
+              "examples": {
+                "basic": {
+                  "value": {
+                    "cert_list": "[\"integration-test.example.com\"]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-url": "/ssl?action=GetSiteDomain",
+        "x-bt-source": "devtools-capture+developer-signature",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "GetSiteDomain",
+        "x-bt-sdk-endpoint": "ssl?action=GetSiteDomain",
+        "x-bt-sdk-facade-method": "apiManager.ssl().getDeployableSites(certificateNames)",
+        "x-bt-sdk-note": "Validated facade entry for deployable site resolution.",
+        "x-bt-validation-status": "passed-live-probe",
+        "x-bt-validation-note": "Captured before the final batch deployment confirmation."
+      }
+    },
+    "/bt/ssl/SetBatchCertToSite": {
+      "post": {
+        "tags": [
+          "SSL"
+        ],
+        "summary": "Deploy saved certificate to site",
+        "operationId": "sslSetBatchCertToSite",
+        "description": "Deploy saved certificate to site.\n\nReal request: `POST /ssl?action=SetBatchCertToSite`.\n\nSource: captured in BTPanel UI and then revalidated with developer API signature.\n\nValidation: Passed DevTools capture replay and signed live probe on 2026-03-29 with a temporary site created and deleted during validation.",
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "BatchInfo": {
+                    "type": "string",
+                    "description": "JSON array string describing certificate deployment items."
+                  }
+                },
+                "required": [
+                  "BatchInfo"
+                ]
+              },
+              "examples": {
+                "singleSite": {
+                  "value": {
+                    "BatchInfo": "[{\"ssl_hash\":\"cac030df9fd0ce86c411095827e97ac4\",\"siteName\":\"ui-sslprobe-58376820.test.example.com\",\"certName\":\"integration-test.example.com\"}]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-url": "/ssl?action=SetBatchCertToSite",
+        "x-bt-source": "devtools-capture+developer-signature",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SetBatchCertToSite",
+        "x-bt-sdk-endpoint": "ssl?action=SetBatchCertToSite",
+        "x-bt-sdk-facade-method": "apiManager.ssl().deploySavedCertificate(sslHash, siteName, certName)",
+        "x-bt-sdk-note": "Primary validated write path for BTPanel 9.0.0 developer-signature SSL deployment.",
+        "x-bt-validation-status": "passed-live-probe",
+        "x-bt-validation-note": "Captured from the certificate-folder deploy flow and revalidated with a temporary site; response indicated success=1."
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BtRequestTime": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "request_time",
+        "description": "Unix timestamp in seconds."
+      },
+      "BtRequestToken": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "request_token",
+        "description": "Developer API signature computed as `md5(String(request_time) + md5(apiKey))`."
+      },
+      "BtSessionToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-http-token",
+        "description": "Browser session token observed in panel UI traffic. Not required for pure developer-signature routes."
+      }
+    },
+    "schemas": {
+      "LooseObject": {
+        "type": "object",
+        "description": "Loose object payload used for BTPanel responses with unstable field sets.",
+        "additionalProperties": true
+      },
+      "LooseArray": {
+        "type": "array",
+        "description": "Loose array payload used for BTPanel responses with unstable item shapes.",
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": true
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "BtMessageResponse": {
+        "type": "object",
+        "description": "Common BTPanel boolean/message wrapper.",
+        "additionalProperties": true,
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "description": "业务执行结果"
+          },
+          "msg": {
+            "type": "string",
+            "description": "提示消息"
+          },
+          "data": {
+            "description": "部分接口会附带数据载荷",
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": true
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "msg"
+        ]
+      },
+      "BtPageResponse": {
+        "type": "object",
+        "description": "Common BTPanel paginated list response.",
+        "additionalProperties": true,
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "page": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "count": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "SystemTotalResponse": {
+        "type": "object",
+        "description": "Typical fields returned by the system overview endpoint.",
+        "additionalProperties": true,
+        "properties": {
+          "system": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "cpuRealUsed": {
+            "type": "number"
+          },
+          "memTotal": {
+            "type": "number"
+          },
+          "memRealUsed": {
+            "type": "number"
+          },
+          "time": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateSiteResponse": {
+        "type": "object",
+        "description": "Typical fields returned by the website creation endpoint.",
+        "additionalProperties": true,
+        "properties": {
+          "siteStatus": {
+            "type": "boolean"
+          },
+          "ftpStatus": {
+            "type": "boolean"
+          },
+          "ftpUser": {
+            "type": "string"
+          },
+          "ftpPass": {
+            "type": "string"
+          },
+          "databaseStatus": {
+            "type": "boolean"
+          },
+          "databaseUser": {
+            "type": "string"
+          },
+          "databasePass": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "x-bt-path-profile": "strict-alias",
+  "x-bt-generated-at": "2026-03-26T03:28:17.036Z",
+  "x-bt-alias-paths": true
+}

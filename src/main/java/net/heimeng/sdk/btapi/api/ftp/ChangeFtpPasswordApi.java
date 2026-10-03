@@ -1,104 +1,63 @@
 package net.heimeng.sdk.btapi.api.ftp;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONException;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import net.heimeng.sdk.btapi.api.BaseBtApi;
-import net.heimeng.sdk.btapi.exception.BtApiException;
-import net.heimeng.sdk.btapi.model.BtResult;
-
 /**
- * 修改FTP账户密码API实现
- * <p>
- * 用于在宝塔面板中修改指定FTP账户的密码。
- * </p>
+ * 修改 FTP 账户密码的 API。
  *
- * @author InwardFlow
- * @since 2.0.0
+ * <p>根据用户名更新对应 FTP 账户的密码，并统一解析布尔型执行结果。
  */
-public class ChangeFtpPasswordApi extends BaseBtApi<BtResult<Boolean>> {
-    
-    /**
-     * API端点路径
-     */
-    private static final String ENDPOINT = "ftp?action=ChangeFtpPassword";
-    
-    /**
-     * 构造函数，创建一个新的ChangeFtpPasswordApi实例
-     * 
-     * @param username FTP用户名
-     * @param newPassword 新密码
-     */
-    public ChangeFtpPasswordApi(String username, String newPassword) {
-        super(ENDPOINT, HttpMethod.POST);
-        
-        // 设置必需参数
-        setUsername(username);
-        setNewPassword(newPassword);
-    }
-    
-    /**
-     * 设置FTP用户名
-     * 
-     * @param username FTP用户名
-     * @return 当前API实例，支持链式调用
-     */
-    public ChangeFtpPasswordApi setUsername(String username) {
-        if (StrUtil.isEmpty(username)) {
-            throw new IllegalArgumentException("Username cannot be empty");
-        }
-        addParam("name", username);
-        return this;
-    }
-    
-    /**
-     * 设置FTP新密码
-     * 
-     * @param newPassword 新密码
-     * @return 当前API实例，支持链式调用
-     */
-    public ChangeFtpPasswordApi setNewPassword(String newPassword) {
-        if (StrUtil.isEmpty(newPassword)) {
-            throw new IllegalArgumentException("New password cannot be empty");
-        }
-        addParam("password", newPassword);
-        return this;
-    }
-    
-    /**
-     * 解析API响应字符串为BtResult<Boolean>对象
-     * 
-     * @param response API响应字符串
-     * @return BtResult<Boolean>对象，data为true表示修改密码成功
-     * @throws BtApiException 当解析失败时抛出
-     */
-    @Override
-    public BtResult<Boolean> parseResponse(String response) {
-        if (response == null || response.isEmpty()) {
-            throw new BtApiException("Empty response received");
-        }
+public class ChangeFtpPasswordApi extends AbstractFtpBooleanApi {
 
-        try {
-            if (!JSONUtil.isTypeJSON(response)) {
-                throw new BtApiException("Invalid JSON response: " + response);
-            }
+  private static final String ENDPOINT = "ftp?action=SetUser";
 
-            JSONObject json = JSONUtil.parseObj(response);
-            BtResult<Boolean> result = new BtResult<>();
-            
-            // 检查响应状态
-            boolean success = json.getBool("status", false);
-            result.setStatus(success);
-            result.setMsg(json.getStr("msg", success ? "FTP password changed successfully" : "Failed to change FTP password"));
-            result.setData(success);
-            
-            return result;
+  public ChangeFtpPasswordApi() {
+    super(ENDPOINT, "FTP password changed successfully", "Failed to change FTP password");
+  }
 
-        } catch (JSONException e) {
-            throw new BtApiException("Invalid JSON response: " + response);
-        } catch (Exception e) {
-            throw new BtApiException("Failed to parse change FTP password response: " + e.getMessage(), e);
-        }
+  public ChangeFtpPasswordApi(int id, String username, String newPassword, String path) {
+    this();
+    setId(id);
+    setUsername(username);
+    setNewPassword(newPassword);
+    setPath(path);
+  }
+
+  public ChangeFtpPasswordApi setId(int id) {
+    if (id <= 0) {
+      throw new IllegalArgumentException("id must be positive");
     }
+    addParam("id", id);
+    return this;
+  }
+
+  public ChangeFtpPasswordApi setUsername(String username) {
+    if (username == null || username.isBlank()) {
+      throw new IllegalArgumentException("username cannot be blank");
+    }
+    addParam("ftp_username", username);
+    return this;
+  }
+
+  public ChangeFtpPasswordApi setNewPassword(String newPassword) {
+    if (newPassword == null || newPassword.isBlank()) {
+      throw new IllegalArgumentException("newPassword cannot be blank");
+    }
+    addParam("new_password", newPassword);
+    return this;
+  }
+
+  public ChangeFtpPasswordApi setPath(String path) {
+    if (path == null || path.isBlank()) {
+      throw new IllegalArgumentException("path cannot be blank");
+    }
+    addParam("path", path);
+    return this;
+  }
+
+  @Override
+  protected boolean validateParams() {
+    Object id = params.get("id");
+    return id instanceof Number numberValue
+        && numberValue.intValue() > 0
+        && hasRequiredParams("ftp_username", "new_password", "path");
+  }
 }

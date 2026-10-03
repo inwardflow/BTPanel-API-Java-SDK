@@ -1,114 +1,129 @@
 package net.heimeng.sdk.btapi.api.system;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONException;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+
 import net.heimeng.sdk.btapi.api.BaseBtApi;
 import net.heimeng.sdk.btapi.exception.BtApiException;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.system.NetworkStatus;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * 获取网络状态信息API实现
- * <p>
- * 用于获取宝塔面板的实时网络状态信息，包括CPU使用率、内存使用情况、网络流量、负载等实时信息。
- * </p>
+ * 查询实时网络状态的 API。
  *
- * @author InwardFlow
- * @since 2.0.0
+ * <p>成功时通常直接返回带网络统计字段的 JSON 对象；异常场景下也可能返回带 {@code status}/{@code msg} 的包装对象。
  */
 public class GetNetworkStatusApi extends BaseBtApi<BtResult<NetworkStatus>> {
-    
-    /**
-     * API端点路径
-     */
-    private static final String ENDPOINT = "system?action=GetNetWork";
-    
-    /**
-     * 构造函数，创建一个新的GetNetworkStatusApi实例
-     */
-    public GetNetworkStatusApi() {
-        super(ENDPOINT, HttpMethod.POST);
+
+  private static final String ENDPOINT = "system?action=GetNetWork";
+  private static final String SUCCESS_MESSAGE = "Success";
+
+  public GetNetworkStatusApi() {
+    super(ENDPOINT, HttpMethod.POST);
+  }
+
+  @Override
+  public BtResult<NetworkStatus> parseResponse(String response) {
+    if (response == null || response.isBlank()) {
+      throw new BtApiException("Empty response received");
     }
-    
-    /**
-     * 解析API响应字符串为BtResult<NetworkStatus>对象
-     * 
-     * @param response API响应字符串
-     * @return BtResult<NetworkStatus>对象
-     * @throws BtApiException 当解析失败时抛出
-     */
-    @Override
-    public BtResult<NetworkStatus> parseResponse(String response) {
-        if (response == null || response.isEmpty()) {
-            throw new BtApiException("Empty response received");
-        }
 
-        try {
-            if (!JSONUtil.isTypeJSON(response)) {
-                throw new BtApiException("Invalid JSON response: " + response);
-            }
+    String normalizedResponse = response.trim();
+    try {
+      if (!JSONUtil.isTypeJSON(normalizedResponse)) {
+        throw new BtApiException("Invalid JSON response: " + normalizedResponse);
+      }
 
-            JSONObject json = JSONUtil.parseObj(response);
-            BtResult<NetworkStatus> result = new BtResult<>();
-            
-            // 检查是否包含status字段（错误响应格式）
-            if (json.containsKey("status")) {
-                result.setStatus(json.getBool("status", false));
-                result.setMsg(json.getStr("msg", ""));
-            } else {
-                // 没有status字段，说明是成功的响应直接返回了数据
-                result.setStatus(true);
-                result.setMsg("Success");
-            }
+      JSON json = JSONUtil.parse(normalizedResponse);
+      if (!(json instanceof JSONObject jsonObject)) {
+        throw new BtApiException("Network status response must be a JSON object");
+      }
 
-            // 解析网络状态信息
-            if (result.isSuccess()) {
-                NetworkStatus networkStatus = new NetworkStatus();
-                
-                // 网络流量信息
-                networkStatus.setDownTotal(json.getLong("downTotal", 0L));
-                networkStatus.setUpTotal(json.getLong("upTotal", 0L));
-                networkStatus.setDownPackets(json.getLong("downPackets", 0L));
-                networkStatus.setUpPackets(json.getLong("upPackets", 0L));
-                networkStatus.setDown(json.getDouble("down", 0.0));
-                networkStatus.setUp(json.getDouble("up", 0.0));
-                
-                // CPU信息
-                JSONArray cpuArray = json.getJSONArray("cpu");
-                if (cpuArray != null) {
-                    List<Double> cpuList = new ArrayList<>();
-                    for (int i = 0; i < cpuArray.size(); i++) {
-                        cpuList.add(cpuArray.getDouble(i, 0.0));
-                    }
-                    networkStatus.setCpu(cpuList);
-                }
-                
-                // 内存信息
-                JSONObject memObj = json.getJSONObject("mem");
-                if (memObj != null) {
-                    networkStatus.setMem(memObj);
-                }
-                
-                // 负载信息
-                JSONObject loadObj = json.getJSONObject("load");
-                if (loadObj != null) {
-                    networkStatus.setLoad(loadObj);
-                }
-                
-                result.setData(networkStatus);
-            }
-            
-            return result;
-
-        } catch (JSONException e) {
-            throw new BtApiException("Invalid JSON response: " + response);
-        } catch (Exception e) {
-            throw new BtApiException("Failed to parse network status response: " + e.getMessage(), e);
-        }
+      return parseObjectResponse(jsonObject);
+    } catch (JSONException exception) {
+      throw new BtApiException("Invalid JSON response: " + normalizedResponse, exception);
     }
+  }
+
+  private BtResult<NetworkStatus> parseObjectResponse(JSONObject jsonObject) {
+    BtResult<NetworkStatus> result = new BtResult<>();
+
+    JSONObject payload = jsonObject;
+    if (jsonObject.containsKey("status")) {
+      boolean success = jsonObject.getBool("status", false);
+      result.setStatus(success);
+      result.setMsg(
+          jsonObject.getStr("msg", success ? SUCCESS_MESSAGE : "Failed to fetch network status"));
+      if (!success) {
+        return result;
+      }
+
+      if (jsonObject.containsKey("data")) {
+        Object rawData = jsonObject.get("data");
+        if (!(rawData instanceof JSONObject dataObject)) {
+          throw new BtApiException("Network status response data must be a JSON object");
+        }
+        payload = dataObject;
+      }
+    } else {
+      result.setStatus(true);
+      result.setMsg(SUCCESS_MESSAGE);
+    }
+
+    if (!containsPayloadField(payload)) {
+      throw new BtApiException("Network status response does not contain a supported payload");
+    }
+
+    result.setData(parseNetworkStatus(payload));
+    return result;
+  }
+
+  private boolean containsPayloadField(JSONObject jsonObject) {
+    return jsonObject.containsKey("downTotal")
+        || jsonObject.containsKey("upTotal")
+        || jsonObject.containsKey("cpu")
+        || jsonObject.containsKey("mem")
+        || jsonObject.containsKey("load");
+  }
+
+  private NetworkStatus parseNetworkStatus(JSONObject jsonObject) {
+    NetworkStatus networkStatus = new NetworkStatus();
+    networkStatus.setDownTotal(jsonObject.getLong("downTotal", 0L));
+    networkStatus.setUpTotal(jsonObject.getLong("upTotal", 0L));
+    networkStatus.setDownPackets(jsonObject.getLong("downPackets", 0L));
+    networkStatus.setUpPackets(jsonObject.getLong("upPackets", 0L));
+    networkStatus.setDown(jsonObject.getDouble("down", 0.0));
+    networkStatus.setUp(jsonObject.getDouble("up", 0.0));
+    networkStatus.setCpu(readDoubleArray(jsonObject.getJSONArray("cpu")));
+    networkStatus.setMem(readMap(jsonObject.getJSONObject("mem")));
+    networkStatus.setLoad(readMap(jsonObject.getJSONObject("load")));
+    return networkStatus;
+  }
+
+  private List<Double> readDoubleArray(JSONArray jsonArray) {
+    if (jsonArray == null) {
+      return List.of();
+    }
+
+    List<Double> values = new ArrayList<>(jsonArray.size());
+    for (int i = 0; i < jsonArray.size(); i++) {
+      values.add(jsonArray.getDouble(i, 0.0));
+    }
+    return List.copyOf(values);
+  }
+
+  private Map<String, Object> readMap(JSONObject jsonObject) {
+    if (jsonObject == null) {
+      return Map.of();
+    }
+    return Map.copyOf(new LinkedHashMap<>(jsonObject));
+  }
 }

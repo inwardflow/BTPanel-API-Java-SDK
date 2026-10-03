@@ -1,132 +1,61 @@
-# Logs
-logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Build outputs
+/target/
+/build/
+.gradle/
 
-# Dependencies
-node_modules
-jspm_packages
-.pnp
-.pnp.js
-
-# Testing
-coverage
-*.lcov
-.nyc_output
-
-# Production
-build
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# OS generated files
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Maven
-/target
+# Maven release artifacts
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
 pom.xml.next
 release.properties
 
-# Gradle
-.gradle
-/build
-
-# Eclipse
-.settings/
-.project
-.classpath
-
-# IntelliJ
+# IDE files
 .idea/
-*.iws
+.vscode/
 *.iml
+*.iws
 *.ipr
+.classpath
+.project
+.settings/
 
-# Temporary files
+# Operating system files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Logs and temporary files
+*.log
 *.tmp
 *.temp
 *.swp
 *~
 
-# Environment variables and configuration files
+# Environment and local test configuration
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-application.properties
-application.yml
-*.properties
-*.yml
-*.yaml
+.env.*
+src/test/resources/application-test.properties
+src/test/resources/ssl/*.crt
+src/test/resources/ssl/*.key
+src/test/resources/ssl/*.pem
+src/test/resources/ssl/*.p12
+src/test/resources/ssl/*.jks
 
-# IDE - NetBeans
-nbproject/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
+# Generated OpenAPI validation artifacts
+docs/openapi/live-validation-report.json
+docs/openapi/*.bak
+docs/openapi/*.bak_*
+docs/openapi/*capture-validation*.json
+docs/openapi/*-live-validation-*.json
+docs/openapi/*-validation-*.json
+tmp/
 
-# Misc
-.cache/
-.parcel-cache/
-.next/
-.nuxt/
-.vuepress/dist/
-.docusaurus/
-.serverless/
-.fusebox/
-.dynamodb/
-.tern-port/
-.vscode-test/
-
-# Yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# Java
+# Java archives generated locally
 *.class
 *.jar
 *.war
 *.ear
-*.jmod
 
-# Package manager files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Documentation
-docs/api/
-docs/build/
+# Third-party vendor documentation (link to the official source instead of vendoring)
+docs/api-doc.pdf

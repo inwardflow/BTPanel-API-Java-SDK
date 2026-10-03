@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Check tag matches project version
+        shell: bash
+        run: |
+          project_version="$(./mvnw -B -ntp -q help:evaluate -Dexpression=project.version -DforceStdout)"
+          tag_version="${GITHUB_REF_NAME#v}"
+          if [ "$project_version" != "$tag_version" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match pom.xml version ${project_version}"
+            exit 1
+          fi
+          echo "VERSION=${project_version}" >> "$GITHUB_ENV"
+
+      - name: Build release artifacts
+        run: ./mvnw -B -ntp -Prelease -Dgpg.skip verify
+
+      - name: Extract release notes from CHANGELOG
+        shell: bash
+        run: |
+          awk -v version="$VERSION" '
+            index($0, "## [" version "]") == 1 { found = 1; next }
+            found && index($0, "## [") == 1 { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "CHANGELOG.md has no section for [${VERSION}]"
+            exit 1
+          fi
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          prerelease_flag=""
+          if [[ "$VERSION" == *-* ]]; then
+            prerelease_flag="--prerelease"
+          fi
+          gh release create "$GITHUB_REF_NAME" \
+            target/btpanel-api-java-sdk-${VERSION}.jar \
+            target/btpanel-api-java-sdk-${VERSION}-sources.jar \
+            target/btpanel-api-java-sdk-${VERSION}-javadoc.jar \
+            --title "v${VERSION}" \
+            --notes-file release-notes.md \
+            --verify-tag \
+            ${prerelease_flag}

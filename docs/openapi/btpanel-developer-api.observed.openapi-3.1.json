@@ -1,0 +1,3009 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BTPanel Developer API (Observed Draft)",
+    "version": "2026-03-28",
+    "description": "Observed BTPanel request catalog collected from UI behavior. This draft keeps captured routes together with any later developer-signature validation notes."
+  },
+  "servers": [
+    {
+      "url": "https://example.com:8888",
+      "description": "Root BTPanel base URL. Do not append the panel entry path used for browser login pages."
+    }
+  ],
+  "externalDocs": {
+    "description": "Historical official BTPanel PDF reference.",
+    "url": "https://www.bt.cn/data/api-doc.pdf"
+  },
+  "tags": [
+    {
+      "name": "System",
+      "description": "System status, disk, network, panel update, and task-count endpoints."
+    },
+    {
+      "name": "Site",
+      "description": "Website creation, listing, deletion, PHP, and SSL-related endpoints."
+    },
+    {
+      "name": "Database",
+      "description": "Database listing and write operations."
+    },
+    {
+      "name": "Files",
+      "description": "File and directory browsing plus read/write operations."
+    },
+    {
+      "name": "FTP",
+      "description": "FTP account listing and management endpoints."
+    },
+    {
+      "name": "SSL",
+      "description": "Saved certificate listing and deployment-related endpoints."
+    }
+  ],
+  "paths": {
+    "/datalist/data/get_data_list?table=sites": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "List websites",
+        "operationId": "siteListObservedV9",
+        "description": "List websites.\n\nReal request: `POST /datalist/data/get_data_list`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed browser form submission from BTPanel 9.0.0 UI.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "p": {
+                    "type": "integer",
+                    "description": "Page number.",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "Page size.",
+                    "example": 10
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Free-text search over site name and remark.",
+                    "example": "ssl"
+                  },
+                  "type": {
+                    "type": "integer",
+                    "description": "Category id, `-1` means all categories.",
+                    "example": -1
+                  },
+                  "table": {
+                    "type": "string",
+                    "enum": [
+                      "sites"
+                    ],
+                    "description": "Datalist resource name.",
+                    "example": "sites"
+                  }
+                },
+                "required": [
+                  "p",
+                  "limit",
+                  "search",
+                  "type",
+                  "table"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "p": 1,
+                    "limit": 10,
+                    "search": "ssl",
+                    "type": -1,
+                    "table": "sites"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtPageResponse"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "where": "(name LIKE ? OR ps LIKE ? OR id IN (26,31,69,71,153)) AND (project_type = ?)",
+                      "page": "<div><span class='Pcurrent'>1</span><span class='Pcount'>?5?</span></div>",
+                      "data": [
+                        {
+                          "id": 153,
+                          "name": "ssl-cd260f86.test.example.com",
+                          "path": "/www/wwwroot/ssl-cd260f86.test.example.com",
+                          "status": "1",
+                          "ps": "SSL integration test website",
+                          "project_type": "PHP",
+                          "ssl": -1,
+                          "php_version": "8.1"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/datalist/data/get_data_list",
+        "x-bt-real-url": "/datalist/data/get_data_list",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-table": "sites",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/database?action=CheckDatabaseStatus": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Check database service status",
+        "operationId": "databaseCheckDatabaseStatus",
+        "description": "Check database service status.\n\nReal request: `POST /database?action=CheckDatabaseStatus`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sid": {
+                    "type": "integer",
+                    "description": "閺佺増宓佹惔鎾崇杽娓?SID閿涘本婀伴崷鏉跨杽娓氬鈧艾鐖舵稉?`0`閵?",
+                    "example": 0
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "sid"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "sid": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/database",
+        "x-bt-real-url": "/database?action=CheckDatabaseStatus",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "CheckDatabaseStatus",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/datalist/data/get_data_list?table=databases": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "List databases",
+        "operationId": "databaseListObservedV9",
+        "description": "List databases.\n\nReal request: `POST /datalist/data/get_data_list`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed browser form submission from BTPanel 9.0.0 UI.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "p": {
+                    "type": "integer",
+                    "description": "Page number.",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "Page size.",
+                    "example": 10
+                  },
+                  "table": {
+                    "type": "string",
+                    "enum": [
+                      "databases"
+                    ],
+                    "description": "Datalist resource name.",
+                    "example": "databases"
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Free-text search over database name and remark.",
+                    "example": "test_db"
+                  },
+                  "order": {
+                    "type": "string",
+                    "description": "Sort field or direction. The captured request sent an empty string.",
+                    "example": ""
+                  }
+                },
+                "required": [
+                  "p",
+                  "limit",
+                  "table",
+                  "search",
+                  "order"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "p": 1,
+                    "limit": 10,
+                    "table": "databases",
+                    "search": "test_db",
+                    "order": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtPageResponse"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "where": "((name LIKE ? OR ps LIKE ?)) AND LOWER(type) = LOWER('MySQL')",
+                      "page": "<div><span class='Pcurrent'>1</span><a class='Pnum' href='/datalist/data/get_data_list?p=2'>2</a><a class='Pnext' href='/datalist/data/get_data_list?p=2'>next</a><a class='Pend' href='/datalist/data/get_data_list?p=2'>end</a><span class='Pcount'>17 total</span></div>",
+                      "data": [
+                        {
+                          "id": 61,
+                          "pid": 0,
+                          "name": "test_db_0e86c6cb",
+                          "username": "test_user_0e86c6cb",
+                          "accept": "%",
+                          "ps": "test_db_0e86c6cb",
+                          "sid": 0,
+                          "type": "MySQL",
+                          "backup_count": 0
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/datalist/data/get_data_list",
+        "x-bt-real-url": "/datalist/data/get_data_list",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-table": "databases",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/data?action=getKey&table=config&key=mysql_root": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "get Key",
+        "operationId": "databaseGetMysqlRootKeyObserved",
+        "description": "get Key.\n\nReal request: `POST /data?action=getKey`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed browser form submission from BTPanel 9.0.0 UI.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "table": {
+                    "type": "string",
+                    "enum": [
+                      "config"
+                    ],
+                    "description": "Configuration table name.",
+                    "example": "config"
+                  },
+                  "key": {
+                    "type": "string",
+                    "enum": [
+                      "mysql_root"
+                    ],
+                    "description": "Configuration key requested by the dialog.",
+                    "example": "mysql_root"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "description": "Config record id.",
+                    "example": 1
+                  }
+                },
+                "required": [
+                  "table",
+                  "key",
+                  "id"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "table": "config",
+                    "key": "mysql_root",
+                    "id": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "examples": {
+                  "observed": {
+                    "value": "0d4e5342c7acd586"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/data",
+        "x-bt-real-url": "/data?action=getKey",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "getKey",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/database?action=check_del_data": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "check del data",
+        "operationId": "databaseCheckDelDataObserved",
+        "description": "check del data.\n\nReal request: `POST /database?action=check_del_data`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed browser form submission from BTPanel 9.0.0 UI.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "ids": {
+                    "type": "string",
+                    "description": "JSON array string of database IDs to be pre-checked.",
+                    "contentMediaType": "application/json",
+                    "contentSchema": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "example": "[61]"
+                  }
+                },
+                "required": [
+                  "ids"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "ids": "[61]"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": 61,
+                          "sid": 0,
+                          "pid": 0,
+                          "name": "test_db_0e86c6cb",
+                          "type": "MySQL",
+                          "ps": "test_db_0e86c6cb",
+                          "backup_count": 0,
+                          "total": 0,
+                          "score": 192248
+                        }
+                      ],
+                      "db_size": 1048576,
+                      "status_db": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/database",
+        "x-bt-real-url": "/database?action=check_del_data",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "check_del_data",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/files?action=GetDirNew": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "List directory entries",
+        "operationId": "filesGetDirNew",
+        "description": "List directory entries.\n\nReal request: `POST /files?action=GetDirNew`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p": {
+                    "type": "integer",
+                    "description": "妞ょ數鐖滈敍灞肩矤 1 瀵偓婵鈧?",
+                    "example": 1
+                  },
+                  "showRow": {
+                    "type": "integer",
+                    "description": "閸楁洘顐兼潻鏂挎礀閺夆剝鏆熼妴?",
+                    "example": 500
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "閻╊喖缍嶇捄顖氱窞閵?",
+                    "example": "/www/wwwroot"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "閹烘帒绨€涙顔岄妴?",
+                    "example": ""
+                  },
+                  "reverse": {
+                    "type": "boolean",
+                    "description": "閺勵垰鎯侀崐鎺戠碍閵?",
+                    "example": true
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "p",
+                  "showRow",
+                  "path"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "p": 1,
+                    "showRow": 500,
+                    "path": "/www/wwwroot",
+                    "sort": "",
+                    "reverse": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "DIR": [
+                        {
+                          "name": "demo.example.com",
+                          "size": 4096
+                        }
+                      ],
+                      "FILE": [
+                        {
+                          "name": "index.html",
+                          "size": 11
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=GetDirNew",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "GetDirNew",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/files?action=SetBatchData": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Set Batch Data",
+        "operationId": "filesSetBatchDataDelete",
+        "description": "Set Batch Data.\n\nReal request: `POST /files?action=SetBatchData`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "string",
+                    "description": "瀵板懎顦╅悶鍡樻瀮娴犺埖鍨ㄩ惄顔肩秿閸氬秵鏆熺紒鍕剁礉娴?JSON 鐎涙顑佹稉灞傗偓?",
+                    "contentMediaType": "application/json",
+                    "contentSchema": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "example": "[\"demo-dir\"]"
+                  },
+                  "type": {
+                    "type": "integer",
+                    "description": "閹电懓顦╅悶鍡楀З娴ｆ粎琚崹瀣剁礉閸掔娀娅庢稉?`4`閵?",
+                    "example": 4
+                  },
+                  "path": {
+                    "type": "string",
+                    "description": "瑜版挸澧犻惄顔肩秿鐠侯垰绶為妴?",
+                    "example": "/www/wwwroot"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "data",
+                  "type",
+                  "path"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "data": "[\"demo-dir\"]",
+                    "type": 4,
+                    "path": "/www/wwwroot"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "閸掔娀娅庨幋鎰"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=SetBatchData",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "SetBatchData",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/ftp?action=AddUser": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "Create FTP account",
+        "operationId": "ftpAddUserObserved",
+        "description": "Create FTP account.\n\nReal request: `POST /ftp?action=AddUser`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed/probed form payload for creating FTP account.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "ftp_username": {
+                    "type": "string",
+                    "example": "apiftp_13235042",
+                    "description": "FTP username."
+                  },
+                  "ftp_password": {
+                    "type": "string",
+                    "example": "<ftp-password>",
+                    "description": "FTP password."
+                  },
+                  "path": {
+                    "type": "string",
+                    "example": "/www/wwwroot",
+                    "description": "Absolute panel path."
+                  },
+                  "ps": {
+                    "type": "string",
+                    "example": "api-probe",
+                    "description": "Remark or display note."
+                  }
+                },
+                "required": [
+                  "ftp_username",
+                  "ftp_password",
+                  "path",
+                  "ps"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "ftp_username": "apiftp_13235042",
+                    "ftp_password": "<ftp-password>",
+                    "path": "/www/wwwroot",
+                    "ps": "api-probe"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "????"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ftp",
+        "x-bt-real-url": "/ftp?action=AddUser",
+        "x-bt-source": "panel-observed",
+        "x-bt-action": "AddUser",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-28"
+      }
+    },
+    "/ftp?action=DeleteUser": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "Delete FTP account",
+        "operationId": "ftpDeleteUserObserved",
+        "description": "Delete FTP account.\n\nReal request: `POST /ftp?action=DeleteUser`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed/probed form payload for deleting an FTP account.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 15,
+                    "description": "Resource identifier."
+                  },
+                  "username": {
+                    "type": "string",
+                    "example": "apiftp_13235042",
+                    "description": "Username."
+                  }
+                },
+                "required": [
+                  "id",
+                  "username"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "id": 15,
+                    "username": "apiftp_13235042"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "????"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ftp",
+        "x-bt-real-url": "/ftp?action=DeleteUser",
+        "x-bt-source": "panel-observed",
+        "x-bt-action": "DeleteUser",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-28"
+      }
+    },
+    "/datalist/data/get_data_list?table=ssl": {
+      "post": {
+        "tags": [
+          "SSL"
+        ],
+        "summary": "BTPanel operation",
+        "operationId": "sslListObservedV9",
+        "description": "BTPanel operation.\n\nReal request: `POST /datalist/data/get_data_list`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "p": {
+                    "type": "integer",
+                    "description": "妞ょ數鐖滈敍灞肩矤 1 瀵偓婵鈧?",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "濮ｅ繘銆夐弶鈩冩殶閵?",
+                    "example": 100
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "閹兼粎鍌ㄩ崗鎶芥暛鐎涙ぜ鈧?",
+                    "example": ""
+                  },
+                  "table": {
+                    "type": "string",
+                    "description": "閸掓銆冪挧鍕爱缁鐎烽妴?",
+                    "example": "ssl",
+                    "enum": [
+                      "ssl"
+                    ]
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "table",
+                  "p",
+                  "limit"
+                ]
+              },
+              "examples": {
+                "sample": {
+                  "value": {
+                    "p": 1,
+                    "limit": 100,
+                    "search": "",
+                    "table": "ssl"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtPageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": 3,
+                          "name": "demo.example.com",
+                          "type": "Let's Encrypt"
+                        }
+                      ],
+                      "page": 1,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/datalist/data/get_data_list",
+        "x-bt-real-url": "/datalist/data/get_data_list",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session"
+      }
+    },
+    "/panel/public/get_ftp_mysql_status": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "BTPanel operation",
+        "operationId": "siteAddDialogGetFtpMysqlStatusObserved",
+        "description": "BTPanel operation.\n\nReal request: `POST /panel/public/get_ftp_mysql_status`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "ftp": true,
+                      "mysql": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/panel/public/get_ftp_mysql_status",
+        "x-bt-real-url": "/panel/public/get_ftp_mysql_status",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/site?action=GetPHPVersion": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "Get PHPVersion",
+        "operationId": "siteGetPhpVersionOptionsObserved",
+        "description": "Get PHPVersion.\n\nReal request: `POST /site?action=GetPHPVersion`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseArray"
+                },
+                "examples": {
+                  "observed": {
+                    "value": [
+                      {
+                        "version": "00",
+                        "name": "???",
+                        "status": true
+                      },
+                      {
+                        "version": "81",
+                        "name": "PHP-81",
+                        "status": true
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=GetPHPVersion",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "GetPHPVersion",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/data?action=getData&table=domain": {
+      "post": {
+        "tags": [
+          "Site"
+        ],
+        "summary": "get Data",
+        "operationId": "siteDomainListObserved",
+        "description": "get Data.\n\nReal request: `POST /data?action=getData`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed browser form submission from BTPanel 9.0.0 UI.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "table": {
+                    "type": "string",
+                    "enum": [
+                      "domain"
+                    ],
+                    "description": "Data table name.",
+                    "example": "domain"
+                  },
+                  "list": {
+                    "type": "string",
+                    "enum": [
+                      "True",
+                      "true"
+                    ],
+                    "description": "List mode flag as sent by the UI.",
+                    "example": "True"
+                  },
+                  "search": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ],
+                    "description": "Selected site id.",
+                    "example": 153
+                  }
+                },
+                "required": [
+                  "table",
+                  "list",
+                  "search"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "table": "domain",
+                    "list": "True",
+                    "search": 153
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseArray"
+                },
+                "examples": {
+                  "observed": {
+                    "value": [
+                      {
+                        "id": 161,
+                        "pid": 153,
+                        "name": "ssl-cd260f86.test.example.com",
+                        "port": 80,
+                        "addtime": "2026-03-26 11:21:54",
+                        "cn_name": "ssl-cd260f86.test.example.com"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/data",
+        "x-bt-real-url": "/data?action=getData",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "getData",
+        "x-bt-table": "domain",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/site?action=GetSSL": {
+      "post": {
+        "tags": [
+          "SSL"
+        ],
+        "summary": "Get site SSL status",
+        "operationId": "siteGetSslObserved",
+        "description": "Get site SSL status.\n\nReal request: `POST /site?action=GetSSL`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.\n\nValidation: Passed DevTools capture replay and signed live probe on 2026-03-29. `status=false` means the site currently has no deployed certificate.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed browser form submission from BTPanel 9.0.0 UI.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "siteName": {
+                    "type": "string",
+                    "description": "Website primary domain / site name.",
+                    "example": "ssl-cd260f86.test.example.com"
+                  }
+                },
+                "required": [
+                  "siteName"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "siteName": "ssl-cd260f86.test.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "status": false,
+                      "oid": -1,
+                      "domain": [
+                        {
+                          "name": "ssl-cd260f86.test.example.com"
+                        }
+                      ],
+                      "key": false,
+                      "csr": false,
+                      "type": -1,
+                      "httpTohttps": false,
+                      "cert_data": {},
+                      "email": "test@message.com",
+                      "auth_type": "http",
+                      "tls_versions": {
+                        "TLSv1": false,
+                        "TLSv1.1": true,
+                        "TLSv1.2": true,
+                        "TLSv1.3": false
+                      },
+                      "push": {
+                        "status": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/site",
+        "x-bt-real-url": "/site?action=GetSSL",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "GetSSL",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/ssl?action=get_order_list": {
+      "post": {
+        "tags": [
+          "SSL"
+        ],
+        "summary": "List SSL orders for a site",
+        "operationId": "sslGetOrderListObserved",
+        "description": "List SSL orders for a site.\n\nReal request: `POST /ssl?action=get_order_list`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.\n\nValidation: Passed DevTools capture replay and signed live probe on 2026-03-29.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed browser form submission from BTPanel 9.0.0 UI.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "siteName": {
+                    "type": "string",
+                    "description": "Website primary domain / site name.",
+                    "example": "ssl-cd260f86.test.example.com"
+                  }
+                },
+                "required": [
+                  "siteName"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "siteName": "ssl-cd260f86.test.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseArray"
+                },
+                "examples": {
+                  "observed": {
+                    "value": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ssl",
+        "x-bt-real-url": "/ssl?action=get_order_list",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "get_order_list",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/database?action=GetDatabaseAccess": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Get Database Access",
+        "operationId": "databaseGetDatabaseAccessObserved",
+        "description": "Get Database Access.\n\nReal request: `POST /database?action=GetDatabaseAccess`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed browser form submission from BTPanel 9.0.0 UI.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Database username.",
+                    "example": "test_user_0e86c6cb"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "name": "test_user_0e86c6cb"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "status": true,
+                      "msg": "%"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/database",
+        "x-bt-real-url": "/database?action=GetDatabaseAccess",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "GetDatabaseAccess",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/ajax?action=phpmyadmin_client_check": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "phpmyadmin client check",
+        "operationId": "databasePhpmyadminClientCheckObserved",
+        "description": "phpmyadmin client check.\n\nReal request: `POST /ajax?action=phpmyadmin_client_check`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed browser form submission from BTPanel 9.0.0 UI.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+              },
+              "examples": {
+                "observed": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "status": true,
+                      "msg": "???????"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ajax",
+        "x-bt-real-url": "/ajax?action=phpmyadmin_client_check",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "phpmyadmin_client_check",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/plugin?action=get_soft_find": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "get soft find",
+        "operationId": "databasePluginGetSoftFindObserved",
+        "description": "get soft find.\n\nReal request: `POST /plugin?action=get_soft_find`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed browser form submission from BTPanel 9.0.0 UI.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "sName": {
+                    "type": "string",
+                    "enum": [
+                      "phpmyadmin"
+                    ],
+                    "description": "Plugin short name.",
+                    "example": "phpmyadmin"
+                  }
+                },
+                "required": [
+                  "sName"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "sName": "phpmyadmin"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "id": 13,
+                      "name": "phpmyadmin",
+                      "title": "phpMyAdmin",
+                      "version": "5.1",
+                      "setup": true,
+                      "status": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/plugin",
+        "x-bt-real-url": "/plugin?action=get_soft_find",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "get_soft_find",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/database?action=GetInfo": {
+      "post": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Get Info",
+        "operationId": "databaseGetInfoObserved",
+        "description": "Get Info.\n\nReal request: `POST /database?action=GetInfo`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed browser form submission from BTPanel 9.0.0 UI.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "db_name": {
+                    "type": "string",
+                    "description": "Database name.",
+                    "example": "test_db_0e86c6cb"
+                  }
+                },
+                "required": [
+                  "db_name"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "db_name": "test_db_0e86c6cb"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "data_size": "0.00b",
+                      "database": "test_db_0e86c6cb",
+                      "tables": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/database",
+        "x-bt-real-url": "/database?action=GetInfo",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-action": "GetInfo",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27"
+      }
+    },
+    "/phpmyadmin/index.php?lang=zh_cn": {
+      "get": {
+        "tags": [
+          "Database"
+        ],
+        "summary": "Open phpMyAdmin entry page from Manage flow",
+        "operationId": "databaseOpenPhpmyadminObserved",
+        "description": "Observed on March 27, 2026 as a follow-up GET request after the Manage flow checks. This is the actual phpMyAdmin page request, not a standard BTPanel developer API endpoint.",
+        "security": [
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Observed HTTP 200 response from panel UI.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "examples": {
+                  "observed": {
+                    "value": "????PHP??,???????????PHP??,???????!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/phpmyadmin/index.php",
+        "x-bt-real-url": "/phpmyadmin/index.php?lang=zh_cn",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "session-observed"
+      }
+    },
+    "/files?action=GetDirSize": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Get Dir Size",
+        "operationId": "filesGetDirSizeObserved",
+        "description": "Get Dir Size.\n\nReal request: `POST /files?action=GetDirSize`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed/probed form payload from BTPanel 9.0.0 runtime.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Directory absolute path.",
+                    "example": "/www/wwwroot/test.debd641e.example.com"
+                  }
+                },
+                "required": [
+                  "path"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "path": "/www/wwwroot/test.debd641e.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response from panel runtime.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "examples": {
+                  "observed": {
+                    "value": "1.10 KB"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=GetDirSize",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27",
+        "x-bt-action": "GetDirSize"
+      }
+    },
+    "/files?action=GetFileBody": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Read file contents",
+        "operationId": "filesGetFileBodyObserved",
+        "description": "Read file contents.\n\nReal request: `POST /files?action=GetFileBody`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed/probed form payload from BTPanel 9.0.0 runtime.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "File absolute path.",
+                    "example": "/www/wwwroot/deploy.sh"
+                  }
+                },
+                "required": [
+                  "path"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "path": "/www/wwwroot/deploy.sh"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response from panel runtime.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "status": true,
+                      "only_read": false,
+                      "size": 4313,
+                      "encoding": "utf-8",
+                      "data": "#!/bin/bash"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=GetFileBody",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27",
+        "x-bt-action": "GetFileBody"
+      }
+    },
+    "/files?action=SaveFileBody": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Save file contents",
+        "operationId": "filesSaveFileBodyObserved",
+        "description": "Save file contents.\n\nReal request: `POST /files?action=SaveFileBody`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed/probed form payload from BTPanel 9.0.0 runtime.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "File absolute path.",
+                    "example": "/tmp/btopenapi_probe2.txt"
+                  },
+                  "data": {
+                    "type": "string",
+                    "description": "Full file content.",
+                    "example": "btopenapi probe2"
+                  },
+                  "encoding": {
+                    "type": "string",
+                    "description": "Encoding name.",
+                    "example": "utf-8"
+                  }
+                },
+                "required": [
+                  "path",
+                  "data"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "path": "/tmp/btopenapi_probe2.txt",
+                    "data": "btopenapi probe2",
+                    "encoding": "utf-8"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response from panel runtime.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "status": false,
+                      "msg": "FILE_SAVE_ERR[Errno 13] Permission denied: '/tmp/btopenapi_probe2.txt'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=SaveFileBody",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27",
+        "x-bt-action": "SaveFileBody"
+      }
+    },
+    "/files?action=CreateFile": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Create File",
+        "operationId": "filesCreateFileObserved",
+        "description": "Create File.\n\nReal request: `POST /files?action=CreateFile`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed/probed form payload from BTPanel 9.0.0 runtime.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Target file absolute path.",
+                    "example": "/tmp/btopenapi_probe2.txt"
+                  }
+                },
+                "required": [
+                  "path"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "path": "/tmp/btopenapi_probe2.txt"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response from panel runtime.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "status": true,
+                      "msg": "??????!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=CreateFile",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27",
+        "x-bt-action": "CreateFile"
+      }
+    },
+    "/files?action=DeleteFile": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Delete file or directory",
+        "operationId": "filesDeleteFileObserved",
+        "description": "Delete file or directory.\n\nReal request: `POST /files?action=DeleteFile`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed/probed form payload from BTPanel 9.0.0 runtime.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Target file absolute path.",
+                    "example": "/tmp/btopenapi_probe2.txt"
+                  }
+                },
+                "required": [
+                  "path"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "path": "/tmp/btopenapi_probe2.txt"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response from panel runtime.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "status": true,
+                      "msg": "??????????!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=DeleteFile",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27",
+        "x-bt-action": "DeleteFile"
+      }
+    },
+    "/files?action=CreateDir": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Create directory",
+        "operationId": "filesCreateDirObserved",
+        "description": "Create directory.\n\nReal request: `POST /files?action=CreateDir`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed/probed form payload from BTPanel 9.0.0 runtime.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Target directory absolute path.",
+                    "example": "/tmp/btopenapi_probe2_dir"
+                  }
+                },
+                "required": [
+                  "path"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "path": "/tmp/btopenapi_probe2_dir"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response from panel runtime.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "status": true,
+                      "msg": "??????!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=CreateDir",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27",
+        "x-bt-action": "CreateDir"
+      }
+    },
+    "/files?action=DeleteDir": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Delete directory",
+        "operationId": "filesDeleteDirObserved",
+        "description": "Delete directory.\n\nReal request: `POST /files?action=DeleteDir`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed/probed form payload from BTPanel 9.0.0 runtime.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Target directory absolute path.",
+                    "example": "/tmp/btopenapi_probe2_dir"
+                  }
+                },
+                "required": [
+                  "path"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "path": "/tmp/btopenapi_probe2_dir"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response from panel runtime.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "status": true,
+                      "msg": "??????????!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/files",
+        "x-bt-real-url": "/files?action=DeleteDir",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-27",
+        "x-bt-action": "DeleteDir"
+      }
+    },
+    "/datalist/data/get_data_list?table=ftps": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "List FTP accounts",
+        "operationId": "ftpListObservedV9",
+        "description": "List FTP accounts.\n\nReal request: `POST /datalist/data/get_data_list`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Observed/probed form payload from FTP account table list requests.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "p": {
+                    "type": "integer",
+                    "example": 1,
+                    "description": "Page number."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "example": 10,
+                    "description": "Page size."
+                  },
+                  "search": {
+                    "type": "string",
+                    "example": "capchg",
+                    "description": "Free-text search over FTP username and remark."
+                  },
+                  "table": {
+                    "type": "string",
+                    "enum": [
+                      "ftps"
+                    ],
+                    "example": "ftps",
+                    "description": "Datalist resource name."
+                  }
+                },
+                "required": [
+                  "p",
+                  "limit",
+                  "search",
+                  "table"
+                ]
+              },
+              "examples": {
+                "observed": {
+                  "value": {
+                    "p": 1,
+                    "limit": 10,
+                    "search": "capchg",
+                    "table": "ftps"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtPageResponse"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "where": "(name LIKE ? OR ps LIKE ?)",
+                      "page": "<div><span class=\"Pcurrent\">1</span><span class=\"Pcount\">1 total</span></div>",
+                      "data": [
+                        {
+                          "id": 14,
+                          "name": "itftpe4de9bb2",
+                          "path": "/www/wwwroot/ftp-e4de9bb2.test.example.com/ftp-it-e4de9bb2/itftpe4de9bb2",
+                          "status": "1",
+                          "ps": "itftpe4de9bb2",
+                          "type_id": 0,
+                          "end_time": 0
+                        }
+                      ],
+                      "search_history": [
+                        "capchg"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/datalist/data/get_data_list",
+        "x-bt-real-url": "/datalist/data/get_data_list",
+        "x-bt-source": "panel-observed",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-table": "ftps",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-28"
+      }
+    },
+    "/ftp?action=ChangeFtpPassword": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "Change FTP password",
+        "operationId": "ftpChangePasswordEndpointObserved",
+        "description": "Change FTP password.\n\nReal request: `POST /ftp?action=ChangeFtpPassword`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.\n\nValidation: The historical route still exists in documentation, but the current panel flow prefers `SetUser`. Parameter contract remains unverified.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Parameter names are not yet confirmed from UI packet capture.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "examples": {
+                "probe_guess": {
+                  "value": {
+                    "id": 15,
+                    "username": "apiftp_13235042",
+                    "password": "<new-ftp-password>",
+                    "path": "/www/wwwroot"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "invalid_parameters": {
+                    "value": {
+                      "status": false,
+                      "msg": "??????!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Some guessed action names returned nginx 404 (for example SetUser/SetUserPassword), used as negative evidence in this module."
+          }
+        },
+        "x-bt-real-path": "/ftp",
+        "x-bt-real-url": "/ftp?action=ChangeFtpPassword",
+        "x-bt-source": "panel-observed",
+        "x-bt-action": "ChangeFtpPassword",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-28",
+        "x-bt-contract-status": "endpoint-verified-params-pending"
+      }
+    },
+    "/system?action=GetSystemTotal": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get system overview",
+        "operationId": "systemGetSystemTotalObserved",
+        "description": "Get system overview.\n\nReal request: `POST /system?action=GetSystemTotal`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "description": "No required form fields observed for this endpoint.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+              },
+              "examples": {
+                "observed": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemTotalResponse"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "memTotal": 1882,
+                      "memRealUsed": 1072,
+                      "cpuNum": 2,
+                      "cpuRealUsed": 0,
+                      "system": "CentOS Linux 7.9.2009 (Core)",
+                      "version": "9.0.0",
+                      "time": "0 day 0 hour 13 minute"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/system",
+        "x-bt-real-url": "/system?action=GetSystemTotal",
+        "x-bt-source": "panel-observed",
+        "x-bt-action": "GetSystemTotal",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-28"
+      }
+    },
+    "/system?action=GetDiskInfo": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get disk usage list",
+        "operationId": "systemGetDiskInfoObserved",
+        "description": "Get disk usage list.\n\nReal request: `POST /system?action=GetDiskInfo`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "description": "No required form fields observed for this endpoint.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+              },
+              "examples": {
+                "observed": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                      "path": {
+                        "type": "string",
+                        "description": "Absolute panel path."
+                      },
+                      "filesystem": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "size": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "inodes": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "observed": {
+                    "value": [
+                      {
+                        "path": "/",
+                        "filesystem": "/dev/vda1",
+                        "type": "ext4",
+                        "size": [
+                          "48.28 GB",
+                          "31.41 GB",
+                          "16.85 GB",
+                          "65.09%",
+                          "16.00 MB"
+                        ],
+                        "inodes": [
+                          6451200,
+                          400872,
+                          6050328,
+                          "6.21 %"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/system",
+        "x-bt-real-url": "/system?action=GetDiskInfo",
+        "x-bt-source": "panel-observed",
+        "x-bt-action": "GetDiskInfo",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-28"
+      }
+    },
+    "/system?action=GetNetWork": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get network metrics",
+        "operationId": "systemGetNetWorkObserved",
+        "description": "Get network metrics.\n\nReal request: `POST /system?action=GetNetWork`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "description": "No required form fields observed for this endpoint.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+              },
+              "examples": {
+                "observed": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LooseObject"
+                },
+                "examples": {
+                  "observed": {
+                    "value": {
+                      "upTotal": 14694151764,
+                      "downTotal": 21845346475,
+                      "up": 15.37,
+                      "down": 4.46,
+                      "site_total": 1,
+                      "ftp_total": 1,
+                      "database_total": 17,
+                      "system": "CentOS Linux 7.9.2009 (Core)"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/system",
+        "x-bt-real-url": "/system?action=GetNetWork",
+        "x-bt-source": "panel-observed",
+        "x-bt-action": "GetNetWork",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-28"
+      }
+    },
+    "/ajax?action=GetTaskCount": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get pending task count",
+        "operationId": "systemGetTaskCountObserved",
+        "description": "Get pending task count.\n\nReal request: `POST /ajax?action=GetTaskCount`.\n\nSource: observed in BTPanel UI. Any signed revalidation is recorded in `x-bt-auth-verified`.",
+        "security": [
+          {
+            "BtRequestTime": [],
+            "BtRequestToken": []
+          },
+          {
+            "BtSessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "description": "No required form fields observed for this endpoint.",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+              },
+              "examples": {
+                "observed": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Observed/probed HTTP 200 response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "examples": {
+                  "observed": {
+                    "value": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ajax",
+        "x-bt-real-url": "/ajax?action=GetTaskCount",
+        "x-bt-source": "panel-observed",
+        "x-bt-action": "GetTaskCount",
+        "x-bt-auth-mode": "developer-or-session",
+        "x-bt-auth-verified": "request_time+request_token 2026-03-28"
+      }
+    },
+    "/ftp?action=SetUser": {
+      "post": {
+        "tags": [
+          "FTP"
+        ],
+        "summary": "Update FTP account",
+        "operationId": "ftpSetUser",
+        "description": "Update FTP account.\n\nReal request: `POST /ftp?action=SetUser`.\n\nAuth mode: developer API signature (`request_time` + `request_token`).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "ftp_username",
+                  "new_password",
+                  "path"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1,
+                    "description": "Resource identifier."
+                  },
+                  "ftp_username": {
+                    "type": "string",
+                    "example": "demoftp",
+                    "description": "FTP username."
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "example": "New<password>",
+                    "description": "New password."
+                  },
+                  "path": {
+                    "type": "string",
+                    "example": "/www/wwwroot/demo.example.com",
+                    "description": "Absolute panel path."
+                  }
+                }
+              }
+            }
+          },
+          "description": "Submit parameters as `application/x-www-form-urlencoded` unless the endpoint description states otherwise."
+        },
+        "responses": {
+          "200": {
+            "description": "Panel response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BtMessageResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": true,
+                      "msg": "修改成功"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-bt-real-path": "/ftp",
+        "x-bt-real-url": "/ftp?action=SetUser",
+        "x-bt-source": "developer-stable",
+        "x-bt-auth-mode": "developer-signature",
+        "x-bt-action": "SetUser",
+        "x-bt-sdk-endpoint": "ftp?action=SetUser"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BtRequestTime": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "request_time",
+        "description": "Unix timestamp in seconds."
+      },
+      "BtRequestToken": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "request_token",
+        "description": "Developer API signature computed as `md5(String(request_time) + md5(apiKey))`."
+      },
+      "BtSessionToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-http-token",
+        "description": "Browser session token observed in panel UI traffic. Not required for pure developer-signature routes."
+      }
+    },
+    "schemas": {
+      "LooseObject": {
+        "type": "object",
+        "description": "Loose object payload used for BTPanel responses with unstable field sets.",
+        "additionalProperties": true
+      },
+      "LooseArray": {
+        "type": "array",
+        "description": "Loose array payload used for BTPanel responses with unstable item shapes.",
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": true
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "BtMessageResponse": {
+        "type": "object",
+        "description": "Common BTPanel boolean/message wrapper.",
+        "additionalProperties": true,
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "description": "娑撴艾濮熼幍褑顢戠紒鎾寸亯閵?"
+          },
+          "msg": {
+            "type": "string",
+            "description": "閹绘劗銇氬☉鍫熶紖閵?"
+          },
+          "data": {
+            "description": "闁劌鍨庨幒銉ュ經娴兼岸妾敮锔芥殶閹诡喛娴囬懡鏋偓?",
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": true
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "msg"
+        ]
+      },
+      "BtPageResponse": {
+        "type": "object",
+        "description": "Common BTPanel paginated list response.",
+        "additionalProperties": true,
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "page": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "count": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "SystemTotalResponse": {
+        "type": "object",
+        "description": "Typical fields returned by the system overview endpoint.",
+        "additionalProperties": true,
+        "properties": {
+          "system": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "cpuRealUsed": {
+            "type": "number"
+          },
+          "memTotal": {
+            "type": "number"
+          },
+          "memRealUsed": {
+            "type": "number"
+          },
+          "time": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateSiteResponse": {
+        "type": "object",
+        "description": "Typical fields returned by the website creation endpoint.",
+        "additionalProperties": true,
+        "properties": {
+          "siteStatus": {
+            "type": "boolean"
+          },
+          "ftpStatus": {
+            "type": "boolean"
+          },
+          "ftpUser": {
+            "type": "string"
+          },
+          "ftpPass": {
+            "type": "string"
+          },
+          "databaseStatus": {
+            "type": "boolean"
+          },
+          "databaseUser": {
+            "type": "string"
+          },
+          "databasePass": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "x-bt-path-profile": "observed-draft",
+  "x-bt-generated-at": "2026-03-26T03:28:17.036Z",
+  "x-bt-display-paths": true
+}

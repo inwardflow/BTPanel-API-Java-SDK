@@ -1,86 +1,34 @@
 package net.heimeng.sdk.btapi.api.file;
 
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import net.heimeng.sdk.btapi.api.BaseBtApi;
-import net.heimeng.sdk.btapi.exception.BtApiException;
-import net.heimeng.sdk.btapi.model.BtResult;
-
 /**
- * 删除文件API实现
- * <p>
- * 用于在宝塔面板中删除文件或目录。
- * </p>
+ * 删除文件的 API（面板 {@code files?action=DeleteFile}）。删除目录请使用 {@link DeleteFileDirectoryApi}。
  *
- * @author InwardFlow
- * @since 2.0.0
+ * <p>面板开启回收站时会移入回收站。路径会经过 {@link RemotePaths#requireDeletablePath(String)} 校验。
+ *
+ * @see <a href="https://docs.bt.cn/api/files/actions/">宝塔官方文档：文件管理</a>
  */
-public class DeleteFileApi extends BaseBtApi<BtResult<Boolean>> {
-    
-    /**
-     * API端点路径
-     */
-    private static final String ENDPOINT = "files?action=DeleteFile";
-    
-    /**
-     * 构造函数，创建一个新的DeleteFileApi实例
-     */
-    public DeleteFileApi() {
-        super(ENDPOINT, HttpMethod.POST);
-    }
-    
-    /**
-     * 设置文件或目录路径
-     * 
-     * @param path 文件或目录路径
-     * @return 当前API实例，支持链式调用
-     */
-    public DeleteFileApi setPath(String path) {
-        addParam("path", path);
-        return this;
-    }
-    
-    /**
-     * 验证请求参数是否有效
-     * 
-     * @return 如果请求参数有效则返回true，否则返回false
-     */
-    @Override
-    protected boolean validateParams() {
-        return params.containsKey("path") && 
-               params.get("path") != null && 
-               !((String) params.get("path")).isEmpty();
-    }
-    
-    /**
-     * 解析API响应字符串为BtResult<Boolean>对象
-     * 
-     * @param response API响应字符串
-     * @return BtResult<Boolean>对象
-     * @throws BtApiException 当解析失败时抛出
-     */
-    @Override
-    public BtResult<Boolean> parseResponse(String response) {
-        if (response == null || response.isEmpty()) {
-            throw new BtApiException("Empty response received");
-        }
-        
-        try {
-            if (!JSONUtil.isTypeJSON(response)) {
-                throw new BtApiException("Invalid JSON response: " + response);
-            }
-            
-            JSONObject json = JSONUtil.parseObj(response);
-            BtResult<Boolean> result = new BtResult<>();
-            boolean status = json.getBool("status", false);
-            
-            result.setStatus(status);
-            result.setMsg(json.getStr("msg", status ? "删除成功" : "删除失败"));
-            result.setData(status);
-            
-            return result;
-        } catch (Exception e) {
-            throw new BtApiException("Failed to parse delete file response: " + e.getMessage(), e);
-        }
-    }
+public class DeleteFileApi extends AbstractFileBooleanApi {
+
+  private static final String ENDPOINT = "files?action=DeleteFile";
+
+  public DeleteFileApi() {
+    super(ENDPOINT, "删除成功", "删除失败");
+  }
+
+  /**
+   * 设置要删除的文件。
+   *
+   * @param path 文件的绝对路径
+   * @return 当前 API 实例
+   * @throws IllegalArgumentException 路径不安全或属于受保护目录
+   */
+  public DeleteFileApi setPath(String path) {
+    addParam("path", RemotePaths.requireDeletablePath(path));
+    return this;
+  }
+
+  @Override
+  protected boolean validateParams() {
+    return hasRequiredParams("path");
+  }
 }

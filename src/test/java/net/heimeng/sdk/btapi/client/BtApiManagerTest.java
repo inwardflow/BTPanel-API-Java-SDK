@@ -1,220 +1,276 @@
 package net.heimeng.sdk.btapi.client;
 
-import net.heimeng.sdk.btapi.api.system.GetSystemInfoApi;
-import net.heimeng.sdk.btapi.exception.BtApiException;
-import net.heimeng.sdk.btapi.model.BtResult;
-import net.heimeng.sdk.btapi.model.system.SystemInfo;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import net.heimeng.sdk.btapi.api.file.GetFileContentApi;
+import net.heimeng.sdk.btapi.api.ftp.GetFtpAccountsApi;
+import net.heimeng.sdk.btapi.api.ssl.GetSslCertificatesApi;
+import net.heimeng.sdk.btapi.api.system.CheckPanelUpdateApi;
+import net.heimeng.sdk.btapi.api.system.GetDiskInfoApi;
+import net.heimeng.sdk.btapi.api.system.GetNetworkStatusApi;
+import net.heimeng.sdk.btapi.api.system.GetSystemInfoApi;
+import net.heimeng.sdk.btapi.api.system.GetTaskCountApi;
+import net.heimeng.sdk.btapi.api.website.GetWebsitesApi;
+import net.heimeng.sdk.btapi.exception.BtApiException;
+import net.heimeng.sdk.btapi.model.BtResult;
+import net.heimeng.sdk.btapi.model.ftp.FtpAccount;
+import net.heimeng.sdk.btapi.model.ssl.SslCertificate;
+import net.heimeng.sdk.btapi.model.system.DiskInfo;
+import net.heimeng.sdk.btapi.model.system.NetworkStatus;
+import net.heimeng.sdk.btapi.model.system.PanelUpdateInfo;
+import net.heimeng.sdk.btapi.model.system.SystemInfo;
+import net.heimeng.sdk.btapi.model.website.WebsiteInfo;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-/**
- * BtApiManager的单元测试类
- * <p>
- * 测试API管理器的同步和异步API调用功能
- * </p>
- */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("API管理器单元测试")
-public class BtApiManagerTest {
+@DisplayName("BtApiManager tests")
+class BtApiManagerTest {
 
-    @Mock
-    private BtClient mockClient;
+  @Mock private BtClient client;
 
-    @Mock
-    private GetSystemInfoApi mockSystemInfoApi;
+  @Test
+  @DisplayName("Generic synchronous execution delegates to the client")
+  void executeDelegatesToClient() {
+    BtApiManager apiManager = new BtApiManager(client);
+    GetSystemInfoApi api = new GetSystemInfoApi();
+    BtResult<SystemInfo> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(new SystemInfo());
 
-    private BtApiManager apiManager;
+    when(client.execute(api)).thenReturn(response);
 
-    @BeforeEach
-    void setUp() {
-        // 创建API管理器实例
-        apiManager = new BtApiManager(mockClient);
-    }
+    BtResult<SystemInfo> result = apiManager.execute(api);
 
-    @AfterEach
-    void tearDown() {
-        // 清理资源
-        apiManager.close();
-    }
+    assertEquals(response, result);
+    verify(client).execute(api);
+  }
 
-    @Test
-    @DisplayName("测试同步API调用成功场景")
-    void testExecute_Success() throws BtApiException {
-        // 准备模拟数据
-        BtResult<SystemInfo> mockResult = new BtResult<>();
-        mockResult.setStatus(true);
-        mockResult.setMsg("success");
-        
-        SystemInfo mockSystemInfo = new SystemInfo();
-        mockSystemInfo.setHostname("test-server");
-        mockSystemInfo.setOs("Ubuntu 20.04");
-        mockResult.setData(mockSystemInfo);
-        
-        // 模拟客户端请求
-        when(mockClient.execute(mockSystemInfoApi)).thenReturn(mockResult);
-        
-        // 执行API调用
-        BtResult<SystemInfo> result = apiManager.execute(mockSystemInfoApi);
-        
-        // 验证结果
-        assertNotNull(result);
-        assertTrue(result.isSuccess());
-        assertEquals("success", result.getMsg());
-        assertNotNull(result.getData());
-        assertEquals("test-server", result.getData().getHostname());
-        
-        // 验证调用了客户端的execute方法
-        verify(mockClient).execute(mockSystemInfoApi);
-    }
+  @Test
+  @DisplayName("Generic asynchronous execution delegates to the client")
+  void executeAsyncDelegatesToClient() throws Exception {
+    BtApiManager apiManager = new BtApiManager(client);
+    GetSystemInfoApi api = new GetSystemInfoApi();
+    BtResult<SystemInfo> response = new BtResult<>();
+    response.setStatus(true);
 
-    @Test
-    @DisplayName("测试同步API调用失败场景")
-    void testExecute_Failure() throws BtApiException {
-        // 准备模拟数据
-        BtResult<SystemInfo> mockResult = new BtResult<>();
-        mockResult.setStatus(false);
-        mockResult.setMsg("API调用失败");
-        
-        // 模拟客户端请求
-        when(mockClient.execute(mockSystemInfoApi)).thenReturn(mockResult);
-        
-        // 执行API调用
-        BtResult<SystemInfo> result = apiManager.execute(mockSystemInfoApi);
-        
-        // 验证结果
-        assertNotNull(result);
-        assertFalse(result.isSuccess());
-        assertEquals("API调用失败", result.getMsg());
-    }
+    when(client.executeAsync(api)).thenReturn(CompletableFuture.completedFuture(response));
 
-    @Test
-    @DisplayName("测试同步API调用抛出异常")
-    void testExecute_Exception() throws BtApiException {
-        // 模拟客户端请求抛出异常
-        doThrow(new BtApiException("服务器内部错误")).when(mockClient).execute(mockSystemInfoApi);
-        
-        // 验证异常抛出
-        BtApiException exception = assertThrows(BtApiException.class, 
-                () -> apiManager.execute(mockSystemInfoApi),
-                "API调用失败时应抛出BtApiException");
-        
-        // 验证异常信息
-        assertEquals("服务器内部错误", exception.getMessage());
-    }
+    BtResult<SystemInfo> result = apiManager.executeAsync(api).get();
 
-    @Test
-    @DisplayName("测试异步API调用成功场景")
-    void testExecuteAsync_Future_Success() throws BtApiException, ExecutionException, InterruptedException {
-        // 准备模拟数据
-        BtResult<SystemInfo> mockResult = new BtResult<>();
-        mockResult.setStatus(true);
-        mockResult.setMsg("success");
-        
-        // 模拟客户端请求
-        when(mockClient.executeAsync(mockSystemInfoApi)).thenReturn(CompletableFuture.completedFuture(mockResult));
-        
-        // 执行异步API调用
-        CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsync(mockSystemInfoApi);
-        
-        // 等待结果
-        BtResult<SystemInfo> result = future.get();
-        
-        // 验证结果
-        assertNotNull(result);
-        assertTrue(result.isSuccess());
-    }
+    assertEquals(response, result);
+    verify(client).executeAsync(api);
+  }
 
-    @Test
-    @DisplayName("测试异步API调用抛出异常")
-    void testExecuteAsync_Future_Exception() throws InterruptedException {
-        // 模拟客户端请求抛出异常
-        CompletableFuture<BtResult<SystemInfo>> failedFuture = new CompletableFuture<>();
-        failedFuture.completeExceptionally(new BtApiException("未授权访问"));
-        when(mockClient.executeAsync(mockSystemInfoApi)).thenReturn(failedFuture);
-        
-        // 执行异步API调用
-        CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsync(mockSystemInfoApi);
-        
-        // 验证异常抛出
-        ExecutionException exception = assertThrows(ExecutionException.class, 
-                () -> future.get(5, TimeUnit.SECONDS),
-                "异步API调用失败时应抛出ExecutionException");
-        
-        // 验证异常原因
-        assertInstanceOf(BtApiException.class, exception.getCause());
-        assertEquals("未授权访问", exception.getCause().getMessage());
-    }
+  @Test
+  @DisplayName("Timeout helper unwraps BtApiException")
+  void executeAsyncWithTimeoutUnwrapsBtApiException() {
+    BtApiManager apiManager = new BtApiManager(client);
+    GetSystemInfoApi api = new GetSystemInfoApi();
+    CompletableFuture<BtResult<SystemInfo>> failedFuture = new CompletableFuture<>();
+    failedFuture.completeExceptionally(new BtApiException("network failure"));
 
-    @Test
-    @DisplayName("测试自定义超时的异步API调用")
-    void testExecuteAsyncWithTimeout_Future() throws BtApiException {
-        // 准备模拟数据
-        BtResult<SystemInfo> mockResult = new BtResult<>();
-        mockResult.setStatus(true);
-        mockResult.setMsg("success");
-        
-        // 模拟客户端请求
-        when(mockClient.executeAsync(mockSystemInfoApi)).thenReturn(CompletableFuture.completedFuture(mockResult));
-        
-        // 执行自定义超时的异步API调用
-        BtResult<SystemInfo> result = apiManager.executeAsyncWithTimeout(mockSystemInfoApi, 5000, TimeUnit.MILLISECONDS);
-        
-        // 验证结果
-        assertNotNull(result);
-        assertTrue(result.isSuccess());
-    }
+    when(client.executeAsync(api)).thenReturn(failedFuture);
 
-    @Test
-    @DisplayName("测试关闭API管理器")
-    void testClose() {
-        // 创建新的API管理器实例
-        BtApiManager newApiManager = new BtApiManager(mockClient);
-        
-        // 关闭API管理器
-        newApiManager.close();
-        
-        // 在实际项目中，您可能需要验证客户端资源是否被正确释放
-    }
+    BtApiException exception =
+        assertThrows(BtApiException.class, () -> apiManager.executeAsyncWithTimeout(api));
 
-    @Test
-    @DisplayName("测试异步API调用超时场景")
-    void testExecuteAsync_Future_Timeout() throws InterruptedException {
-        // 模拟客户端请求耗时较长
-        CompletableFuture<BtResult<SystemInfo>> slowFuture = new CompletableFuture<>();
-        new Thread(() -> {
-            try {
-                Thread.sleep(2000);
-                slowFuture.complete(new BtResult<>());
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }).start();
-        
-        when(mockClient.executeAsync(mockSystemInfoApi)).thenReturn(slowFuture);
-        
-        // 执行异步API调用
-        CompletableFuture<BtResult<SystemInfo>> future = apiManager.executeAsync(mockSystemInfoApi);
-        
-        // 验证超时异常抛出
-        TimeoutException exception = assertThrows(TimeoutException.class, 
-                () -> future.get(1, TimeUnit.SECONDS),
-                "异步API调用超时时应抛出TimeoutException");
-    }
+    assertEquals("network failure", exception.getMessage());
+  }
 
+  @Test
+  @DisplayName("System facade delegates to the correct API")
+  void systemFacadeDelegatesToClient() {
+    BtApiManager apiManager = new BtApiManager(client);
+    BtResult<SystemInfo> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(new SystemInfo());
 
+    when(client.execute(any(GetSystemInfoApi.class))).thenReturn(response);
+
+    BtResult<SystemInfo> result = apiManager.system().getSystemInfo();
+
+    assertNotNull(result);
+    assertTrue(result.isSuccess());
+    verify(client).execute(any(GetSystemInfoApi.class));
+  }
+
+  @Test
+  @DisplayName("System task count facade delegates to the correct API")
+  void systemTaskCountFacadeDelegatesToClient() {
+    BtApiManager apiManager = new BtApiManager(client);
+    BtResult<Integer> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(2);
+
+    when(client.execute(any(GetTaskCountApi.class))).thenReturn(response);
+
+    BtResult<Integer> result = apiManager.system().getTaskCount();
+
+    assertNotNull(result);
+    assertTrue(result.isSuccess());
+    assertEquals(2, result.getData());
+    verify(client).execute(any(GetTaskCountApi.class));
+  }
+
+  @Test
+  @DisplayName("System network facade delegates to the correct API")
+  void systemNetworkFacadeDelegatesToClient() {
+    BtApiManager apiManager = new BtApiManager(client);
+    BtResult<NetworkStatus> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(new NetworkStatus());
+
+    when(client.execute(any(GetNetworkStatusApi.class))).thenReturn(response);
+
+    BtResult<NetworkStatus> result = apiManager.system().getNetworkStatus();
+
+    assertNotNull(result);
+    assertTrue(result.isSuccess());
+    verify(client).execute(any(GetNetworkStatusApi.class));
+  }
+
+  @Test
+  @DisplayName("System disk facade delegates to the correct API")
+  void systemDiskFacadeDelegatesToClient() {
+    BtApiManager apiManager = new BtApiManager(client);
+    BtResult<java.util.List<DiskInfo>> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(java.util.List.of(new DiskInfo()));
+
+    when(client.execute(any(GetDiskInfoApi.class))).thenReturn(response);
+
+    BtResult<java.util.List<DiskInfo>> result = apiManager.system().getDiskInfo();
+
+    assertNotNull(result);
+    assertTrue(result.isSuccess());
+    verify(client).execute(any(GetDiskInfoApi.class));
+  }
+
+  @Test
+  @DisplayName("System panel update facade delegates to the correct API")
+  void systemPanelUpdateFacadeDelegatesToClient() {
+    BtApiManager apiManager = new BtApiManager(client);
+    BtResult<PanelUpdateInfo> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(new PanelUpdateInfo());
+
+    when(client.execute(any(CheckPanelUpdateApi.class))).thenReturn(response);
+
+    BtResult<PanelUpdateInfo> result = apiManager.system().checkPanelUpdate();
+
+    assertNotNull(result);
+    assertTrue(result.isSuccess());
+    verify(client).execute(any(CheckPanelUpdateApi.class));
+  }
+
+  @Test
+  @DisplayName("Website facade delegates to the correct API")
+  void websiteFacadeDelegatesToClient() {
+    BtApiManager apiManager = new BtApiManager(client);
+    BtResult<java.util.List<WebsiteInfo>> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(java.util.List.of(new WebsiteInfo()));
+
+    when(client.execute(any(GetWebsitesApi.class))).thenReturn(response);
+
+    BtResult<java.util.List<WebsiteInfo>> result = apiManager.website().list();
+
+    assertNotNull(result);
+    assertTrue(result.isSuccess());
+    verify(client).execute(any(GetWebsitesApi.class));
+  }
+
+  @Test
+  @DisplayName("File facade delegates to the correct API")
+  void fileFacadeDelegatesToClient() {
+    BtApiManager apiManager = new BtApiManager(client);
+    BtResult<String> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData("server { listen 80; }");
+
+    when(client.execute(any(GetFileContentApi.class))).thenReturn(response);
+
+    BtResult<String> result = apiManager.file().getContent("/www/server.conf");
+
+    assertNotNull(result);
+    assertTrue(result.isSuccess());
+    assertEquals("server { listen 80; }", result.getData());
+    verify(client).execute(any(GetFileContentApi.class));
+  }
+
+  @Test
+  @DisplayName("FTP facade delegates to the correct API")
+  void ftpFacadeDelegatesToClient() {
+    BtApiManager apiManager = new BtApiManager(client);
+    BtResult<java.util.List<FtpAccount>> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(java.util.List.of(new FtpAccount()));
+
+    when(client.execute(any(GetFtpAccountsApi.class))).thenReturn(response);
+
+    BtResult<java.util.List<FtpAccount>> result = apiManager.ftp().list();
+
+    assertNotNull(result);
+    assertTrue(result.isSuccess());
+    assertEquals(1, result.getData().size());
+    verify(client).execute(any(GetFtpAccountsApi.class));
+  }
+
+  @Test
+  @DisplayName("SSL facade delegates to the correct API")
+  void sslFacadeDelegatesToClient() {
+    BtApiManager apiManager = new BtApiManager(client);
+    BtResult<java.util.List<SslCertificate>> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(java.util.List.of(new SslCertificate()));
+
+    when(client.execute(any(GetSslCertificatesApi.class))).thenReturn(response);
+
+    BtResult<java.util.List<SslCertificate>> result = apiManager.ssl().list();
+
+    assertNotNull(result);
+    assertTrue(result.isSuccess());
+    assertEquals(1, result.getData().size());
+    verify(client).execute(any(GetSslCertificatesApi.class));
+  }
+
+  @Test
+  @DisplayName("Close delegates to the underlying client")
+  void closeDelegatesToClient() {
+    BtApiManager apiManager = new BtApiManager(client);
+
+    apiManager.close();
+
+    verify(client).close();
+  }
+
+  @Test
+  @DisplayName("Async execution surfaces completion exceptions")
+  void executeAsyncSurfaceFailure() {
+    BtApiManager apiManager = new BtApiManager(client);
+    GetSystemInfoApi api = new GetSystemInfoApi();
+    CompletableFuture<BtResult<SystemInfo>> failedFuture = new CompletableFuture<>();
+    failedFuture.completeExceptionally(new IllegalStateException("boom"));
+
+    when(client.executeAsync(api)).thenReturn(failedFuture);
+
+    ExecutionException exception =
+        assertThrows(ExecutionException.class, () -> apiManager.executeAsync(api).get());
+
+    assertEquals("boom", exception.getCause().getMessage());
+  }
 }
