@@ -205,10 +205,49 @@ public final class WebsiteOperations extends AbstractOperations {
     return execute(new SetWebsiteUserIniApi().setPath(path));
   }
 
+  /**
+   * 获取站点当前使用的 PHP 版本（{@code site?action=GetSitePHPVersion}）。
+   *
+   * @param siteName 站点名（主域名）
+   * @return 版本号，例如 {@code 81}；纯静态站点为 {@code 00}
+   */
+  public BtResult<String> getPhpVersion(String siteName) {
+    return execute(new GetWebsitePhpVersionApi().setSiteName(siteName));
+  }
+
+  /**
+   * 按站点 ID 获取 PHP 版本。
+   *
+   * @param id 站点 ID
+   * @return 查询结果
+   * @deprecated 面板 9.0 只支持按站点名查询 PHP 版本，只传 ID 的请求无法定位站点。请改用 {@link #getPhpVersion(String)}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<String> getPhpVersion(int id) {
     return execute(new GetWebsitePhpVersionApi().setId(id));
   }
 
+  /**
+   * 切换站点使用的 PHP 版本（{@code site?action=SetPHPVersion}）。
+   *
+   * @param siteName 站点名（主域名）
+   * @param phpVersion 目标版本号，例如 {@code 81}；{@code 00} 表示纯静态
+   * @return 操作结果
+   */
+  public BtResult<Boolean> updatePhpVersion(String siteName, String phpVersion) {
+    return execute(new SetWebsitePhpVersionApi().setSiteName(siteName).setPhpVersion(phpVersion));
+  }
+
+  /**
+   * 按站点 ID 切换 PHP 版本。
+   *
+   * @param siteId 站点 ID
+   * @param phpVersion 目标版本号
+   * @return 操作结果
+   * @deprecated 面板 9.0 只支持按站点名切换 PHP 版本，只传 ID 的请求无法定位站点。请改用 {@link #updatePhpVersion(String,
+   *     String)}。
+   */
+  @Deprecated(since = "0.2.0", forRemoval = true)
   public BtResult<Boolean> updatePhpVersion(int siteId, String phpVersion) {
     return execute(new SetWebsitePhpVersionApi().setId(siteId).setPhpVersion(phpVersion));
   }

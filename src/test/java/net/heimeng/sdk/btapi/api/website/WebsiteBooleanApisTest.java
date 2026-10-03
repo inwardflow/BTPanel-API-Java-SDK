@@ -165,10 +165,15 @@ class WebsiteBooleanApisTest {
   @Test
   @DisplayName("设置 PHP 版本 API 契约正确")
   void setWebsitePhpVersionApiContract() {
-    SetWebsitePhpVersionApi api = new SetWebsitePhpVersionApi().setId(8).setPhpVersion("82");
+    SetWebsitePhpVersionApi api =
+        new SetWebsitePhpVersionApi().setSiteName("example.com").setPhpVersion("82");
 
-    assertEquals("82", api.getParams().get("php_version"));
+    assertEquals("site?action=SetPHPVersion", api.getEndpoint());
+    assertEquals("example.com", api.getParams().get("siteName"));
+    assertEquals("82", api.getParams().get("version"));
+    assertEquals("", api.getParams().get("other"));
     assertTrue(invokeValidate(api));
+    assertFalse(invokeValidate(new SetWebsitePhpVersionApi().setPhpVersion("82")));
   }
 
   @Test

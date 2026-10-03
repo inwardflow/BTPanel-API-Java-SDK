@@ -260,10 +260,17 @@ class WebsiteOperationsWriteTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(SetWebsitePhpVersionApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.updatePhpVersion(8, "82");
+    BtResult<Boolean> result = operations.updatePhpVersion("example.com", "82");
 
     assertTrue(result.isSuccess());
-    verify(client).execute(any(SetWebsitePhpVersionApi.class));
+    verify(client)
+        .execute(
+            argThat(
+                (SetWebsitePhpVersionApi api) ->
+                    "site?action=SetPHPVersion".equals(api.getEndpoint())
+                        && "example.com".equals(api.getParams().get("siteName"))
+                        && "82".equals(api.getParams().get("version"))
+                        && "".equals(api.getParams().get("other"))));
   }
 
   @Test

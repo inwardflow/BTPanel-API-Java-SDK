@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -155,11 +156,16 @@ class WebsiteOperationsTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(GetWebsitePhpVersionApi.class))).thenReturn(successString("82"));
 
-    BtResult<String> result = operations.getPhpVersion(8);
+    BtResult<String> result = operations.getPhpVersion("example.com");
 
     assertTrue(result.isSuccess());
     assertEquals("82", result.getData());
-    verify(client).execute(any(GetWebsitePhpVersionApi.class));
+    verify(client)
+        .execute(
+            argThat(
+                (GetWebsitePhpVersionApi api) ->
+                    "site?action=GetSitePHPVersion".equals(api.getEndpoint())
+                        && "example.com".equals(api.getParams().get("siteName"))));
   }
 
   @Test

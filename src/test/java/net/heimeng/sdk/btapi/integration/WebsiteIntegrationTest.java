@@ -145,6 +145,29 @@ class WebsiteIntegrationTest extends AbstractIntegrationTestSupport {
     }
   }
 
+  @Test
+  @DisplayName("Should read and switch website PHP version via GetSitePHPVersion/SetPHPVersion")
+  void testSwitchWebsitePhpVersion() {
+    try {
+      createWebsiteAndResolveId();
+
+      BtResult<String> before = apiManager.website().getPhpVersion(testDomain);
+      assertTrue(before.isSuccess(), "Failed to read PHP version: " + before.getMsg());
+      assertEquals("81", before.getData());
+
+      BtResult<Boolean> toStatic = apiManager.website().updatePhpVersion(testDomain, "00");
+      assertTrue(toStatic.isSuccess(), "Failed to switch to static: " + toStatic.getMsg());
+      assertEquals("00", apiManager.website().getPhpVersion(testDomain).getData());
+
+      BtResult<Boolean> back = apiManager.website().updatePhpVersion(testDomain, "81");
+      assertTrue(back.isSuccess(), "Failed to switch back to PHP 8.1: " + back.getMsg());
+      assertEquals("81", apiManager.website().getPhpVersion(testDomain).getData());
+    } catch (BtApiException exception) {
+      logger.error("Failed while switching website PHP version", exception);
+      fail("Failed while switching website PHP version: " + exception.getMessage());
+    }
+  }
+
   private Integer createWebsiteAndResolveId() throws BtApiException {
     BtResult<CreateWebsiteResult> createResult = createWebsite();
     assertTrue(createResult.isSuccess(), "Failed to prepare website: " + createResult.getMsg());

@@ -35,13 +35,29 @@ class WebsiteTextQueryApisTest {
   @Test
   @DisplayName("网站 PHP 版本 API 应正确解析包装成功响应")
   void phpVersionApiParsesWrappedSuccess() {
-    GetWebsitePhpVersionApi api = new GetWebsitePhpVersionApi().setId(8);
+    GetWebsitePhpVersionApi api = new GetWebsitePhpVersionApi().setSiteName("example.com");
 
     BtResult<String> result = api.parseResponse("{\"status\":true,\"msg\":\"ok\",\"data\":\"82\"}");
 
     assertTrue(result.isSuccess());
     assertEquals("ok", result.getMsg());
     assertEquals("82", result.getData());
+  }
+
+  @Test
+  @DisplayName("网站 PHP 版本 API 应解析 9.0 面板的 GetSitePHPVersion 响应")
+  void phpVersionApiParsesGetSitePhpVersionResponse() {
+    GetWebsitePhpVersionApi api = new GetWebsitePhpVersionApi().setSiteName("example.com");
+
+    BtResult<String> result =
+        api.parseResponse(
+            "{\"phpversion\": \"81\", \"tomcat\": -1, \"tomcatversion\": false,"
+                + " \"nodejsversion\": false, \"php_other\": \"\"}");
+
+    assertEquals("site?action=GetSitePHPVersion", api.getEndpoint());
+    assertEquals("example.com", api.getParams().get("siteName"));
+    assertTrue(result.isSuccess());
+    assertEquals("81", result.getData());
   }
 
   @Test
@@ -84,7 +100,7 @@ class WebsiteTextQueryApisTest {
   @Test
   @DisplayName("包装成功响应缺少 data 字段时应抛出异常")
   void wrappedSuccessWithoutDataIsRejected() {
-    GetWebsitePhpVersionApi api = new GetWebsitePhpVersionApi().setId(8);
+    GetWebsitePhpVersionApi api = new GetWebsitePhpVersionApi().setSiteName("example.com");
 
     BtApiException exception =
         assertThrows(BtApiException.class, () -> api.parseResponse("{\"status\":true}"));
