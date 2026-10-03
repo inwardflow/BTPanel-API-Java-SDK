@@ -249,10 +249,16 @@ class WebsiteOperationsWriteTest {
     WebsiteOperations operations = new WebsiteOperations(client);
     when(client.execute(any(SetWebsiteUserIniApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.toggleUserIni("/www/wwwroot/demo");
+    BtResult<Boolean> result = operations.toggleUserIni(8, "/www/wwwroot/demo");
 
     assertTrue(result.isSuccess());
-    verify(client).execute(any(SetWebsiteUserIniApi.class));
+    verify(client)
+        .execute(
+            argThat(
+                (SetWebsiteUserIniApi api) ->
+                    "site?action=SetDirUserINI".equals(api.getEndpoint())
+                        && Integer.valueOf(8).equals(api.getParams().get("id"))
+                        && "/www/wwwroot/demo".equals(api.getParams().get("path"))));
   }
 
   @Test

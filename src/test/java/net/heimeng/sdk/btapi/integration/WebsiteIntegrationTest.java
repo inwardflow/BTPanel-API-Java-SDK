@@ -214,6 +214,32 @@ class WebsiteIntegrationTest extends AbstractIntegrationTestSupport {
     }
   }
 
+  @Test
+  @DisplayName("Should toggle website .user.ini protection via SetDirUserINI with id and path")
+  void testToggleUserIni() {
+    try {
+      Integer websiteId = createWebsiteAndResolveId();
+      Object before = userIniEnabled(websiteId);
+
+      BtResult<Boolean> first = apiManager.website().toggleUserIni(websiteId, testWebroot);
+      assertTrue(first.isSuccess(), "Failed to toggle .user.ini: " + first.getMsg());
+      assertTrue(!before.equals(userIniEnabled(websiteId)), ".user.ini state should flip");
+
+      BtResult<Boolean> second = apiManager.website().toggleUserIni(websiteId, testWebroot);
+      assertTrue(second.isSuccess(), "Failed to toggle .user.ini back: " + second.getMsg());
+      assertEquals(before, userIniEnabled(websiteId), ".user.ini state should be restored");
+    } catch (BtApiException exception) {
+      logger.error("Failed while toggling .user.ini", exception);
+      fail("Failed while toggling .user.ini: " + exception.getMessage());
+    }
+  }
+
+  private Object userIniEnabled(Integer websiteId) throws BtApiException {
+    BtResult<Map<String, Object>> config = apiManager.website().getConfig(websiteId, testWebroot);
+    assertTrue(config.isSuccess(), "Failed to read site directory config: " + config.getMsg());
+    return config.getData().get("userini");
+  }
+
   private Integer createWebsiteAndResolveId() throws BtApiException {
     BtResult<CreateWebsiteResult> createResult = createWebsite();
     assertTrue(createResult.isSuccess(), "Failed to prepare website: " + createResult.getMsg());
