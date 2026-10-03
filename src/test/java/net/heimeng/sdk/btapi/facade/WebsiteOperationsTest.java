@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import net.heimeng.sdk.btapi.api.file.GetFileContentApi;
 import net.heimeng.sdk.btapi.api.website.GetPhpVersionsApi;
 import net.heimeng.sdk.btapi.api.website.GetWebsiteBackupsApi;
 import net.heimeng.sdk.btapi.api.website.GetWebsiteConfigApi;
@@ -193,6 +194,25 @@ class WebsiteOperationsTest {
     assertTrue(result.isSuccess());
     assertEquals("rewrite ^/(.*)$ /index.php;", result.getData());
     verify(client).execute(any(GetWebsiteRewriteRulesApi.class));
+  }
+
+  @Test
+  @DisplayName("getRewriteRules(siteName) should read the vhost rewrite file via GetFileBody")
+  void getRewriteRulesBySiteNameReadsVhostFile() {
+    WebsiteOperations operations = new WebsiteOperations(client);
+    when(client.execute(any(GetFileContentApi.class)))
+        .thenReturn(successString("rewrite ^/(.*)$ /index.php;"));
+
+    BtResult<String> result = operations.getRewriteRules("example.com");
+
+    assertEquals("rewrite ^/(.*)$ /index.php;", result.getData());
+    verify(client)
+        .execute(
+            argThat(
+                (GetFileContentApi api) ->
+                    "files?action=GetFileBody".equals(api.getEndpoint())
+                        && "/www/server/panel/vhost/rewrite/example.com.conf"
+                            .equals(api.getParams().get("path"))));
   }
 
   @Test
