@@ -71,6 +71,19 @@ export MSYS2_ENV_CONV_EXCL='BT_PANEL_'
 
 PowerShell, `cmd`, macOS, and Linux are not affected.
 
+### Mockito fails to initialize on some Windows machines
+
+If every Mockito-based unit test fails with `Could not initialize plugin: interface
+org.mockito.plugins.MockMaker` caused by `Could not self-attach to current VM`, allow the test JVM to
+attach its own agent:
+
+```bash
+export JAVA_TOOL_OPTIONS='-Djdk.attach.allowAttachSelf=true'
+```
+
+On machines that are short of memory (`Native memory allocation (mmap) failed`), also cap the heap,
+for example by adding `-XX:+UseSerialGC -Xmx384m` to the same variable.
+
 ### Running in GitHub Actions
 
 The `Integration Tests` workflow reads the same variables from the `integration-tests`
@@ -185,6 +198,17 @@ The repository currently includes:
 - `FtpIntegrationTest`
 - `WebsiteIntegrationTest`
 - `SslIntegrationTest`
+
+Endpoints added or corrected after the 2026-10-03 UI capture have their own integration tests:
+
+- `WebsiteIntegrationTest`: stop/start (`SiteStop`/`SiteStart`), PHP version switching
+  (`GetSitePHPVersion`/`SetPHPVersion`), rewrite rules and Nginx config through the vhost files,
+  `.user.ini` toggling (`SetDirUserINI`), and PHP runtime config (`GetPHPConfig`).
+- `FileIntegrationTest`: rename, copy and move (`MvFile`/`CopyFile`), and compress/extract
+  (`Zip`/`UnZip`).
+- `DatabaseIntegrationTest`: password change (`ResDatabasePassword`).
+
+See `docs/openapi/live-validation-matrix.md` for the UI evidence behind each endpoint.
 
 ### Last live run
 

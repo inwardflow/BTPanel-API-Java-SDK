@@ -6,6 +6,62 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+Every SDK action was checked against the requests the BTPanel 9.0 web UI actually sends. See
+`docs/openapi/live-validation-matrix.md` for the evidence behind each entry.
+
+### Fixed
+
+- Stopping a site now uses `site?action=SiteStop {id, name}`. The SDK sent `StopSite`, which is not an
+  action in the 9.0 UI. Use `WebsiteOperations.stop(int, String)`.
+- Reading and switching a site's PHP version now use `site?action=GetSitePHPVersion {siteName}` and
+  `site?action=SetPHPVersion {siteName, version, other}` instead of `getPhpVersion`/`SetPhpVersion`
+  by site ID. Use `getPhpVersion(String)` and `updatePhpVersion(String, String)`.
+- Rewrite rules and the Nginx config are read and written the way the 9.0 UI does it: through
+  `files?action=GetFileBody`/`SaveFileBody` on `/www/server/panel/vhost/{rewrite,nginx}/<site>.conf`.
+  Use `getRewriteRules(String)`, `updateRewriteRules(String, String)`, `getNginxConfig(String)` and
+  `updateNginxConfig(String, String)`.
+- Toggling `.user.ini` protection sends the site `id` as well as `path`. Use
+  `toggleUserIni(int, String)`.
+- Changing a MySQL password uses `database?action=ResDatabasePassword {id, name, password, data_name}`
+  instead of `ChangeDBPassword`. Use `DatabaseOperations.updatePassword(int, request)`.
+- Renaming and moving files use `files?action=MvFile` instead of `RenameFile`/`MoveFile`. The
+  deprecated `move(..., "copy", ...)` still copies instead of silently moving.
+- Compressing and extracting use `files?action=Zip` and `files?action=UnZip` instead of
+  `Compress`/`UnCompress`. Use `FileOperations.compressTo(String, String, String)`.
+
+### Added
+
+- `CopyFileApi` and `FileOperations.copy(String, String)` (`files?action=CopyFile`).
+- `FileOperations.move(String, String)` with a full target path.
+- `GetPhpRuntimeConfigApi` and `WebsiteOperations.getPhpRuntimeConfig(String)`
+  (`ajax?action=GetPHPConfig`), which read a PHP version's configuration, including its extensions.
+- `WebsiteVhostPaths` for the vhost config file paths.
+- Integration coverage for site stop/start, PHP version switching, rewrite rules, Nginx config,
+  `.user.ini`, PHP runtime config, database password changes, and file rename/copy/move and
+  compress/extract.
+
+### Deprecated
+
+All of the following are marked `@Deprecated(forRemoval = true)`, with JavaDoc pointing to the
+replacement:
+
+- `WebsiteOperations.stop(int)`, `getPhpVersion(int)`, `updatePhpVersion(int, String)`,
+  `getRewriteRules(int)`, `updateRewriteRules(int, WebsiteRewriteRulesOptions)`,
+  `getNginxConfig(Integer, String)`, `updateNginxConfig(Integer, WebsiteNginxConfigOptions)`,
+  `toggleUserIni(String)`.
+- `GetWebsiteRewriteRulesApi`, `SetWebsiteRewriteRulesApi`, `GetWebsiteNginxConfigApi`,
+  `SetWebsiteNginxConfigApi`, `WebsiteRewriteRulesOptions`, `WebsiteNginxConfigOptions`, and the
+  ID-based setters of `GetWebsitePhpVersionApi` and `SetWebsitePhpVersionApi`.
+- APIs for actions the 9.0 UI never calls: `GetWebsiteDetailApi`/`getDetail` (`GetSiteStatus`),
+  `GetWebsiteSslListApi`/`listSslCertificates` (`GetSSLCertList`), and
+  `GetWebsitePhpExtensionsApi`/`SetWebsitePhpExtensionsApi`/`listPhpExtensions`/`updatePhpExtension`
+  (`GetPHPModules`/`SetPHPModules`).
+- `DatabaseOperations.updatePassword(DatabasePasswordUpdateRequest)` and the ID-less
+  `ChangeDatabasePasswordApi` constructor.
+- `FileOperations.move(String, String, String, Integer)`, `FileOperations.compress(String, String,
+  String)`, `MoveFileApi.setSource/setTarget/setType/setMoveType`, and
+  `CompressFileApi.setPath/setFilename`.
+
 ### Added
 
 - Simplified Chinese README (`README.zh-CN.md`) with language links in both READMEs.
