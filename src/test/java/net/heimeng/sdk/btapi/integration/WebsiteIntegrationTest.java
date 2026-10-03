@@ -138,7 +138,7 @@ class WebsiteIntegrationTest extends AbstractIntegrationTestSupport {
       assertTrue(stopResult.isSuccess(), "Failed to stop website: " + stopResult.getMsg());
       assertEquals("0", websiteField(testDomain, "status"), "Website should be stopped");
 
-      BtResult<Boolean> startResult = apiManager.website().start(websiteId);
+      BtResult<Boolean> startResult = apiManager.website().start(websiteId, testDomain);
       assertTrue(startResult.isSuccess(), "Failed to start website: " + startResult.getMsg());
       assertEquals("1", websiteField(testDomain, "status"), "Website should be running again");
     } catch (BtApiException exception) {
