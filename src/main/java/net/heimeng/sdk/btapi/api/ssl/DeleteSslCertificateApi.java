@@ -12,6 +12,10 @@ package net.heimeng.sdk.btapi.api.ssl;
  *
  * <p>注意：面板对 {@code ssl_hash} 参数会返回“删除成功”，但证书实际仍在证书夹中（BTPanel 9.0.0 实测），因此只能用 {@code ssl_id}。
  *
+ * <p>该接口只删除证书夹记录。站点证书文件保存在 {@code /www/server/panel/vhost/cert/<域名>}，即使站点已删除也会保留，
+ * 面板之后会把它们重新导入证书夹。需要彻底删除时，请同时用 {@link net.heimeng.sdk.btapi.api.file.DeleteFileDirectoryApi}
+ * 删除该目录（BTPanel 9.0.0 实测）。
+ *
  * <p>历史调用里可能会同时传入域名，但当前路由实际只依赖证书 ID，因此 {@link #setDomain(String)} 仅作为兼容方法保留。
  */
 public class DeleteSslCertificateApi extends AbstractSslBooleanApi {
