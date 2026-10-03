@@ -3,6 +3,8 @@ package net.heimeng.sdk.btapi.facade;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import net.heimeng.sdk.btapi.api.file.CompressFileApi;
+import net.heimeng.sdk.btapi.api.file.CopyFileApi;
 import net.heimeng.sdk.btapi.api.file.CreateFileApi;
 import net.heimeng.sdk.btapi.api.file.CreateFileDirectoryApi;
 import net.heimeng.sdk.btapi.api.file.DeleteFileApi;
@@ -125,10 +128,42 @@ class FileOperationsTest {
     FileOperations operations = new FileOperations(client);
     when(client.execute(any(MoveFileApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.move("/www/a.txt", "/backup", "move", 1);
+    BtResult<Boolean> result = operations.move("/www/a.txt", "/backup/a.txt");
 
     assertTrue(result.isSuccess());
-    verify(client).execute(any(MoveFileApi.class));
+    verify(client)
+        .execute(
+            argThat(
+                (MoveFileApi api) ->
+                    "/www/a.txt".equals(api.getParams().get("sfile"))
+                        && "/backup/a.txt".equals(api.getParams().get("dfile"))));
+  }
+
+  @Test
+  @DisplayName("复制文件应委托到 CopyFileApi")
+  void copyDelegatesToClient() {
+    FileOperations operations = new FileOperations(client);
+    when(client.execute(any(CopyFileApi.class))).thenReturn(successBoolean());
+
+    BtResult<Boolean> result = operations.copy("/www/a.txt", "/backup/a.txt");
+
+    assertTrue(result.isSuccess());
+    verify(client).execute(any(CopyFileApi.class));
+  }
+
+  @Test
+  @SuppressWarnings("removal")
+  @DisplayName("已弃用的 move(type=copy) 应走 CopyFile 而不是移动")
+  void legacyMoveWithCopyTypeCopies() {
+    FileOperations operations = new FileOperations(client);
+    when(client.execute(any(CopyFileApi.class))).thenReturn(successBoolean());
+
+    operations.move("/www/a.txt", "/backup", "copy", 1);
+
+    verify(client)
+        .execute(
+            argThat((CopyFileApi api) -> "/backup/a.txt".equals(api.getParams().get("dfile"))));
+    verify(client, never()).execute(any(MoveFileApi.class));
   }
 
   @Test
