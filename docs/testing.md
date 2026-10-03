@@ -57,6 +57,26 @@ failing the whole suite. If the panel enforces an IP whitelist and the current m
 allowed, the corresponding tests are skipped with an explicit reason.
 
 You can also provide the same configuration in `src/test/resources/application-test.properties`.
+Prefer environment variables for the API key, and keep them outside the repository.
+
+### Running from Git Bash on Windows
+
+Git Bash rewrites environment values that look like Unix paths before they reach Windows
+programs. For example, `/www/wwwroot` becomes `C:/Program Files/Git/www/wwwroot`, and the panel
+then rejects the website or FTP path. Exclude the SDK variables from this conversion:
+
+```bash
+export MSYS2_ENV_CONV_EXCL='BT_PANEL_'
+```
+
+PowerShell, `cmd`, macOS, and Linux are not affected.
+
+### Running in GitHub Actions
+
+The `Integration Tests` workflow reads the same variables from the `integration-tests`
+environment secrets. GitHub-hosted runners do not have fixed IP addresses, so a panel with an API
+IP whitelist rejects them and the suite is skipped. Use a self-hosted runner with a whitelisted
+IP, or run the suite locally.
 
 ## Optional Module Configuration
 
@@ -140,7 +160,9 @@ Key behavior:
 
 1. The test creates an isolated temporary site.
 2. It does not upload PEM text directly.
-3. It expects a saved certificate to already exist in the panel certificate store.
+3. It expects a saved certificate to already exist in the panel certificate store. A self-signed
+   certificate for a placeholder domain is enough. Point `BT_PANEL_TEST_SSL_CERT_COMMON_NAME` (or
+   `BT_PANEL_TEST_SSL_CERT_DOMAINS`) at it, otherwise the deployment test is skipped.
 4. Certificate matching is based on configured CN/domain metadata rather than the temporary site
    name.
 5. Cleanup deletes only the temporary site created by the test.
@@ -161,6 +183,12 @@ The repository currently includes:
 - `FtpIntegrationTest`
 - `WebsiteIntegrationTest`
 - `SslIntegrationTest`
+
+### Last live run
+
+Run on 2026-10-02 against BTPanel 9.0.0 on Ubuntu 22.04: all 26 integration tests passed (Database 4, File 5,
+FTP 4, SSL 3, System 7, Website 3), with no skips. The panel's site, database, and FTP counts were
+unchanged afterwards, which confirms that cleanup works.
 
 ## Recommendations
 

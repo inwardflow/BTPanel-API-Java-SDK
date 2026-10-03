@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - GitHub Actions workflows: CI on JDK 17 and 21, CodeQL, manual integration tests, and a
   tag-driven release workflow that publishes the jar, sources, and Javadoc to GitHub Releases.
 - Opt-in integration suites for the FTP, SSL, and system modules.
+- `DeleteFileDirectoryApi` and `FileOperations.deleteDirectory(path)`. The panel's `DeleteFile`
+  action cannot remove directories; they require `DeleteDir`.
 
 ### Changed
 
@@ -39,6 +41,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Changed the Maven coordinates to `net.heimeng:btpanel-api-java-sdk` and reset the version line to
   `0.x` to signal that the public API may still change between minor releases.
 
+- **Behaviour change:** POST/PUT/PATCH requests now send every parameter, including the signature,
+  only in the form body. Earlier builds also copied short parameters into the URL query string.
+  Body-only requests were verified against BTPanel 9.0.0.
+- Certificate validation failures and unresolvable hosts are no longer retried, because retrying
+  cannot fix them. Failure logs now include the exception type.
+
 ### Removed
 
 - Unused legacy API enum and outdated example classes that no longer matched the current SDK design.
@@ -51,9 +59,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `BtUtils.generateRequestTime()` returned milliseconds; the panel expects Unix seconds, so tokens
   built from it were rejected. It now returns seconds and `DefaultBtClient` uses it directly.
 - Request signing now hashes with an explicit UTF-8 charset instead of the platform default.
+- The invalid-API-key integration test now uses the suite's SSL settings and expects
+  `BtAuthenticationException`. Before, it passed because of a certificate error and never
+  reached the authentication check.
+- The file and FTP integration tests now clean up directories with `DeleteDir`, so they no longer
+  leave directories behind on the panel.
 
 ### Security
 
 - Debug logging no longer writes the full request URL unmasked. URL masking now uses the same
   substring rules as parameter masking, so `request_token`, `ftp_password`, `new_password`, and
   similar keys are redacted in both places.
+- Passwords and request signatures no longer appear in request URLs, where panel access logs and
+  proxies could record them.
