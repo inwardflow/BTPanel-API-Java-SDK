@@ -6,11 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-Every SDK action was checked against the requests the BTPanel 9.0 web UI actually sends. See
+Every SDK action was checked against the requests the BTPanel 9.0 web UI actually sends, and the
+corrected endpoints were verified live through the developer API (all 35 integration tests pass). See
 `docs/openapi/live-validation-matrix.md` for the evidence behind each entry.
 
 ### Fixed
 
+- Starting a site now sends the site name: `site?action=SiteStart` with only `id` returns HTTP 404 on
+  9.0. Use `WebsiteOperations.start(int, String)`.
 - Stopping a site now uses `site?action=SiteStop {id, name}`. The SDK sent `StopSite`, which is not an
   action in the 9.0 UI. Use `WebsiteOperations.stop(int, String)`.
 - Reading and switching a site's PHP version now use `site?action=GetSitePHPVersion {siteName}` and
@@ -45,7 +48,7 @@ Every SDK action was checked against the requests the BTPanel 9.0 web UI actuall
 All of the following are marked `@Deprecated(forRemoval = true)`, with JavaDoc pointing to the
 replacement:
 
-- `WebsiteOperations.stop(int)`, `getPhpVersion(int)`, `updatePhpVersion(int, String)`,
+- `WebsiteOperations.start(int)`, `stop(int)`, `getPhpVersion(int)`, `updatePhpVersion(int, String)`,
   `getRewriteRules(int)`, `updateRewriteRules(int, WebsiteRewriteRulesOptions)`,
   `getNginxConfig(Integer, String)`, `updateNginxConfig(Integer, WebsiteNginxConfigOptions)`,
   `toggleUserIni(String)`.
