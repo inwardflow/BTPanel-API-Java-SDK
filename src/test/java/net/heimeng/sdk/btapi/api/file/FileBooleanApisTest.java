@@ -130,9 +130,30 @@ class FileBooleanApisTest {
   @DisplayName("压缩文件 API 契约正确")
   void compressFileApiContract() {
     CompressFileApi api =
-        new CompressFileApi().setPath("/www").setFilename("backup").setFormat("zip");
+        new CompressFileApi()
+            .setSourcePath("/www/wwwroot/site/logs")
+            .setArchivePath("/www/backup/logs.tar.gz")
+            .setFormat("tar.gz");
 
-    assertEquals("files?action=Compress", api.getEndpoint());
+    assertEquals("files?action=Zip", api.getEndpoint());
+    assertEquals("/www/wwwroot/site/", api.getParams().get("path"));
+    assertEquals("logs", api.getParams().get("sfile"));
+    assertEquals("/www/backup/logs.tar.gz", api.getParams().get("dfile"));
+    assertEquals("tar.gz", api.getParams().get("z_type"));
+    assertTrue(invokeValidate(api));
+    assertFalse(invokeValidate(new CompressFileApi().setSourcePath("/www/a")));
+  }
+
+  @Test
+  @SuppressWarnings("removal")
+  @DisplayName("已弃用的压缩参数应换算为 Zip 参数")
+  void compressFileApiLegacySetters() {
+    CompressFileApi api =
+        new CompressFileApi().setPath("/www/site/logs").setFilename("backup").setFormat("zip");
+
+    assertEquals("/www/site/", api.getParams().get("path"));
+    assertEquals("logs", api.getParams().get("sfile"));
+    assertEquals("/www/site/backup.zip", api.getParams().get("dfile"));
     assertTrue(invokeValidate(api));
   }
 
@@ -140,10 +161,17 @@ class FileBooleanApisTest {
   @DisplayName("解压文件 API 契约正确")
   void uncompressFileApiContract() {
     UncompressFileApi api =
-        new UncompressFileApi().setPath("/www/backup.zip").setTarget("/www/output");
+        new UncompressFileApi().setPath("/www/backup.tar.gz").setTarget("/www/output");
 
-    assertEquals("files?action=UnCompress", api.getEndpoint());
+    assertEquals("files?action=UnZip", api.getEndpoint());
+    assertEquals("/www/backup.tar.gz", api.getParams().get("sfile"));
+    assertEquals("/www/output", api.getParams().get("dfile"));
+    assertEquals("zip", api.getParams().get("type"));
+    assertEquals("UTF-8", api.getParams().get("coding"));
+    assertEquals("", api.getParams().get("password"));
+    assertEquals("755", api.getParams().get("power"));
     assertTrue(invokeValidate(api));
+    assertFalse(invokeValidate(new UncompressFileApi().setPath("/www/backup.zip")));
   }
 
   @Test

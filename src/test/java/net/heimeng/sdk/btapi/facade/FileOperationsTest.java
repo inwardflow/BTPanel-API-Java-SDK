@@ -172,10 +172,17 @@ class FileOperationsTest {
     FileOperations operations = new FileOperations(client);
     when(client.execute(any(CompressFileApi.class))).thenReturn(successBoolean());
 
-    BtResult<Boolean> result = operations.compress("/www", "backup", "zip");
+    BtResult<Boolean> result =
+        operations.compressTo("/www/site/logs", "/www/backup/logs.tar.gz", "tar.gz");
 
     assertTrue(result.isSuccess());
-    verify(client).execute(any(CompressFileApi.class));
+    verify(client)
+        .execute(
+            argThat(
+                (CompressFileApi api) ->
+                    "files?action=Zip".equals(api.getEndpoint())
+                        && "logs".equals(api.getParams().get("sfile"))
+                        && "/www/backup/logs.tar.gz".equals(api.getParams().get("dfile"))));
   }
 
   @Test
