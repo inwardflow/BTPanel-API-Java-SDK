@@ -63,27 +63,57 @@ class FileBooleanApisTest {
   }
 
   @Test
-  @DisplayName("重命名文件 API 契约正确")
+  @DisplayName("重命名文件 API 应使用 MvFile 并拼接新路径")
   void renameFileApiContract() {
-    RenameFileApi api = new RenameFileApi().setOldPath("/www/old.txt").setNewName("new.txt");
+    RenameFileApi api =
+        new RenameFileApi().setOldPath("/www/wwwroot/site/old.txt").setNewName("new.txt");
 
-    assertEquals("files?action=RenameFile", api.getEndpoint());
-    assertEquals("/www/old.txt", api.getParams().get("oldpath"));
-    assertEquals("new.txt", api.getParams().get("newname"));
+    assertEquals("files?action=MvFile", api.getEndpoint());
+    assertEquals("/www/wwwroot/site/old.txt", api.getParams().get("sfile"));
+    assertEquals("/www/wwwroot/site/new.txt", api.getParams().get("dfile"));
+    assertEquals("true", api.getParams().get("rename"));
+    assertTrue(invokeValidate(api));
+
+    RenameFileApi reversed = new RenameFileApi().setNewName("b.txt").setOldPath("/a.txt");
+    assertEquals("/b.txt", reversed.getParams().get("dfile"));
+    assertThrows(IllegalArgumentException.class, () -> new RenameFileApi().setNewName("x/y"));
+    assertFalse(invokeValidate(new RenameFileApi().setOldPath("/www/a.txt")));
+  }
+
+  @Test
+  @DisplayName("移动文件 API 应使用 MvFile 和完整目标路径")
+  void moveFileApiContract() {
+    MoveFileApi api = new MoveFileApi().setSourcePath("/www/a.txt").setTargetPath("/backup/a.txt");
+
+    assertEquals("files?action=MvFile", api.getEndpoint());
+    assertEquals("/www/a.txt", api.getParams().get("sfile"));
+    assertEquals("/backup/a.txt", api.getParams().get("dfile"));
+    assertFalse(api.getParams().containsKey("rename"));
     assertTrue(invokeValidate(api));
   }
 
   @Test
-  @DisplayName("移动文件 API 应校验操作类型")
-  void moveFileApiValidatesType() {
+  @SuppressWarnings("removal")
+  @DisplayName("已弃用的移动参数应拼接目标路径，并拒绝 copy")
+  void moveFileApiLegacySetters() {
     MoveFileApi api =
-        new MoveFileApi().setSource("/www/a.txt").setTarget("/backup").setType("move");
+        new MoveFileApi().setTarget("/backup/").setSource("/www/a.txt").setType("move");
 
-    assertEquals("files?action=MoveFile", api.getEndpoint());
+    assertEquals("/backup/a.txt", api.getParams().get("dfile"));
+    assertFalse(api.getParams().containsKey("type"));
+    assertThrows(IllegalArgumentException.class, () -> new MoveFileApi().setType("copy"));
+  }
+
+  @Test
+  @DisplayName("复制文件 API 应使用 CopyFile")
+  void copyFileApiContract() {
+    CopyFileApi api = new CopyFileApi().setSourcePath("/www/a.txt").setTargetPath("/backup/a.txt");
+
+    assertEquals("files?action=CopyFile", api.getEndpoint());
+    assertEquals("/www/a.txt", api.getParams().get("sfile"));
+    assertEquals("/backup/a.txt", api.getParams().get("dfile"));
     assertTrue(invokeValidate(api));
-
-    api.setType("invalid");
-    assertFalse(invokeValidate(api));
+    assertFalse(invokeValidate(new CopyFileApi().setSourcePath("/www/a.txt")));
   }
 
   @Test

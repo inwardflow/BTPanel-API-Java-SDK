@@ -213,6 +213,48 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
     }
   }
 
+  @Test
+  @DisplayName("应能通过 MvFile/CopyFile 重命名、复制和移动文件")
+  void testRenameCopyAndMoveFile() {
+    try {
+      ensureWebsiteExists();
+      ensureRootDirectory();
+      saveFile(testFilePath, testContent);
+
+      String renamedPath = appendChildPath(testRootPath, "renamed.txt");
+      BtResult<Boolean> renameResult = apiManager.file().rename(testFilePath, "renamed.txt");
+      assertTrue(renameResult.isSuccess(), "重命名失败: " + renameResult.getMsg());
+      registerCleanup(renamedPath);
+      assertEquals(testContent, readFile(renamedPath));
+
+      String copiedPath = appendChildPath(testRootPath, "copied.txt");
+      BtResult<Boolean> copyResult = apiManager.file().copy(renamedPath, copiedPath);
+      assertTrue(copyResult.isSuccess(), "复制失败: " + copyResult.getMsg());
+      registerCleanup(copiedPath);
+      assertEquals(testContent, readFile(copiedPath));
+
+      BtResult<Boolean> mkdirResult =
+          apiManager.execute(new CreateFileDirectoryApi().setPath(testDirectoryPath));
+      assertTrue(mkdirResult.isSuccess(), "创建目录失败: " + mkdirResult.getMsg());
+      registerDirectoryCleanup(testDirectoryPath);
+
+      String movedPath = appendChildPath(testDirectoryPath, "moved.txt");
+      BtResult<Boolean> moveResult = apiManager.file().move(copiedPath, movedPath);
+      assertTrue(moveResult.isSuccess(), "移动失败: " + moveResult.getMsg());
+      registerCleanup(movedPath);
+      assertEquals(testContent, readFile(movedPath));
+    } catch (BtApiException exception) {
+      logger.error("重命名/复制/移动文件时发生 API 异常", exception);
+      fail("重命名/复制/移动文件时发生 API 异常: " + exception.getMessage());
+    }
+  }
+
+  private String readFile(String path) throws BtApiException {
+    BtResult<String> result = apiManager.file().getContent(path);
+    assertTrue(result.isSuccess(), "读取文件失败: " + path + " " + result.getMsg());
+    return result.getData();
+  }
+
   private void ensureRootDirectory() throws BtApiException {
     if (cleanupPaths.contains(testRootPath)) {
       return;
