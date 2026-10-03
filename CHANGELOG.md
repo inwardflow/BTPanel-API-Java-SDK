@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-02
+
+First tagged release of the redesigned SDK. The public API may still change before 1.0.
+
 ### Added
 
 - Unit tests for shared website parsing paths, including backups, PHP extensions, SSL certificate
@@ -93,3 +97,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   proxies could record them.
 - File and directory deletion rejects relative paths, `..` segments, control characters, and
   system or panel directories such as `/`, `/etc`, and `/www/wwwroot` before sending the request.
+
+[Unreleased]: https://github.com/inwardflow/BTPanel-API-Java-SDK/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/inwardflow/BTPanel-API-Java-SDK/releases/tag/v0.1.0
