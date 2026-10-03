@@ -4,8 +4,19 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      # One pull request for all workflow action bumps.
+      github-actions:
+        patterns:
+          - "*"
 
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      # Minor and patch bumps together; major bumps stay separate so each can be reviewed.
+      maven-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
