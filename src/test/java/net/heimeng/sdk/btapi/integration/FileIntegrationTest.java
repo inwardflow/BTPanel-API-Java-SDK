@@ -69,7 +69,7 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
     assumePanelApiAccessible(apiManager);
 
     String suffix = uniqueSuffix();
-    String baseFilePath = getRequiredConfiguration(ENV_TEST_FILE_PATH, "test.filePath");
+    String baseFilePath = getRequiredRemotePath(ENV_TEST_FILE_PATH, "test.filePath");
     String fileName = getFileName(baseFilePath);
 
     prepareWebsiteFixture(suffix);
@@ -255,7 +255,7 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
     }
 
     String configuredDomain = getRequiredConfiguration(ENV_TEST_DOMAIN_SUFFIX, "test.domain");
-    String configuredWebroot = getRequiredConfiguration(ENV_TEST_WEBROOT_BASE, "test.webroot");
+    String configuredWebroot = getRequiredRemotePath(ENV_TEST_WEBROOT_BASE, "test.webroot");
     websiteDomain = buildIsolatedTestDomain(configuredDomain, "file-" + suffix);
     websiteWebroot = buildIsolatedTestWebroot(configuredWebroot, configuredDomain, websiteDomain);
   }

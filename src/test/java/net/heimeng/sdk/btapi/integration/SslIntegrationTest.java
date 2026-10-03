@@ -4,14 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +29,7 @@ import net.heimeng.sdk.btapi.model.ssl.SslCertificate;
 import net.heimeng.sdk.btapi.model.ssl.SslDeployableSites;
 import net.heimeng.sdk.btapi.model.ssl.SslSiteStatus;
 import net.heimeng.sdk.btapi.model.website.CreateWebsiteResult;
+import net.heimeng.sdk.btapi.testutil.TestCertificates;
 
 @DisplayName("SSL integration tests")
 @EnabledIfEnvironmentVariable(named = "ENABLE_INTEGRATION_TESTS", matches = "true")
@@ -42,6 +41,7 @@ class SslIntegrationTest extends AbstractIntegrationTestSupport {
   private BtApiManager apiManager;
   private String testDomain;
   private String testWebroot;
+  private boolean certificateInstalled;
 
   @BeforeEach
   void setUp() {
@@ -55,6 +55,7 @@ class SslIntegrationTest extends AbstractIntegrationTestSupport {
   @AfterEach
   void tearDown() {
     try {
+      deleteSavedCertificatesQuietly();
       deleteWebsiteIfExists();
     } finally {
       closeQuietly(apiManager);
@@ -89,21 +90,32 @@ class SslIntegrationTest extends AbstractIntegrationTestSupport {
   void testDeploySavedCertificateToSite() throws BtApiException {
     ensureWebsiteExists();
 
-    CertificateFixture certificateFixture = loadCertificateFixture();
-    SslCertificate savedCertificate = findSavedFixtureCertificate(certificateFixture);
-    Assumptions.assumeTrue(
-        savedCertificate != null,
-        "Skipping SSL deployment integration test because the expected saved certificate is not present in the panel");
-    Assumptions.assumeTrue(
-        savedCertificate.getHash() != null && !savedCertificate.getHash().isBlank(),
-        "Skipping SSL deployment integration test because the saved certificate hash is missing");
-    Assumptions.assumeTrue(
-        savedCertificate.getName() != null && !savedCertificate.getName().isBlank(),
-        "Skipping SSL deployment integration test because the saved certificate name is missing");
+    // A throwaway certificate keeps the test independent of whatever is in the panel's store.
+    TestCertificates.SelfSigned certificate =
+        TestCertificates.generate(testDomain, Duration.ofDays(2), false);
 
+    // 1. SetSSL installs the certificate and saves it into the panel certificate store.
+    BtResult<Boolean> installResult =
+        apiManager
+            .ssl()
+            .install(testDomain, certificate.privateKeyPem(), certificate.certificatePem());
+    assertTrue(installResult.isSuccess(), "Failed to install test certificate");
+    certificateInstalled = true;
+
+    SslCertificate savedCertificate = findSavedCertificate(testDomain);
+    assertNotNull(savedCertificate, "Installed certificate should be saved in the panel store");
+    assertNotNull(savedCertificate.getHash(), "Saved certificate should expose its hash");
+
+    // 2. Turn SSL off so that the deployment below is what turns it back on.
+    BtResult<Boolean> disableResult = apiManager.website().disableSsl(testDomain);
+    assertTrue(disableResult.isSuccess(), "Failed to disable SSL: " + disableResult.getMsg());
+    assertFalse(
+        apiManager.ssl().getWebsiteStatus(testDomain).getData().isEnabled(),
+        "SSL should be disabled before deploying the saved certificate");
+
+    // 3. Deploy the saved certificate from the store.
     BtResult<SslDeployableSites> deployableSites =
         apiManager.ssl().getDeployableSites(List.of(savedCertificate.getName()));
-
     assertTrue(
         deployableSites.isSuccess(),
         "Failed to resolve deployable sites: " + deployableSites.getMsg());
@@ -166,7 +178,7 @@ class SslIntegrationTest extends AbstractIntegrationTestSupport {
 
     String suffix = uniqueSuffix();
     String domainSuffix = getRequiredConfiguration(ENV_TEST_DOMAIN_SUFFIX, "test.domain");
-    String webrootBase = getRequiredConfiguration(ENV_TEST_WEBROOT_BASE, "test.webroot");
+    String webrootBase = getRequiredRemotePath(ENV_TEST_WEBROOT_BASE, "test.webroot");
 
     testDomain = buildIsolatedTestDomain(domainSuffix, "ssl-" + suffix);
     testWebroot = buildIsolatedTestWebroot(webrootBase, domainSuffix, testDomain);
@@ -175,29 +187,47 @@ class SslIntegrationTest extends AbstractIntegrationTestSupport {
         "SSL integration test initialized, testDomain={}, testWebroot={}", testDomain, testWebroot);
   }
 
-  private SslCertificate findSavedFixtureCertificate(CertificateFixture certificateFixture)
-      throws BtApiException {
+  private SslCertificate findSavedCertificate(String domain) throws BtApiException {
     BtResult<List<SslCertificate>> result = apiManager.ssl().list();
     if (!result.isSuccess() || result.getData() == null) {
       return null;
     }
-
     return result.getData().stream()
-        .filter((certificate) -> matchesCertificateFixture(certificate, certificateFixture))
+        .filter(certificate -> isCertificateFor(certificate, domain))
         .findFirst()
         .orElse(null);
   }
 
-  private boolean matchesCertificateFixture(
-      SslCertificate certificate, CertificateFixture certificateFixture) {
+  private static boolean isCertificateFor(SslCertificate certificate, String domain) {
     if (certificate == null) {
       return false;
     }
     List<String> domains = certificate.getDomains();
-    if (domains != null && !domains.isEmpty()) {
-      return domains.containsAll(certificateFixture.domains());
+    return domain.equalsIgnoreCase(certificate.getName())
+        || (domains != null && domains.contains(domain));
+  }
+
+  /** 删除本测试安装进证书夹的证书。只删除域名与临时站点一致的证书，不影响面板上的其他证书。 */
+  private void deleteSavedCertificatesQuietly() {
+    if (!certificateInstalled || apiManager == null || testDomain == null) {
+      return;
     }
-    return certificateFixture.commonName().equalsIgnoreCase(certificate.getName());
+    try {
+      BtResult<List<SslCertificate>> result = apiManager.ssl().list();
+      if (!result.isSuccess() || result.getData() == null) {
+        return;
+      }
+      for (SslCertificate certificate : result.getData()) {
+        if (isCertificateFor(certificate, testDomain)) {
+          apiManager.ssl().delete(certificate.getId());
+        }
+      }
+    } catch (Exception exception) {
+      logger.warn(
+          "Certificate cleanup failed, testDomain={}, reason={}",
+          testDomain,
+          exception.getMessage());
+    }
   }
 
   private SslSiteStatus waitForWebsiteSslEnabled(int attempts, long intervalMillis)
@@ -280,53 +310,4 @@ class SslIntegrationTest extends AbstractIntegrationTestSupport {
           "Interrupted while waiting for SSL status propagation", exception);
     }
   }
-
-  private CertificateFixture loadCertificateFixture() {
-    String commonName =
-        normalizeValue(
-            getOptionalConfiguration(
-                ENV_TEST_SSL_CERT_COMMON_NAME, "test.ssl.certificate.common-name"));
-    String configuredDomains =
-        normalizeValue(
-            getOptionalConfiguration(ENV_TEST_SSL_CERT_DOMAINS, "test.ssl.certificate.domains"));
-
-    Assumptions.assumeTrue(
-        commonName != null || configuredDomains != null,
-        () ->
-            "Skipping SSL deployment integration test because missing certificate metadata configuration: "
-                + ENV_TEST_SSL_CERT_COMMON_NAME
-                + " / "
-                + ENV_TEST_SSL_CERT_DOMAINS
-                + " or "
-                + PROPERTIES_FILE
-                + " -> test.ssl.certificate.common-name / test.ssl.certificate.domains");
-
-    List<String> domains =
-        configuredDomains == null
-            ? List.of()
-            : Arrays.stream(configuredDomains.split(","))
-                .map(String::trim)
-                .filter((domain) -> !domain.isBlank())
-                .distinct()
-                .toList();
-
-    if (commonName == null && !domains.isEmpty()) {
-      commonName = domains.get(0);
-    }
-
-    if (commonName != null && !domains.contains(commonName)) {
-      domains = Stream.concat(Stream.of(commonName), domains.stream()).distinct().toList();
-    }
-
-    return new CertificateFixture(commonName == null ? "" : commonName, List.copyOf(domains));
-  }
-
-  private String normalizeValue(String value) {
-    if (value == null || value.isBlank()) {
-      return null;
-    }
-    return value.trim();
-  }
-
-  private record CertificateFixture(String commonName, List<String> domains) {}
 }

@@ -210,7 +210,7 @@ class FtpIntegrationTest extends AbstractIntegrationTestSupport {
     }
 
     String configuredDomain = getRequiredConfiguration(ENV_TEST_DOMAIN_SUFFIX, "test.domain");
-    String configuredWebroot = getRequiredConfiguration(ENV_TEST_WEBROOT_BASE, "test.webroot");
+    String configuredWebroot = getRequiredRemotePath(ENV_TEST_WEBROOT_BASE, "test.webroot");
     websiteDomain = buildIsolatedTestDomain(configuredDomain, "ftp-" + suffix);
     websiteWebroot = buildIsolatedTestWebroot(configuredWebroot, configuredDomain, websiteDomain);
   }
@@ -357,13 +357,13 @@ class FtpIntegrationTest extends AbstractIntegrationTestSupport {
       return websiteWebroot;
     }
     if (hasConfiguration(ENV_TEST_FTP_ROOT, "test.ftpRoot")) {
-      return stripTrailingSlash(getRequiredConfiguration(ENV_TEST_FTP_ROOT, "test.ftpRoot"));
+      return stripTrailingSlash(getRequiredRemotePath(ENV_TEST_FTP_ROOT, "test.ftpRoot"));
     }
     if (hasConfiguration(ENV_TEST_FILE_PATH, "test.filePath")) {
-      return getParentPath(getRequiredConfiguration(ENV_TEST_FILE_PATH, "test.filePath"));
+      return getParentPath(getRequiredRemotePath(ENV_TEST_FILE_PATH, "test.filePath"));
     }
     if (hasConfiguration(ENV_TEST_WEBROOT_BASE, "test.webroot")) {
-      return stripTrailingSlash(getRequiredConfiguration(ENV_TEST_WEBROOT_BASE, "test.webroot"));
+      return stripTrailingSlash(getRequiredRemotePath(ENV_TEST_WEBROOT_BASE, "test.webroot"));
     }
     return null;
   }

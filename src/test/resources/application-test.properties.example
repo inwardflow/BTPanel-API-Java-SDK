@@ -1,7 +1,12 @@
 # 复制本文件为 application-test.properties 后可在本地执行集成测试。
 # CI 或共享环境更推荐通过环境变量注入。
-baseUrl=http://localhost:8888
+baseUrl=https://localhost:8888
 apiKey=your-api-key
+
+# 宝塔默认使用自签名证书。推荐配置面板公钥指纹（sha256/<base64>），获取方法见 README。
+# 仅在隔离测试环境中，才可设置 verifySsl=false 关闭证书校验。
+tlsPin=
+# verifySsl=false
 
 # 数据库集成测试配置
 test.dbName=bt_test_db

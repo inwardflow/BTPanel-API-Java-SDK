@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Assumptions;
 
+import net.heimeng.sdk.btapi.api.file.RemotePaths;
 import net.heimeng.sdk.btapi.api.system.GetSystemInfoApi;
 import net.heimeng.sdk.btapi.client.BtApiManager;
 import net.heimeng.sdk.btapi.client.BtClientFactory;
@@ -26,13 +27,11 @@ abstract class AbstractIntegrationTestSupport {
   protected static final String ENV_TEST_FTP_ROOT = "BT_PANEL_TEST_FTP_ROOT";
   protected static final String ENV_TEST_DOMAIN_SUFFIX = "BT_PANEL_TEST_DOMAIN_SUFFIX";
   protected static final String ENV_TEST_WEBROOT_BASE = "BT_PANEL_TEST_WEBROOT_BASE";
-  protected static final String ENV_TEST_SSL_CERT_COMMON_NAME =
-      "BT_PANEL_TEST_SSL_CERT_COMMON_NAME";
-  protected static final String ENV_TEST_SSL_CERT_DOMAINS = "BT_PANEL_TEST_SSL_CERT_DOMAINS";
   protected static final String ENV_CONNECT_TIMEOUT = "BT_PANEL_CONNECT_TIMEOUT";
   protected static final String ENV_READ_TIMEOUT = "BT_PANEL_READ_TIMEOUT";
   protected static final String ENV_RETRY_COUNT = "BT_PANEL_RETRY_COUNT";
   protected static final String ENV_VERIFY_SSL = "BT_PANEL_VERIFY_SSL";
+  protected static final String ENV_TLS_PIN = "BT_PANEL_TLS_PIN";
 
   private Properties testProperties;
 
@@ -60,11 +59,35 @@ abstract class AbstractIntegrationTestSupport {
             .readTimeout(getIntConfiguration(ENV_READ_TIMEOUT, "readTimeout", 10000))
             .retryCount(getIntConfiguration(ENV_RETRY_COUNT, "retryCount", 3));
 
-    if (!getBooleanConfiguration(ENV_VERIFY_SSL, "verifySsl", false)) {
-      builder.verifySsl(false);
+    // 默认校验证书。宝塔默认的自签名证书请配置公钥指纹；只有显式关闭时才跳过校验。
+    String pin = getOptionalConfiguration(ENV_TLS_PIN, "tlsPin");
+    if (pin != null && !pin.isBlank()) {
+      builder.pinnedPublicKeys(pin.split(","));
+    } else if (!getBooleanConfiguration(ENV_VERIFY_SSL, "verifySsl", true)) {
+      builder.sslMode(BtSdkConfig.SslMode.INSECURE_TRUST_ALL);
     }
 
     return builder.build();
+  }
+
+  /**
+   * 读取一个面板服务器上的路径配置，并确认它是 POSIX 绝对路径。
+   *
+   * <p>Git Bash 会把 {@code /www/wwwroot} 这类环境变量改写成 {@code C:/Program Files/Git/www/wwwroot} 再传给
+   * Windows 上的 JVM。这里提前发现并给出修复方法，而不是把错误路径发给面板。
+   */
+  protected final String getRequiredRemotePath(String envKey, String propertyKey) {
+    String value = getRequiredConfiguration(envKey, propertyKey);
+    try {
+      return RemotePaths.requireSafeAbsolutePath(value);
+    } catch (IllegalArgumentException exception) {
+      throw new IllegalStateException(
+          envKey
+              + " must be an absolute path on the panel server, but was '"
+              + value
+              + "'. On Git Bash for Windows, run: export MSYS2_ENV_CONV_EXCL='BT_PANEL_'",
+          exception);
+    }
   }
 
   protected final String getRequiredConfiguration(String envKey, String propertyKey) {

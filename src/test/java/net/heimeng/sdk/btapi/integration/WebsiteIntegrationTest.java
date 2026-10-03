@@ -47,7 +47,7 @@ class WebsiteIntegrationTest extends AbstractIntegrationTestSupport {
     assumePanelApiAccessible(apiManager);
 
     String domainSuffix = getRequiredConfiguration(ENV_TEST_DOMAIN_SUFFIX, "test.domain");
-    String webrootBase = getRequiredConfiguration(ENV_TEST_WEBROOT_BASE, "test.webroot");
+    String webrootBase = getRequiredRemotePath(ENV_TEST_WEBROOT_BASE, "test.webroot");
     String uniqueDomainPrefix = uniqueSuffix();
 
     testDomain = buildIsolatedTestDomain(domainSuffix, uniqueDomainPrefix);
