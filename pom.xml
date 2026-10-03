@@ -44,7 +44,7 @@
         <hutool.version>5.8.40</hutool.version>
         <lombok.version>1.18.38</lombok.version>
         <junit.version>5.10.2</junit.version>
-        <mockito.version>5.12.0</mockito.version>
+        <mockito.version>5.24.0</mockito.version>
         <slf4j.version>2.0.13</slf4j.version>
         <bouncycastle.version>1.86</bouncycastle.version>
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
