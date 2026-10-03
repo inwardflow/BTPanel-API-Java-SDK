@@ -1,5 +1,6 @@
 package net.heimeng.sdk.btapi.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -125,6 +126,38 @@ class WebsiteIntegrationTest extends AbstractIntegrationTestSupport {
     }
   }
 
+  @Test
+  @DisplayName("Should stop and start website via SiteStop/SiteStart")
+  void testStopAndStartWebsite() {
+    try {
+      Integer websiteId = createWebsiteAndResolveId();
+
+      BtResult<Boolean> stopResult = apiManager.website().stop(websiteId, testDomain);
+      assertTrue(stopResult.isSuccess(), "Failed to stop website: " + stopResult.getMsg());
+      assertEquals("0", websiteField(testDomain, "status"), "Website should be stopped");
+
+      BtResult<Boolean> startResult = apiManager.website().start(websiteId);
+      assertTrue(startResult.isSuccess(), "Failed to start website: " + startResult.getMsg());
+      assertEquals("1", websiteField(testDomain, "status"), "Website should be running again");
+    } catch (BtApiException exception) {
+      logger.error("Failed while stopping/starting website", exception);
+      fail("Failed while stopping/starting website: " + exception.getMessage());
+    }
+  }
+
+  private Integer createWebsiteAndResolveId() throws BtApiException {
+    BtResult<CreateWebsiteResult> createResult = createWebsite();
+    assertTrue(createResult.isSuccess(), "Failed to prepare website: " + createResult.getMsg());
+    Integer websiteId = getWebsiteIdByName(testDomain);
+    assertNotNull(websiteId, "Unable to resolve website id");
+    return websiteId;
+  }
+
+  private String websiteField(String domain, String field) throws BtApiException {
+    Map<String, Object> website = findWebsite(domain);
+    return website == null ? null : String.valueOf(website.get(field));
+  }
+
   private BtResult<CreateWebsiteResult> createWebsite() throws BtApiException {
     WebsiteCreateRequest request =
         WebsiteCreateRequest.builder(testDomain, testWebroot)
@@ -173,6 +206,11 @@ class WebsiteIntegrationTest extends AbstractIntegrationTestSupport {
   }
 
   private Integer getWebsiteIdByName(String domain) throws BtApiException {
+    Map<String, Object> website = findWebsite(domain);
+    return website == null ? null : toInteger(website.get("id"));
+  }
+
+  private Map<String, Object> findWebsite(String domain) throws BtApiException {
     BtResult<List<Map<String, Object>>> result =
         apiManager.execute(new GetWebsiteListApi().setPage(1).setLimit(100));
 
@@ -182,7 +220,7 @@ class WebsiteIntegrationTest extends AbstractIntegrationTestSupport {
 
     for (Map<String, Object> website : result.getData()) {
       if (domain.equals(website.get("name"))) {
-        return toInteger(website.get("id"));
+        return website;
       }
     }
     return null;
