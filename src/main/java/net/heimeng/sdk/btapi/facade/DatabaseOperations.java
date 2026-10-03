@@ -71,7 +71,7 @@ public final class DatabaseOperations extends AbstractOperations {
   /**
    * 修改 MySQL 数据库用户的密码（{@code database?action=ResDatabasePassword}）。
    *
-   * @param databaseId 数据库 ID（{@link DatabaseInfo#getId()}）
+   * @param databaseId 数据库 ID（{@code DatabaseInfo.getId()}）
    * @param request 数据库名、用户名与新密码
    * @return 操作结果
    */
