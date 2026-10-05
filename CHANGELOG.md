@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- `GetDirectoryListingApi` and `FileOperations.list(String)` / `list(String, int, int)`
+  (`files?action=GetDirNew`), which list a directory as `DirectoryListing` with `FileEntry` items
+  and pagination. Unmodelled fields stay readable through `getRaw()`. The panel answers a missing
+  path or a file path with a listing of another directory; the SDK reports that as a failure.
+- Integration coverage for directory listing in `FileIntegrationTest`.
+
 ## [0.2.0] - 2026-10-03
 
 Every SDK action was checked against the requests the BTPanel 9.0 web UI actually sends, and the

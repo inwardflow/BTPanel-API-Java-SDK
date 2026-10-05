@@ -2,9 +2,11 @@ package net.heimeng.sdk.btapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -34,6 +36,8 @@ import net.heimeng.sdk.btapi.client.BtApiManager;
 import net.heimeng.sdk.btapi.exception.BtApiException;
 import net.heimeng.sdk.btapi.facade.WebsiteCreateRequest;
 import net.heimeng.sdk.btapi.model.BtResult;
+import net.heimeng.sdk.btapi.model.file.DirectoryListing;
+import net.heimeng.sdk.btapi.model.file.FileEntry;
 import net.heimeng.sdk.btapi.model.website.CreateWebsiteResult;
 
 /**
@@ -276,6 +280,56 @@ class FileIntegrationTest extends AbstractIntegrationTestSupport {
     } catch (BtApiException exception) {
       logger.error("压缩/解压文件时发生 API 异常", exception);
       fail("压缩/解压文件时发生 API 异常: " + exception.getMessage());
+    }
+  }
+
+  @Test
+  @DisplayName("应能通过 GetDirNew 列出测试目录并分页")
+  void testListDirectory() {
+    try {
+      ensureWebsiteExists();
+      ensureRootDirectory();
+      saveFile(testFilePath, testContent);
+
+      BtResult<Boolean> mkdirResult =
+          apiManager.execute(new CreateFileDirectoryApi().setPath(testDirectoryPath));
+      assertTrue(mkdirResult.isSuccess(), "创建目录失败: " + mkdirResult.getMsg());
+      registerDirectoryCleanup(testDirectoryPath);
+
+      BtResult<DirectoryListing> result = apiManager.file().list(testRootPath);
+      assertTrue(result.isSuccess(), "列出目录失败: " + result.getMsg());
+      DirectoryListing listing = result.getData();
+      assertEquals(testRootPath, listing.getPath());
+      assertEquals(2, listing.getTotalCount());
+      assertEquals(1, listing.getPage());
+      assertEquals(1, listing.getTotalPages());
+
+      assertEquals(1, listing.getDirectories().size());
+      FileEntry directory = listing.getDirectories().get(0);
+      assertEquals(getFileName(testDirectoryPath), directory.getName());
+      assertTrue(directory.isDirectory());
+
+      assertEquals(1, listing.getFiles().size());
+      FileEntry file = listing.getFiles().get(0);
+      assertEquals(getFileName(testFilePath), file.getName());
+      assertEquals(testContent.getBytes(StandardCharsets.UTF_8).length, file.getSize());
+      assertTrue(file.getModifiedTime() > 0, "修改时间应为正数");
+      assertTrue(file.getRaw().containsKey("nm"), "原始字段应保留");
+
+      // 目录与文件合并分页，目录在前：每页 1 条时第 2 页是文件。
+      DirectoryListing secondPage = apiManager.file().list(testRootPath, 2, 1).getData();
+      assertEquals(2, secondPage.getPage());
+      assertEquals(2, secondPage.getTotalPages());
+      assertTrue(secondPage.getDirectories().isEmpty());
+      assertEquals(getFileName(testFilePath), secondPage.getFiles().get(0).getName());
+
+      // 面板对不存在的路径返回 /www/wwwroot 的列表，对文件路径返回父目录的列表；SDK 应识别为失败。
+      String missingPath = appendChildPath(testRootPath, "missing-" + uniqueSuffix());
+      assertThrows(BtApiException.class, () -> apiManager.file().list(missingPath));
+      assertThrows(BtApiException.class, () -> apiManager.file().list(testFilePath));
+    } catch (BtApiException exception) {
+      logger.error("列出目录时发生 API 异常", exception);
+      fail("列出目录时发生 API 异常: " + exception.getMessage());
     }
   }
 
