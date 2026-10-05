@@ -46,6 +46,7 @@ import net.heimeng.sdk.btapi.api.website.StartWebsiteApi;
 import net.heimeng.sdk.btapi.api.website.StopWebsiteApi;
 import net.heimeng.sdk.btapi.api.website.WebsiteVhostPaths;
 import net.heimeng.sdk.btapi.client.BtClient;
+import net.heimeng.sdk.btapi.exception.BtApiException;
 import net.heimeng.sdk.btapi.model.BtResult;
 import net.heimeng.sdk.btapi.model.website.CreateWebsiteResult;
 import net.heimeng.sdk.btapi.model.website.PhpVersion;
@@ -282,8 +283,12 @@ public final class WebsiteOperations extends AbstractOperations {
   /**
    * 按站点 ID 获取 PHP 版本。
    *
+   * <p>请求中没有 {@code siteName}，面板无法定位站点，因此此方法总是在发送请求前抛出 {@link BtApiException}（错误代码 {@link
+   * BtApiException#INVALID_PARAMETERS}）。
+   *
    * @param id 站点 ID
-   * @return 查询结果
+   * @return 不会正常返回
+   * @throws BtApiException 总是抛出
    * @deprecated 面板 9.0 只支持按站点名查询 PHP 版本，只传 ID 的请求无法定位站点。请改用 {@link #getPhpVersion(String)}。
    */
   @Deprecated(since = "0.2.0", forRemoval = true)
@@ -305,9 +310,13 @@ public final class WebsiteOperations extends AbstractOperations {
   /**
    * 按站点 ID 切换 PHP 版本。
    *
+   * <p>请求中没有 {@code siteName}，面板无法定位站点，因此此方法总是在发送请求前抛出 {@link BtApiException}（错误代码 {@link
+   * BtApiException#INVALID_PARAMETERS}）。
+   *
    * @param siteId 站点 ID
    * @param phpVersion 目标版本号
-   * @return 操作结果
+   * @return 不会正常返回
+   * @throws BtApiException 总是抛出
    * @deprecated 面板 9.0 只支持按站点名切换 PHP 版本，只传 ID 的请求无法定位站点。请改用 {@link #updatePhpVersion(String,
    *     String)}。
    */

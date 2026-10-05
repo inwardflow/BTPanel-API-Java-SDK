@@ -39,7 +39,9 @@ public class GetWebsitePhpVersionApi extends AbstractWebsiteTextQueryApi {
    * @param id 站点 ID
    * @return 当前 API 实例
    * @deprecated 面板 9.0 按站点名查询 PHP 版本，旧的 {@code site?action=getPhpVersion} 按 ID 查询的接口不在 9.0 UI 中。只设置
-   *     ID 时请求缺少 {@code siteName}，面板无法定位站点。请改用 {@link #setSiteName(String)}。
+   *     ID 而不设置 {@code siteName} 时，客户端在发送请求前抛出 {@link
+   *     net.heimeng.sdk.btapi.exception.BtApiException}（错误代码 {@code INVALID_PARAMETERS}）。请改用 {@link
+   *     #setSiteName(String)}。
    */
   @Deprecated(since = "0.2.0", forRemoval = true)
   public GetWebsitePhpVersionApi setId(Integer id) {

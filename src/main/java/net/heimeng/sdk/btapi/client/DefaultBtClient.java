@@ -98,6 +98,7 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
   public <T> T execute(BtApi<T> api) {
     checkNotClosed();
     Objects.requireNonNull(api, "API must not be null");
+    api.validate();
 
     RequestContext context = new RequestContext(api);
     addAuthParameters(context);
@@ -122,6 +123,8 @@ public class DefaultBtClient implements BtClient, AutoCloseable {
   public <T> CompletableFuture<T> executeAsync(BtApi<T> api) {
     checkNotClosed();
     Objects.requireNonNull(api, "API must not be null");
+    // 与 null 检查一致，参数错误在调用线程同步抛出，不进入线程池。
+    api.validate();
 
     return CompletableFuture.supplyAsync(() -> execute(api), executorService)
         .exceptionally(

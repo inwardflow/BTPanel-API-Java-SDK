@@ -14,6 +14,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   path or a file path with a listing of another directory; the SDK reports that as a failure.
 - Integration coverage for directory listing in `FileIntegrationTest`.
 
+### Changed
+
+- **Behavior change: request parameters are now validated before anything is sent.** Every API
+  class already had a `validateParams()` rule, but nothing called it, so invalid or missing
+  parameters went to the panel. `DefaultBtClient.execute` and `executeAsync` now call the new
+  `BtApi.validate()` hook first. If validation fails, the client throws `BtApiException` with
+  error code `BtApiException.INVALID_PARAMETERS`, names the API class and endpoint, and lists the
+  parameter names that were set (never their values). No HTTP request is made and interceptors do
+  not run. `executeAsync` throws on the calling thread instead of returning a failed future, the
+  same as it does for a `null` API. `BtApi.validate()` is a no-op by default, so custom `BtApi`
+  implementations are unaffected. `BaseBtApi.validate()` calls `validateParams()`.
+- Calls that now fail fast instead of reaching the panel: the deprecated
+  `WebsiteOperations.getPhpVersion(int)` and `updatePhpVersion(int, String)`, and
+  `GetWebsitePhpVersionApi`/`SetWebsitePhpVersionApi` with only `setId(...)`. They never sent
+  `siteName`, so the panel could not locate the site anyway. Use `getPhpVersion(String)` and
+  `updatePhpVersion(String, String)`.
+- `GetWebsiteListApi` (`WebsiteOperations.listRaw`) no longer requires `limit`. All of its
+  parameters are optional. `type` now accepts any site category ID from `listTypes()`, not just
+  `-1` and `0`, which had blocked filtering by user-created categories.
+- `SetBatchSslCertificateToSiteApi` validates the `BatchInfo` parameter it sends, so a payload
+  set through `addParam("BatchInfo", ...)` is accepted.
+
 ## [0.2.0] - 2026-10-03
 
 Every SDK action was checked against the requests the BTPanel 9.0 web UI actually sends, and the

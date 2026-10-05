@@ -45,6 +45,16 @@ public interface BtApi<T> {
    */
   T parseResponse(String response);
 
+  /**
+   * 在发送请求前校验请求参数。
+   *
+   * <p>客户端在构建 HTTP 请求之前调用此方法；抛出异常时请求不会发出。默认实现不做任何校验。
+   *
+   * @throws BtApiException 当请求参数无效时抛出
+   * @since 0.2.0
+   */
+  default void validate() {}
+
   /** HTTP请求方法枚举 */
   enum HttpMethod {
     GET,

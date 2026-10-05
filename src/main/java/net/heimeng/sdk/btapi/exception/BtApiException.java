@@ -10,6 +10,13 @@ package net.heimeng.sdk.btapi.exception;
  */
 public class BtApiException extends BtSdkException {
 
+  /**
+   * 请求参数校验失败时使用的错误代码。带此错误代码的异常表示请求未发送到面板。
+   *
+   * @since 0.2.0
+   */
+  public static final String INVALID_PARAMETERS = "INVALID_PARAMETERS";
+
   /** HTTP状态码 */
   private final Integer statusCode;
 

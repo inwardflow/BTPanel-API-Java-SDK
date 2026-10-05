@@ -91,7 +91,10 @@ public class SetBatchSslCertificateToSiteApi extends BaseBtApi<BtResult<SslBatch
 
   @Override
   protected boolean validateParams() {
-    return !batchRequests.isEmpty();
+    Object batchInfo = params.get("BatchInfo");
+    return batchInfo instanceof String stringValue
+        && !stringValue.isBlank()
+        && !"[]".equals(stringValue);
   }
 
   private void syncBatchInfoParam() {
