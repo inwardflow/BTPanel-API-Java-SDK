@@ -70,5 +70,6 @@ For lower-level access, you can still execute raw `BtApi<T>` requests:
 ```java
 import net.heimeng.sdk.btapi.api.website.GetWebsitePhpVersionApi;
 
-String phpVersion = apiManager.execute(new GetWebsitePhpVersionApi().setId(1)).getData();
+String phpVersion =
+    apiManager.execute(new GetWebsitePhpVersionApi().setSiteName("example.com")).getData();
 ```
