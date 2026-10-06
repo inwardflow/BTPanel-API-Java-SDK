@@ -27,7 +27,7 @@
 - 或者从发布 tag 构建并安装到本地 Maven 仓库：
 
   ```bash
-  git clone --branch v0.1.0 https://github.com/inwardflow/BTPanel-API-Java-SDK.git
+  git clone --branch v0.2.0 https://github.com/inwardflow/BTPanel-API-Java-SDK.git
   cd BTPanel-API-Java-SDK
   ./mvnw install -DskipTests
   ```
@@ -38,7 +38,7 @@
   <dependency>
     <groupId>net.heimeng</groupId>
     <artifactId>btpanel-api-java-sdk</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
   </dependency>
   ```
 

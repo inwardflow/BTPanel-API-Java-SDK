@@ -28,7 +28,7 @@ Requires Java 17 or later. The SDK is not published to Maven Central yet. Use on
 - Or install it into your local Maven repository from a release tag:
 
   ```bash
-  git clone --branch v0.1.0 https://github.com/inwardflow/BTPanel-API-Java-SDK.git
+  git clone --branch v0.2.0 https://github.com/inwardflow/BTPanel-API-Java-SDK.git
   cd BTPanel-API-Java-SDK
   ./mvnw install -DskipTests
   ```
@@ -39,7 +39,7 @@ Requires Java 17 or later. The SDK is not published to Maven Central yet. Use on
   <dependency>
     <groupId>net.heimeng</groupId>
     <artifactId>btpanel-api-java-sdk</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
   </dependency>
   ```
 
