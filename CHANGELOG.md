@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-03
+
 Every SDK action was checked against the requests the BTPanel 9.0 web UI actually sends, and the
 corrected endpoints were verified live through the developer API (all 35 integration tests pass). See
 `docs/openapi/live-validation-matrix.md` for the evidence behind each entry.
@@ -168,5 +170,6 @@ First tagged release of the redesigned SDK. The public API may still change befo
 - File and directory deletion rejects relative paths, `..` segments, control characters, and
   system or panel directories such as `/`, `/etc`, and `/www/wwwroot` before sending the request.
 
-[Unreleased]: https://github.com/inwardflow/BTPanel-API-Java-SDK/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/inwardflow/BTPanel-API-Java-SDK/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/inwardflow/BTPanel-API-Java-SDK/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/inwardflow/BTPanel-API-Java-SDK/releases/tag/v0.1.0
