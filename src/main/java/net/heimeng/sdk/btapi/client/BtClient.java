@@ -20,19 +20,24 @@ public interface BtClient extends AutoCloseable {
   /**
    * 执行同步API请求
    *
+   * <p>发送请求前会调用 {@link BtApi#validate()}；参数无效时直接抛出异常，不发送请求。
+   *
    * @param <T> API返回数据类型
    * @param api API接口实例
    * @return API返回结果
-   * @throws BtApiException 当API调用失败时抛出
+   * @throws BtApiException 当参数校验失败（错误代码 {@link BtApiException#INVALID_PARAMETERS}）或API调用失败时抛出
    */
   <T> T execute(BtApi<T> api);
 
   /**
    * 执行异步API请求
    *
+   * <p>发送请求前会调用 {@link BtApi#validate()}；参数无效时在调用线程同步抛出异常，而不是返回失败的 {@link CompletableFuture}。
+   *
    * @param <T> API返回数据类型
    * @param api API接口实例
    * @return 包含API返回结果的CompletableFuture
+   * @throws BtApiException 当参数校验失败时抛出，错误代码为 {@link BtApiException#INVALID_PARAMETERS}
    */
   <T> CompletableFuture<T> executeAsync(BtApi<T> api);
 

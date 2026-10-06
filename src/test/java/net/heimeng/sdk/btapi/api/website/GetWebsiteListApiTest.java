@@ -40,12 +40,20 @@ class GetWebsiteListApiTest {
   }
 
   @Test
-  @DisplayName("缺少 limit 或参数非法时应校验失败")
+  @DisplayName("参数非法时应校验失败")
   void rejectsInvalidParams() {
-    assertFalse(invokeValidate(new GetWebsiteListApi().setPage(1)));
     assertFalse(invokeValidate(new GetWebsiteListApi().setLimit(0)));
     assertFalse(invokeValidate(new GetWebsiteListApi().setLimit(10).setPage(0)));
-    assertFalse(invokeValidate(new GetWebsiteListApi().setLimit(10).setType(1)));
+    assertFalse(invokeValidate(new GetWebsiteListApi().setLimit(10).setType(-2)));
+  }
+
+  @Test
+  @DisplayName("所有参数可选，type 接受自定义分类 ID")
+  void acceptsOptionalParamsAndCustomTypes() {
+    assertTrue(invokeValidate(new GetWebsiteListApi()));
+    assertTrue(invokeValidate(new GetWebsiteListApi().setPage(1)));
+    assertTrue(invokeValidate(new GetWebsiteListApi().setLimit(10).setType(0)));
+    assertTrue(invokeValidate(new GetWebsiteListApi().setLimit(10).setType(3)));
   }
 
   @Test

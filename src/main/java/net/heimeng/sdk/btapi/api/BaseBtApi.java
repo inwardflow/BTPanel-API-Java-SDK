@@ -2,9 +2,12 @@ package net.heimeng.sdk.btapi.api;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+
+import net.heimeng.sdk.btapi.exception.BtApiException;
 
 import lombok.Getter;
 
@@ -101,7 +104,33 @@ public abstract class BaseBtApi<T> implements BtApi<T> {
   }
 
   /**
-   * 验证请求参数是否有效
+   * 校验请求参数，无效时抛出异常。客户端在发送请求前调用此方法。
+   *
+   * <p>具体规则由 {@link #validateParams()} 决定。异常消息包含 API 类名、端点和已设置的参数名（不含参数值）。
+   *
+   * @throws BtApiException 当 {@link #validateParams()} 返回 {@code false} 时抛出，错误代码为 {@link
+   *     BtApiException#INVALID_PARAMETERS}
+   */
+  @Override
+  public void validate() {
+    if (!validateParams()) {
+      String apiName = getClass().getSimpleName();
+      if (apiName.isEmpty()) {
+        apiName = getClass().getName();
+      }
+      throw new BtApiException(
+          "Invalid or missing parameters for "
+              + apiName
+              + " ("
+              + endpoint
+              + "); request was not sent. Parameters set: "
+              + new TreeSet<>(params.keySet()),
+          BtApiException.INVALID_PARAMETERS);
+    }
+  }
+
+  /**
+   * 验证请求参数是否有效。由 {@link #validate()} 在发送请求前调用。
    *
    * @return 如果请求参数有效则返回true，否则返回false
    */
