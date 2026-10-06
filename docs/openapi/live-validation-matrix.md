@@ -99,7 +99,7 @@ Status legend:
 | `files?action=CopyFile` | `CopyFileApi`, `copy` | UI bundle `{sfile, dfile}` | 🔧 Fixed (new) | Previously `MoveFile` with `type=copy`. |
 | `files?action=Zip` | `CompressFileApi`, `compressTo` | UI capture `{path=<dir>/, sfile, dfile, z_type}` | 🔧 Fixed | Was `files?action=Compress {path, filename, format}`. |
 | `files?action=UnZip` | `UncompressFileApi`, `uncompress` | UI capture `{sfile, dfile, type, coding, password, power}` | 🔧 Fixed | Was `files?action=UnCompress {path, target}`. The UI sends `type=zip` for `.tar.gz` too. |
-| `files?action=GetDirNew` | — | UI capture `{path, p, showRow, sort, reverse}` | — | Directory listing used by the 9.0 UI; the SDK has no listing API yet. |
+| `files?action=GetDirNew` | `GetDirectoryListingApi`, `list` | UI capture `{path, p, showRow, sort, reverse}` + live | 🔧 Fixed (new) | Response has no `status`: `{path, dir[], files[], page}`; entries use `nm, sz, mt, acc, user, lnk, rmk, fav, top`. Directories and files are paged together, directories first; `page` is an HTML fragment. A missing path lists `/www/wwwroot` and a file path lists its parent, so the SDK fails when the returned `path` differs from the request. `files?action=GetDir` returns empty lists on 9.0. |
 
 ## Database (`database`)
 

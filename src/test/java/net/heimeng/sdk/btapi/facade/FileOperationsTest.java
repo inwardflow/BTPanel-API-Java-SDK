@@ -1,6 +1,8 @@
 package net.heimeng.sdk.btapi.facade;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -20,6 +22,7 @@ import net.heimeng.sdk.btapi.api.file.CreateFileApi;
 import net.heimeng.sdk.btapi.api.file.CreateFileDirectoryApi;
 import net.heimeng.sdk.btapi.api.file.DeleteFileApi;
 import net.heimeng.sdk.btapi.api.file.DeleteFileDirectoryApi;
+import net.heimeng.sdk.btapi.api.file.GetDirectoryListingApi;
 import net.heimeng.sdk.btapi.api.file.GetFileContentApi;
 import net.heimeng.sdk.btapi.api.file.MoveFileApi;
 import net.heimeng.sdk.btapi.api.file.RenameFileApi;
@@ -27,12 +30,62 @@ import net.heimeng.sdk.btapi.api.file.SaveFileContentApi;
 import net.heimeng.sdk.btapi.api.file.UncompressFileApi;
 import net.heimeng.sdk.btapi.client.BtClient;
 import net.heimeng.sdk.btapi.model.BtResult;
+import net.heimeng.sdk.btapi.model.file.DirectoryListing;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FileOperations 门面测试")
 class FileOperationsTest {
 
   @Mock private BtClient client;
+
+  @Test
+  @DisplayName("列出目录应以 UI 默认参数委托到 GetDirNew")
+  void listDelegatesWithUiDefaults() {
+    FileOperations operations = new FileOperations(client);
+    BtResult<DirectoryListing> response = new BtResult<>();
+    response.setStatus(true);
+    response.setData(new DirectoryListing());
+    when(client.execute(any(GetDirectoryListingApi.class))).thenReturn(response);
+
+    BtResult<DirectoryListing> result = operations.list("/www/wwwroot/site/");
+
+    assertSame(response, result);
+    verify(client)
+        .execute(
+            argThat(
+                (GetDirectoryListingApi api) ->
+                    "files?action=GetDirNew".equals(api.getEndpoint())
+                        && "/www/wwwroot/site".equals(api.getParams().get("path"))
+                        && "1".equals(api.getParams().get("p"))
+                        && "500".equals(api.getParams().get("showRow"))));
+  }
+
+  @Test
+  @DisplayName("分页列出目录应传递页码和每页条目数")
+  void listWithPagingDelegatesToClient() {
+    FileOperations operations = new FileOperations(client);
+    BtResult<DirectoryListing> response = new BtResult<>();
+    response.setStatus(true);
+    when(client.execute(any(GetDirectoryListingApi.class))).thenReturn(response);
+
+    operations.list("/www/wwwroot", 2, 50);
+
+    verify(client)
+        .execute(
+            argThat(
+                (GetDirectoryListingApi api) ->
+                    "2".equals(api.getParams().get("p"))
+                        && "50".equals(api.getParams().get("showRow"))));
+  }
+
+  @Test
+  @DisplayName("列出目录时不安全的路径不应发出请求")
+  void listRejectsUnsafePathBeforeSending() {
+    FileOperations operations = new FileOperations(client);
+
+    assertThrows(IllegalArgumentException.class, () -> operations.list("/www/../etc"));
+    verify(client, never()).execute(any(GetDirectoryListingApi.class));
+  }
 
   @Test
   @DisplayName("读取文件内容应委托到底层客户端")

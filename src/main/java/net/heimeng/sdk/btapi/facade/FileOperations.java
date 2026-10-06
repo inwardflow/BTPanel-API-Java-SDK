@@ -6,6 +6,7 @@ import net.heimeng.sdk.btapi.api.file.CreateFileApi;
 import net.heimeng.sdk.btapi.api.file.CreateFileDirectoryApi;
 import net.heimeng.sdk.btapi.api.file.DeleteFileApi;
 import net.heimeng.sdk.btapi.api.file.DeleteFileDirectoryApi;
+import net.heimeng.sdk.btapi.api.file.GetDirectoryListingApi;
 import net.heimeng.sdk.btapi.api.file.GetFileContentApi;
 import net.heimeng.sdk.btapi.api.file.MoveFileApi;
 import net.heimeng.sdk.btapi.api.file.RenameFileApi;
@@ -13,16 +14,47 @@ import net.heimeng.sdk.btapi.api.file.SaveFileContentApi;
 import net.heimeng.sdk.btapi.api.file.UncompressFileApi;
 import net.heimeng.sdk.btapi.client.BtClient;
 import net.heimeng.sdk.btapi.model.BtResult;
+import net.heimeng.sdk.btapi.model.file.DirectoryListing;
 
 /**
  * 文件相关能力的门面入口。
  *
- * <p>对常见的文件读写、目录创建、移动重命名以及压缩解压操作提供更直接的调用方式。
+ * <p>对常见的目录列表、文件读写、目录创建、移动重命名以及压缩解压操作提供更直接的调用方式。
  */
 public final class FileOperations extends AbstractOperations {
 
   public FileOperations(BtClient client) {
     super(client);
+  }
+
+  /**
+   * 列出目录内容的第一页（{@code files?action=GetDirNew}），每页 {@value GetDirectoryListingApi#DEFAULT_ROWS} 条，
+   * 排序与面板 UI 默认一致。
+   *
+   * <p>面板在路径不存在或不是目录时会返回另一个目录的列表；SDK 检测到这种情况时抛出 {@link
+   * net.heimeng.sdk.btapi.exception.BtApiException}，而不是返回错误的目录。
+   *
+   * @param path 目录的绝对路径
+   * @return 目录列表，目录在前、文件在后；条目超过一页时用 {@link DirectoryListing#hasNextPage()} 判断并调用 {@link
+   *     #list(String, int, int)} 翻页
+   * @throws IllegalArgumentException 路径不是安全的绝对路径
+   */
+  public BtResult<DirectoryListing> list(String path) {
+    return execute(new GetDirectoryListingApi().setPath(path));
+  }
+
+  /**
+   * 分页列出目录内容（{@code files?action=GetDirNew}）。面板把目录和文件合并分页，目录排在前面。
+   *
+   * @param path 目录的绝对路径
+   * @param page 页码，从 1 开始
+   * @param rows 每页条目数（目录和文件合计）
+   * @return 目录列表的一页
+   * @throws IllegalArgumentException 路径不安全，或页码、条目数小于 1
+   * @see #list(String)
+   */
+  public BtResult<DirectoryListing> list(String path, int page, int rows) {
+    return execute(new GetDirectoryListingApi().setPath(path).setPage(page).setRows(rows));
   }
 
   public BtResult<String> getContent(String path) {
